@@ -1,6 +1,6 @@
 {
   "name": "mcp-infra-lens",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "packageManager": "pnpm@11.3.0",
   "mcpName": "io.github.oaslananka/mcp-infra-lens",
   "description": "MCP server that connects to Linux servers over SSH, collects live metrics, builds statistical baselines, detects anomalies with z-score analysis, and explains infrastructure health in plain English",
