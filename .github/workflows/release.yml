@@ -83,6 +83,7 @@ jobs:
           pnpm run lint
           pnpm run test:coverage
           pnpm run build
+          pnpm run check:licenses
 
       - name: Metadata check
         run: pnpm run check:metadata

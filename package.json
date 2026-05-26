@@ -34,7 +34,10 @@
     "CHANGELOG.md",
     "mcp.json",
     "server.json",
-    "docs"
+    "docs",
+    "LICENSES",
+    "REUSE.toml",
+    "license-policy.json"
   ],
   "scripts": {
     "build": "node --eval \"require('node:fs').rmSync('dist',{ recursive: true, force: true })\" && tsc -p tsconfig.json",
@@ -50,8 +53,9 @@
     "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --testPathPatterns=integration",
     "test:e2e": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --testPathPatterns=e2e",
     "test:ci": "pnpm run test:coverage",
-    "security": "pnpm audit --audit-level moderate",
+    "security": "pnpm audit --audit-level moderate && pnpm run check:licenses",
     "check:metadata": "node scripts/check-metadata.mjs",
+    "check:licenses": "node scripts/check-licenses.mjs",
     "docs:api": "typedoc --options typedoc.json",
     "docs:api:check": "pnpm run docs:api && node scripts/check-api-docs.mjs",
     "sbom": "node scripts/generate-sbom.mjs",

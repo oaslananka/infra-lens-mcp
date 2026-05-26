@@ -60,6 +60,9 @@ jobs:
       - name: Dependency audit
         run: pnpm audit --audit-level moderate
 
+      - name: License and SPDX policy
+        run: pnpm run check:licenses
+
       - name: Filesystem scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:

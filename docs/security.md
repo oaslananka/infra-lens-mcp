@@ -37,3 +37,14 @@ Errors are returned as sanitized JSON without stack traces.
 ## MCP connector readiness
 
 HTTP is available for local and controlled deployments, but public connector publication is not marked ready because this package does not implement production OAuth token validation. Public deployments should terminate OAuth and HTTPS in a gateway or reverse proxy before forwarding to this server.
+
+## License and SPDX standards
+
+Run `pnpm run check:licenses` before changing license metadata, dependency manifests, release packaging, or CI security gates. The check verifies:
+
+- `package.json` declares the repository license.
+- `REUSE.toml` provides project-level SPDX metadata for tracked files.
+- `LICENSES/MIT.txt` and `LICENSE` contain the MIT license text.
+- Installed dependency licenses reported by `pnpm licenses list --json --long` match `license-policy.json`.
+
+When adding a new file, keep it covered by `REUSE.toml` or add file-specific SPDX metadata if it uses a different license. When adding a dependency, run `pnpm run check:licenses`; if the dependency introduces a new license expression, either choose a dependency with an already-approved license or update `license-policy.json` with a review note in the pull request.
