@@ -3,8 +3,8 @@
 ## Development setup
 
 ```bash
-git clone https://github.com/oaslananka/mcp-infra-lens.git
-cd mcp-infra-lens
+git clone https://github.com/oaslananka/infra-lens-mcp.git
+cd infra-lens-mcp
 corepack enable
 corepack prepare pnpm@11.3.0 --activate
 pnpm install --frozen-lockfile
@@ -20,6 +20,20 @@ Use Node.js 24 LTS for local development when possible. The package keeps `engin
 2. Keep changes focused and covered by tests.
 3. Run the relevant checks before pushing.
 4. Open a pull request with a clear technical description and no secret values.
+
+`main` is protected. Pull requests must be current with `main`, use linear history, resolve review conversations, and pass these required checks before merge:
+
+- `Quick Gates`
+- `Full Gates Node 22`
+- `Full Gates Node 24`
+- `Docker Build Smoke`
+- `Static Security`
+- `Container Security`
+- `OSSF Scorecard`
+- `Analyze JavaScript and TypeScript`
+- `Review Thread Gate`
+
+Approvals are not required while this repository has a single active maintainer; enable at least one required approval when another maintainer can review without blocking releases.
 
 Use Conventional Commits in imperative mood:
 
