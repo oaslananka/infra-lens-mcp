@@ -2,6 +2,8 @@
 
 ## Component map
 
+Architecture decision records live in [docs/adr](./adr/README.md).
+
 ```text
 MCP client
   | stdio or Streamable HTTP
