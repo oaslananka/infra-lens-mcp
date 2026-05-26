@@ -52,6 +52,7 @@
     "test:ci": "pnpm run test:coverage",
     "security": "pnpm audit --audit-level moderate",
     "check:metadata": "node scripts/check-metadata.mjs",
+    "sbom": "node scripts/generate-sbom.mjs",
     "package:dry-run": "pnpm run build && npm pack --dry-run",
     "release:dry-run": "node scripts/release-state.mjs --dry-run",
     "prepare": "pnpm run build"
