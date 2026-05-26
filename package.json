@@ -52,6 +52,7 @@
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --coverage --testPathPatterns=\"(unit|integration)\"",
     "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --testPathPatterns=integration",
     "test:e2e": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --testPathPatterns=e2e",
+    "test:perf": "node scripts/check-performance.mjs",
     "test:ci": "pnpm run test:coverage",
     "security": "pnpm audit --audit-level moderate && pnpm run check:licenses",
     "check:metadata": "node scripts/check-metadata.mjs",

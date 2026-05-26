@@ -50,6 +50,9 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: Performance regression gate
+        run: pnpm run test:perf
+
       - name: API docs drift check
         run: pnpm run docs:api:check
 
