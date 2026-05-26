@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const OUTPUT_PATH = process.argv[2];
+const OUTPUT_PATH = process.argv.slice(2).filter((argument) => argument !== '--')[0];
 const TOOL_NAME = 'infra-lens-sbom-generator';
 const CYCLONEDX_SCHEMA = 'http://cyclonedx.org/schema/bom-1.6.schema.json';
 
@@ -19,6 +19,10 @@ function readJson(path) {
 function packageRef(name, version) {
   const encodedName = name.split('/').map(encodeURIComponent).join('/');
   return `pkg:npm/${encodedName}@${encodeURIComponent(version)}`;
+}
+
+function quoteCmdArg(value) {
+  return /^[A-Za-z0-9@._:/\\=-]+$/.test(value) ? value : `"${value.replace(/"/g, '""')}"`;
 }
 
 function createComponent(name, dependency) {
@@ -66,7 +70,14 @@ function resolvePnpmCommand(args) {
     return { command: process.execPath, args: [process.env.npm_execpath, ...args] };
   }
 
-  return { command: process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', args };
+  if (process.platform === 'win32') {
+    return {
+      command: process.env.ComSpec ?? 'cmd.exe',
+      args: ['/d', '/s', '/c', ['pnpm', ...args].map(quoteCmdArg).join(' ')]
+    };
+  }
+
+  return { command: 'pnpm', args };
 }
 
 function readProductionTree(packageJson) {

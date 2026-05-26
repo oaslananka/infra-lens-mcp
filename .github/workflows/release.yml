@@ -96,7 +96,7 @@ jobs:
           echo "tarball=${TARBALL}" >> "$GITHUB_OUTPUT"
 
       - name: Generate SBOM
-        run: pnpm run sbom -- "mcp-infra-lens-${{ needs.release-please.outputs.version }}.cdx.json"
+        run: node scripts/generate-sbom.mjs "mcp-infra-lens-${{ needs.release-please.outputs.version }}.cdx.json"
 
       - name: Generate SHA256 checksum
         env:
