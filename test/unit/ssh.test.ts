@@ -105,6 +105,19 @@ describe('ssh helpers', () => {
     expect(config.hostVerifier?.(Buffer.from('other-host-key'))).toBe(false);
   });
 
+  it('normalizes padded pinned SHA256 host keys in linear time', () => {
+    const key = Buffer.from('test-host-key');
+    const paddedFingerprint = `sha256:V/wGqHTHSNb4BFrleEaT0jG2C+WQ+j9+BcxG9WeR+6I${'='.repeat(4096)}`;
+    const config = createConnectConfig({
+      host: 'db.internal',
+      port: 22,
+      username: 'ops',
+      hostKeySha256: paddedFingerprint
+    });
+
+    expect(config.hostVerifier?.(key)).toBe(true);
+  });
+
   it('rejects unknown hosts in strict mode when no matching known host or pin exists', () => {
     const config = createConnectConfig({
       host: 'db.internal',

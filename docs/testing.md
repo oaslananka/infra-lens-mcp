@@ -7,7 +7,7 @@ Use Node.js 24 LTS for development and release parity:
 ```bash
 node --version
 corepack enable
-corepack prepare pnpm@11.0.9 --activate
+corepack prepare pnpm@11.3.0 --activate
 pnpm --version
 ```
 

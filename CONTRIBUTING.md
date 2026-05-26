@@ -6,7 +6,7 @@
 git clone https://github.com/oaslananka/mcp-infra-lens.git
 cd mcp-infra-lens
 corepack enable
-corepack prepare pnpm@11.0.9 --activate
+corepack prepare pnpm@11.3.0 --activate
 pnpm install --frozen-lockfile
 pnpm run build
 pnpm test

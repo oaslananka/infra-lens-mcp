@@ -7,16 +7,7 @@ module.exports = {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
   },
-  reporters: [
-    'default',
-    [
-      'jest-junit',
-      {
-        outputDirectory: 'coverage/test-results',
-        outputName: 'junit.xml'
-      }
-    ]
-  ],
+  reporters: ['default'],
   collectCoverageFrom: ['src/**/*.ts', '!src/mcp.ts', '!src/server-http.ts'],
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text', 'lcov', 'html', 'cobertura'],

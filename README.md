@@ -28,7 +28,7 @@ Explain Linux incidents over SSH with baseline-aware MCP tooling.
 
 - Node.js 24 LTS for CI, Docker, and release workflows
 - Node.js 22 or newer for package runtime compatibility
-- pnpm 11.0.9 through Corepack for development installs
+- pnpm 11.3.0 through Corepack for development installs
 - Linux SSH targets with `/proc`, `free`, `df`, `ps`, and `uname`
 - Strict SSH host verification through `known_hosts` or pinned SHA256 host keys
 
@@ -60,7 +60,7 @@ Local development:
 
 ```bash
 corepack enable
-corepack prepare pnpm@11.0.9 --activate
+corepack prepare pnpm@11.3.0 --activate
 pnpm install --frozen-lockfile
 pnpm run build
 node dist/mcp.js

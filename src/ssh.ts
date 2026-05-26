@@ -9,6 +9,8 @@ import { createLogger } from './logging.js';
 import type { ConnectionInput, RuntimeProfile } from './types.js';
 
 const logger = createLogger('ssh');
+const SHA256_FINGERPRINT_PREFIX = 'SHA256:';
+const BASE64_PADDING_CHARACTER = '=';
 let hasWarnedAboutPermissiveHostVerification = false;
 
 export interface CommandResult {
@@ -171,14 +173,25 @@ function expandHomePath(filePath: string): string {
 }
 
 function normalizeFingerprint(fingerprint: string): string {
-  return fingerprint
-    .trim()
-    .replace(/^SHA256:/i, '')
-    .replace(/=+$/, '');
+  const trimmed = fingerprint.trim();
+  const withoutPrefix = trimmed.toLowerCase().startsWith(SHA256_FINGERPRINT_PREFIX.toLowerCase())
+    ? trimmed.slice(SHA256_FINGERPRINT_PREFIX.length)
+    : trimmed;
+
+  return stripTrailingBase64Padding(withoutPrefix);
 }
 
 function fingerprintHostKey(key: Buffer): string {
-  return createHash('sha256').update(key).digest('base64').replace(/=+$/, '');
+  return stripTrailingBase64Padding(createHash('sha256').update(key).digest('base64'));
+}
+
+function stripTrailingBase64Padding(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === BASE64_PADDING_CHARACTER) {
+    end -= 1;
+  }
+
+  return end === value.length ? value : value.slice(0, end);
 }
 
 function safeEquals(left: string, right: string): boolean {

@@ -2,3 +2,7 @@ allowBuilds:
   better-sqlite3: true
   cpu-features: true
   ssh2: true
+  unrs-resolver: true
+overrides:
+  qs: 6.15.2
+  test-exclude: 8.0.0
