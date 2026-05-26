@@ -1,0 +1,9 @@
+{
+  "maxPackageSizeBytes": 350000,
+  "maxUnpackedSizeBytes": 600000,
+  "maxFileCount": 150,
+  "notes": [
+    "Budgets are based on the npm tarball generated from version 1.0.6 plus headroom for docs and generated API references.",
+    "Run pnpm run build before pnpm run check:package-size so dist reflects the current source."
+  ]
+}

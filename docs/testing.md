@@ -20,6 +20,7 @@ pnpm install --frozen-lockfile
 pnpm run format:check
 pnpm run lint
 pnpm run typecheck
+pnpm run check:dead-code
 pnpm test
 pnpm run test:integration
 pnpm run test:coverage
@@ -27,12 +28,19 @@ pnpm run build
 pnpm run test:perf
 pnpm run docs:api:check
 CHECK_METADATA_REQUIRE_DIST=true pnpm run check:metadata
+pnpm run check:package-size
 pnpm audit --audit-level moderate
 npm pack --dry-run
 pnpm run release:dry-run
 ```
 
 `task ci` runs the same effective local gates when Task is installed.
+
+## Dead code and package size
+
+`pnpm run check:dead-code` uses Knip to report unused TypeScript files, exports, and exported types across `src`, `test`, and `scripts`. `knip.json` intentionally treats test files and repository scripts as entry points because they are invoked by package scripts, CI workflows, and release tooling rather than by application imports.
+
+`pnpm run check:package-size` reads `package-size-policy.json` and validates the packed npm artifact from `npm pack --dry-run --json --ignore-scripts`. Run `pnpm run build` first. The budget intentionally includes generated `dist`, generated API docs, and `docs/demo.gif`; raise the budget only with release-note evidence explaining why the public package must grow.
 
 ## Performance regression gate
 

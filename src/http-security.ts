@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-export type HttpAuthMode = 'none' | 'bearer' | 'oauth';
-export type HttpProfile = 'full' | 'remote-safe' | 'chatgpt' | 'claude';
+type HttpAuthMode = 'none' | 'bearer' | 'oauth';
+type HttpProfile = 'full' | 'remote-safe' | 'chatgpt' | 'claude';
 
 export interface HttpConfig {
   host: string;

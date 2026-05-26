@@ -37,7 +37,8 @@
     "docs",
     "LICENSES",
     "REUSE.toml",
-    "license-policy.json"
+    "license-policy.json",
+    "package-size-policy.json"
   ],
   "scripts": {
     "build": "node --eval \"require('node:fs').rmSync('dist',{ recursive: true, force: true })\" && tsc -p tsconfig.json",
@@ -55,6 +56,8 @@
     "test:perf": "node scripts/check-performance.mjs",
     "test:ci": "pnpm run test:coverage",
     "security": "pnpm audit --audit-level moderate && pnpm run check:licenses",
+    "check:dead-code": "knip --include files,exports,types",
+    "check:package-size": "node scripts/check-package-size.mjs",
     "check:metadata": "node scripts/check-metadata.mjs",
     "check:licenses": "node scripts/check-licenses.mjs",
     "docs:api": "typedoc --options typedoc.json",
@@ -108,6 +111,7 @@
     "eslint": "9.39.4",
     "globals": "17.4.0",
     "jest": "30.4.2",
+    "knip": "6.14.2",
     "prettier": "3.3.0",
     "ts-jest": "29.4.11",
     "ts-node": "10.9.2",

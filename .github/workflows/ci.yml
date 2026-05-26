@@ -44,6 +44,9 @@ jobs:
       - name: Lint and typecheck
         run: pnpm run lint
 
+      - name: Dead code check
+        run: pnpm run check:dead-code
+
       - name: Unit tests
         run: pnpm test
 
@@ -63,6 +66,9 @@ jobs:
 
       - name: Package dry run
         run: npm pack --dry-run
+
+      - name: Package size budget
+        run: pnpm run check:package-size
 
   full:
     name: Full Gates Node ${{ matrix.node-version }}
