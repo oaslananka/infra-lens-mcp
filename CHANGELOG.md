@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5](https://github.com/oaslananka/infra-lens-mcp/compare/mcp-infra-lens-v1.0.4...mcp-infra-lens-v1.0.5) (2026-05-26)
+
+
+### Bug Fixes
+
+* **release:** generate SBOM from pnpm graph ([0889538](https://github.com/oaslananka/infra-lens-mcp/commit/08895387239b12a741afca24f639a135851b7688))
+
 ## [1.0.4](https://github.com/oaslananka/infra-lens-mcp/compare/mcp-infra-lens-v1.0.3...mcp-infra-lens-v1.0.4) (2026-05-26)
 
 
