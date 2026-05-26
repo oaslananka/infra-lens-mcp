@@ -71,6 +71,10 @@ Changes to SSH authentication, host key verification, HTTP transport, redaction,
 
 Do not commit `.env` files, registry tokens, SSH private keys, prompt exports, chat transcripts, scratch files, local SBOM exports, tarballs, or generated build output.
 
+## Governance
+
+Follow [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md). Use [SUPPORT.md](./SUPPORT.md) for support channels and response expectations. Label taxonomy, triage, stale handling, and Discussions policy are documented in [docs/governance.md](./docs/governance.md).
+
 ## Release discipline
 
 Implementation PRs must not publish npm packages, containers, MCP Registry metadata, marketplace artifacts, or production GitHub Releases. Releases are created only by release-please after merge to `main`, followed by the protected `npm-production` release workflow.

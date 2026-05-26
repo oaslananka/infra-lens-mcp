@@ -2,7 +2,7 @@
 name: Bug report
 about: Report a reproducible problem in mcp-infra-lens
 title: "bug: "
-labels: bug
+labels: type:bug, priority:P2, risk:medium
 assignees: ""
 ---
 

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage questions and deployment help
+    url: https://github.com/oaslananka/infra-lens-mcp/discussions
+    about: Use GitHub Discussions for exploratory questions that are not ready as actionable work.
+  - name: Private security report
+    url: https://github.com/oaslananka/infra-lens-mcp/security/policy
+    about: Do not report vulnerabilities in public issues or discussions.

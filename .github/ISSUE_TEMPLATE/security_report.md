@@ -2,7 +2,7 @@
 name: Security report
 about: Private security reports should not be filed as public issues
 title: "security: "
-labels: security
+labels: type:security, area:security, priority:P0, risk:high
 assignees: ""
 ---
 
