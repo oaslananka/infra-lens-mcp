@@ -45,6 +45,53 @@ function run(command, args) {
   }
 }
 
+function normalizeRepositoryUrl(value) {
+  return String(value ?? '')
+    .replace(/^git\+/, '')
+    .replace(/\.git$/, '')
+    .replace(/\/$/, '');
+}
+
+function resolveGitHubRepository(value) {
+  const normalized = normalizeRepositoryUrl(value);
+  const sshMatch = normalized.match(/^git@github\.com:([^/]+)\/(.+)$/);
+  if (sshMatch) {
+    return `${sshMatch[1]}/${sshMatch[2]}`;
+  }
+
+  try {
+    const url = new URL(normalized);
+    const [owner, repo] = url.pathname.replace(/^\/|\/$/g, '').split('/');
+    return url.hostname === 'github.com' && owner && repo ? `${owner}/${repo}` : null;
+  } catch {
+    return null;
+  }
+}
+
+function listReleasePullRequests(repository) {
+  if (!repository) {
+    return { ok: false, prs: [], error: 'package repository is not a GitHub URL' };
+  }
+
+  const result = run('gh', ['api', `repos/${repository}/pulls?state=open&per_page=100`]);
+  if (!result.ok) {
+    return { ok: false, prs: [], error: result.stderr || result.stdout || 'gh api failed' };
+  }
+
+  const pulls = JSON.parse(result.stdout || '[]');
+  return {
+    ok: true,
+    prs: pulls
+      .filter((pull) => String(pull.head?.ref ?? '').startsWith('release-please'))
+      .map((pull) => ({
+        number: pull.number,
+        url: pull.html_url,
+        title: pull.title,
+        isDraft: pull.draft
+      }))
+  };
+}
+
 function inferState({ hasReleasePr, tagExists, releaseExists, npmExists }) {
   if (npmExists && releaseExists && tagExists) {
     return 'complete';
@@ -64,22 +111,14 @@ function inferState({ hasReleasePr, tagExists, releaseExists, npmExists }) {
 const packageJson = readJson('package.json');
 const serverJson = readJson('server.json');
 const version = packageJson.version;
-const tagName = `v${version}`;
+const tagName = `${packageJson.name}-v${version}`;
+const repository = resolveGitHubRepository(packageJson.repository?.url ?? packageJson.repository);
 const tagResult = run('git', ['tag', '--list', tagName]);
 const ghReleaseResult = run('gh', ['release', 'view', tagName, '--json', 'tagName,url,isDraft']);
 const npmResult = run('npm', ['view', `${packageJson.name}@${version}`, 'version']);
-const prResult = run('gh', [
-  'pr',
-  'list',
-  '--state',
-  'open',
-  '--search',
-  'head:release-please',
-  '--json',
-  'number,url,title,isDraft'
-]);
+const releasePrResult = listReleasePullRequests(repository);
 
-const releasePrs = prResult.ok && prResult.stdout ? JSON.parse(prResult.stdout) : [];
+const releasePrs = releasePrResult.prs;
 const tagExists = tagResult.ok && tagResult.stdout.split('\n').includes(tagName);
 const releaseExists = ghReleaseResult.ok && ghReleaseResult.stdout.length > 0;
 const npmExists = npmResult.ok && npmResult.stdout === version;
@@ -107,10 +146,15 @@ if (releaseExists) {
   blockers.push(`GitHub Release ${tagName} already exists`);
 }
 
+if (!releasePrResult.ok) {
+  blockers.push(`release PR lookup failed: ${releasePrResult.error}`);
+}
+
 const safeToPublish = blockers.length === 0 && state !== 'blocked';
 const result = {
   package: packageJson.name,
   version,
+  repository,
   state,
   safe_to_publish: safeToPublish,
   tag: { name: tagName, exists: tagExists },

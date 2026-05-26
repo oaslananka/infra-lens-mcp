@@ -2,8 +2,8 @@
   "name": "mcp-infra-lens",
   "version": "1.0.2",
   "description": "Connect to Linux servers over SSH. Collect live metrics, detect anomalies with z-score analysis against recorded baselines, and get plain-English explanations of what is wrong and why.",
-  "homepage": "https://github.com/oaslananka/mcp-infra-lens",
-  "repository": "https://github.com/oaslananka/mcp-infra-lens",
+  "homepage": "https://github.com/oaslananka/infra-lens-mcp",
+  "repository": "https://github.com/oaslananka/infra-lens-mcp",
   "license": "MIT",
   "tags": [
     "infrastructure",

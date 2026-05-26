@@ -9,6 +9,7 @@
 - `.github/workflows/release.yml`
 
 Version numbers come from Conventional Commits, SemVer, release-please, and the manifest. Do not create manual tags, manual GitHub Releases, or manual changelog release entries.
+Release tags use the release-please component format `mcp-infra-lens-vX.Y.Z`.
 
 ## Publishing
 
@@ -21,6 +22,7 @@ Implementation PRs must not publish:
 - production GitHub Releases
 
 Production npm publishing is allowed only from `.github/workflows/release.yml` after release-please reports `release_created == true`. The publish job runs in the `npm-production` environment and uses npm Trusted Publishing/OIDC. `NPM_TOKEN` is a fallback only if Trusted Publishing cannot be configured and must be loaded only inside the protected publish job.
+The package `repository.url` must exactly match this GitHub repository for npm Trusted Publishing validation.
 
 ## Release workflow
 
@@ -39,9 +41,10 @@ Production npm publishing is allowed only from `.github/workflows/release.yml` a
 
 Configure npm Trusted Publishing for package `mcp-infra-lens` with:
 
-- owner/repo: `oaslananka/mcp-infra-lens`
-- workflow: `.github/workflows/release.yml`
+- owner/repo: `oaslananka/infra-lens-mcp`
+- workflow filename: `release.yml`
 - environment: `npm-production`
+- allowed action: `npm publish`
 
 Configure the GitHub `npm-production` environment with required reviewers before production publishing.
 

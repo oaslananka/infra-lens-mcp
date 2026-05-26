@@ -3,7 +3,7 @@
   "name": "io.github.oaslananka/mcp-infra-lens",
   "description": "SSH Linux metrics, baselines, anomaly detection, and plain-English infrastructure explanations.",
   "repository": {
-    "url": "https://github.com/oaslananka/mcp-infra-lens",
+    "url": "https://github.com/oaslananka/infra-lens-mcp",
     "source": "github"
   },
   "version": "1.0.2",
