@@ -51,6 +51,7 @@ pnpm run lint
 pnpm test
 pnpm run test:coverage
 pnpm run build
+pnpm run docs:api:check
 pnpm run check:metadata
 pnpm run package:dry-run
 pnpm run release:dry-run

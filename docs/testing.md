@@ -24,6 +24,7 @@ pnpm test
 pnpm run test:integration
 pnpm run test:coverage
 pnpm run build
+pnpm run docs:api:check
 CHECK_METADATA_REQUIRE_DIST=true pnpm run check:metadata
 pnpm audit --audit-level moderate
 npm pack --dry-run

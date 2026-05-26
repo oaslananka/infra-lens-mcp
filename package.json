@@ -52,6 +52,8 @@
     "test:ci": "pnpm run test:coverage",
     "security": "pnpm audit --audit-level moderate",
     "check:metadata": "node scripts/check-metadata.mjs",
+    "docs:api": "typedoc --options typedoc.json",
+    "docs:api:check": "pnpm run docs:api && node scripts/check-api-docs.mjs",
     "sbom": "node scripts/generate-sbom.mjs",
     "package:dry-run": "pnpm run build && npm pack --dry-run",
     "release:dry-run": "node scripts/release-state.mjs --dry-run",
@@ -104,6 +106,8 @@
     "prettier": "3.3.0",
     "ts-jest": "29.4.11",
     "ts-node": "10.9.2",
+    "typedoc": "0.28.19",
+    "typedoc-plugin-markdown": "4.11.0",
     "typescript": "5.9.3"
   }
 }

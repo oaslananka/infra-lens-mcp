@@ -19,13 +19,16 @@ import {
   type SnapshotInput
 } from './types.js';
 
-type ToolContent = {
+/** Content returned from an MCP tool handler. */
+export type ToolContent = {
   content: Array<{ type: 'text'; text: string }>;
 };
 
-type ToolHandler<Input> = (input: Input) => Promise<ToolContent>;
+/** Async handler invoked for a registered MCP tool. */
+export type ToolHandler<Input> = (input: Input) => Promise<ToolContent>;
 
-type ToolConfig = {
+/** MCP tool registration metadata and input schema. */
+export type ToolConfig = {
   title: string;
   description: string;
   inputSchema: AnySchema;
@@ -36,13 +39,15 @@ type ToolConfig = {
   };
 };
 
-interface ToolDefinition<Input> {
+/** Complete MCP tool definition before registration with a server. */
+export interface ToolDefinition<Input> {
   name: string;
   config: ToolConfig;
   handler: ToolHandler<Input>;
 }
 
-type ToolDefinitionTuple = [
+/** Ordered tuple of the built-in infra lens MCP tools. */
+export type ToolDefinitionTuple = [
   ToolDefinition<AnalyzeInput>,
   ToolDefinition<SnapshotInput>,
   ToolDefinition<BaselineInput>,

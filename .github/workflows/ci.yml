@@ -50,6 +50,9 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: API docs drift check
+        run: pnpm run docs:api:check
+
       - name: MCP metadata check
         run: pnpm run check:metadata
         env:

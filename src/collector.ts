@@ -9,7 +9,8 @@ import type {
   ProcessMetric
 } from './types.js';
 
-interface RawMetricOutput {
+/** Raw command output collected from a target Linux host. */
+export interface RawMetricOutput {
   cpu: string;
   memory: string;
   disk: string;
@@ -18,6 +19,7 @@ interface RawMetricOutput {
   os: string;
 }
 
+/** Pluggable collector runner used by tests and SSH-backed collection. */
 export interface CollectorRunner {
   run(connection: ConnectionInput, options: CollectionOptions): Promise<RawMetricOutput>;
 }
