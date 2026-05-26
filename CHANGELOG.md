@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3](https://github.com/oaslananka/infra-lens-mcp/compare/mcp-infra-lens-v1.0.2...mcp-infra-lens-v1.0.3) (2026-05-26)
+
+
+### Bug Fixes
+
+* **packaging:** align npm metadata with repository ([fba380a](https://github.com/oaslananka/infra-lens-mcp/commit/fba380a0cc0618c788a3afbd5c34888a546f80d2))
+* **security:** clear dependency and code scanning alerts ([7c73371](https://github.com/oaslananka/infra-lens-mcp/commit/7c733712f8e7f27f25d370d69b562e2c6b0b87b9))
+
 ## [Unreleased]
 
 ### Added
