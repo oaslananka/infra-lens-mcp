@@ -15,9 +15,9 @@ CI also runs the main test matrix on Node.js 22 because `package.json` declares 
 
 ## CI host matrix
 
-CI keeps Linux as the primary required platform for full gates, Docker smoke tests, CodeQL, and security scans. The host compatibility job also runs on `windows-2025` and `macos-15` with Node.js 24 to catch native install, lint, unit test, build, metadata, and package dry-run regressions on non-Linux hosts.
+CI keeps Linux as the primary required platform for full gates, Docker smoke tests, SSH e2e tests, CodeQL, and security scans. The host compatibility job also runs on `windows-2025` and `macos-15` with Node.js 24 to catch native install, lint, unit test, build, metadata, and package dry-run regressions on non-Linux hosts.
 
-Docker-backed SSH e2e tests stay Linux-only because they require Docker Compose and a disposable Linux SSH fixture. Run those tests locally or in CI only where Docker is available.
+Docker-backed SSH e2e tests stay Linux-only because they require Docker Compose and a disposable Linux SSH fixture. The CI `SSH E2E` job starts the fixture with `docker compose -f docker-compose.test.yml up --detach --build`, runs `pnpm run test:e2e`, prints fixture logs for diagnostics, and removes containers and volumes with `docker compose ... down --volumes --remove-orphans`.
 
 ## Local checks
 
@@ -64,6 +64,14 @@ The thresholds are intentionally broad enough for CI variance and are meant to c
 Bring up the disposable SSH fixture:
 
 ```bash
+docker compose -f docker-compose.test.yml up -d --build
+pnpm run test:e2e
+docker compose -f docker-compose.test.yml down --volumes
+```
+
+Use the same sequence in Windows 11 PowerShell when Docker Desktop is running:
+
+```powershell
 docker compose -f docker-compose.test.yml up -d --build
 pnpm run test:e2e
 docker compose -f docker-compose.test.yml down --volumes
