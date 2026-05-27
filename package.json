@@ -94,7 +94,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
-    "better-sqlite3": "12.9.0",
+    "better-sqlite3": "12.10.0",
     "simple-statistics": "7.8.9",
     "ssh2": "1.17.0",
     "zod": "^3.25.76"
