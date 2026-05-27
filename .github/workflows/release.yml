@@ -48,7 +48,7 @@ jobs:
       attestations: write
     steps:
       - name: Checkout release tag
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
           persist-credentials: false
@@ -105,7 +105,7 @@ jobs:
         run: sha256sum "$TARBALL" "mcp-infra-lens-${{ needs.release-please.outputs.version }}.cdx.json" > "mcp-infra-lens-${{ needs.release-please.outputs.version }}.sha256"
 
       - name: Attest package artifact
-        uses: actions/attest-build-provenance@43d14bc2b83dec42d39ecae14e916627a18bb661
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a
         with:
           subject-path: ${{ steps.pack.outputs.tarball }}
 
