@@ -38,6 +38,16 @@ Errors are returned as sanitized JSON without stack traces.
 
 HTTP is available for local and controlled deployments, but public connector publication is not marked ready because this package does not implement production OAuth token validation. Public deployments should terminate OAuth and HTTPS in a gateway or reverse proxy before forwarding to this server.
 
+## GitHub Actions token permissions
+
+Workflow-level `permissions` default to `contents: read`. Jobs that need write access declare it at job scope only:
+
+- CodeQL declares `security-events: write` on the analysis job so SARIF upload can succeed without granting that write permission to the whole workflow.
+- `release-please` declares `contents: write`, `pull-requests: write`, and `issues: write` because it creates release commits, tags, release pull requests, and related issue updates.
+- The npm publish job declares `contents: write`, `id-token: write`, and `attestations: write` because it uploads release assets, requests npm trusted-publishing identity, and creates artifact attestations.
+
+Do not add workflow-level write permissions. If a future release job needs additional write access, document the API call or action input that requires it in this section and keep the permission scoped to that job.
+
 ## License and SPDX standards
 
 Run `pnpm run check:licenses` before changing license metadata, dependency manifests, release packaging, or CI security gates. The check verifies:
