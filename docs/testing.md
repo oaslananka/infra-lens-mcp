@@ -13,6 +13,12 @@ pnpm --version
 
 CI also runs the main test matrix on Node.js 22 because `package.json` declares `engines.node >=22`.
 
+## CI host matrix
+
+CI keeps Linux as the primary required platform for full gates, Docker smoke tests, CodeQL, and security scans. The host compatibility job also runs on `windows-2025` and `macos-15` with Node.js 24 to catch native install, lint, unit test, build, metadata, and package dry-run regressions on non-Linux hosts.
+
+Docker-backed SSH e2e tests stay Linux-only because they require Docker Compose and a disposable Linux SSH fixture. Run those tests locally or in CI only where Docker is available.
+
 ## Local checks
 
 ```bash
