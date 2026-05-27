@@ -1,0 +1,65 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Istanbul
+    open-pull-requests-limit: 5
+    labels:
+      - area:compatibility
+      - type:upgrade
+    commit-message:
+      prefix: deps
+    groups:
+      npm-production-patch-minor:
+        dependency-type: production
+        update-types:
+          - patch
+          - minor
+      npm-development-patch-minor:
+        dependency-type: development
+        update-types:
+          - patch
+          - minor
+      npm-major:
+        update-types:
+          - major
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:30'
+      timezone: Europe/Istanbul
+    open-pull-requests-limit: 3
+    labels:
+      - area:ci
+      - type:upgrade
+    commit-message:
+      prefix: deps
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '07:00'
+      timezone: Europe/Istanbul
+    open-pull-requests-limit: 3
+    labels:
+      - area:infra
+      - type:upgrade
+    commit-message:
+      prefix: deps
+    groups:
+      docker-base-images:
+        patterns:
+          - '*'

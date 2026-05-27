@@ -48,6 +48,12 @@ Workflows explicitly set workflow-level `permissions` to `contents: read`. Jobs 
 
 Do not add workflow-level write permissions. If a future release job needs additional write access, document the API call or action input that requires it in this section and keep the permission scoped to that job.
 
+## Dependency update policy
+
+Dependabot version updates run weekly for npm, GitHub Actions, and Docker base images. npm patch/minor updates are grouped by production versus development dependency type, while major npm updates are isolated so migrations such as TypeScript, ESLint, or Zod can be reviewed independently.
+
+Dependabot pull requests must pass the same required branch checks as maintainer-authored changes. If an update changes release behavior, package metadata, workflow permissions, or container base images, include the upstream changelog link and any new deprecation/security notes in the pull request.
+
 ## License and SPDX standards
 
 Run `pnpm run check:licenses` before changing license metadata, dependency manifests, release packaging, or CI security gates. The check verifies:
