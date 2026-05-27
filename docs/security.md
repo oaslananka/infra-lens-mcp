@@ -40,7 +40,7 @@ HTTP is available for local and controlled deployments, but public connector pub
 
 ## GitHub Actions token permissions
 
-Workflow-level `permissions` default to `contents: read`. Jobs that need write access declare it at job scope only:
+Workflows explicitly set workflow-level `permissions` to `contents: read`. Jobs that need write access declare it at job scope only:
 
 - CodeQL declares `security-events: write` on the analysis job so SARIF upload can succeed without granting that write permission to the whole workflow.
 - `release-please` declares `contents: write`, `pull-requests: write`, and `issues: write` because it creates release commits, tags, release pull requests, and related issue updates.
