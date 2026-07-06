@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "infra-lens-mcp": {
+      "command": "npx",
+      "args": ["infra-lens-mcp"],
+      "env": {
+        "INFRA_LENS_TRANSPORT": "stdio"
+      }
+    }
+  }
+}

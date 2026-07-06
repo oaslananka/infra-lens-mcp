@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "infra-lens-mcp": {
+      "type": "local",
+      "command": ["npx", "infra-lens-mcp"],
+      "enabled": true,
+      "environment": {
+        "INFRA_LENS_TRANSPORT": "stdio"
+      },
+      "timeout": 15000
+    }
+  },
+  "permission": {
+    "skill": {
+      "infrastructure-inspection": "allow",
+      "inventory-audit": "allow",
+      "baseline-drift-review": "allow"
+    }
+  }
+}

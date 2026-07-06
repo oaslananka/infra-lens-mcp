@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "infra-lens-mcp",
+  "version": "1.0.6",
+  "description": "Infra Lens MCP plugin for infrastructure visibility, host inventory, operational snapshots, baselines, and drift review.",
+  "author": {
+    "name": "oaslananka",
+    "url": "https://github.com/oaslananka"
+  },
+  "skills": [
+    "./skills/infrastructure-inspection",
+    "./skills/inventory-audit",
+    "./skills/baseline-drift-review"
+  ]
+}

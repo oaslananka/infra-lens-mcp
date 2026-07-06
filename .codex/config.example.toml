@@ -1,0 +1,9 @@
+# Example Codex MCP configuration for infra-lens-mcp.
+
+[[mcp_servers]]
+name = "infra-lens-mcp"
+command = "npx"
+args = ["infra-lens-mcp"]
+
+[mcp_servers.env]
+INFRA_LENS_TRANSPORT = "stdio"
