@@ -1,0 +1,108 @@
+name: Publish npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref, tag, or branch to publish from.
+        type: string
+        default: main
+      dry_run:
+        description: Validate and pack without publishing.
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-npm-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  publish:
+    name: Publish npm package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    environment: npm-production
+    permissions:
+      contents: read
+      id-token: write # required for npm trusted publishing
+      attestations: write # publish provenance for the packed package artifact
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
+          persist-credentials: false
+
+      - name: Prepare pnpm
+        run: |
+          set -euo pipefail
+          corepack enable
+          corepack prepare pnpm@11.3.0 --activate
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Read package metadata
+        id: pkg
+        run: |
+          set -euo pipefail
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          echo "name=${name}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify release version is unpublished
+        run: |
+          set -euo pipefail
+          if npm view "${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }}" version >/dev/null 2>&1; then
+            echo "${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }} already exists on npm" >&2
+            exit 1
+          fi
+
+      - name: Test and build
+        run: |
+          set -euo pipefail
+          pnpm run format:check
+          pnpm run lint
+          pnpm run test:coverage
+          pnpm run build
+          pnpm run check:licenses
+
+      - name: Metadata check
+        run: pnpm run check:metadata
+        env:
+          CHECK_METADATA_REQUIRE_DIST: 'true'
+
+      - name: Pack package
+        id: pack
+        run: |
+          set -euo pipefail
+          TARBALL="$(npm pack --json | node -e "let data=''; process.stdin.on('data', c => data += c); process.stdin.on('end', () => console.log(JSON.parse(data)[0].filename));")"
+          echo "tarball=${TARBALL}" >> "$GITHUB_OUTPUT"
+
+      - name: Attest package artifact
+        uses: actions/attest-build-provenance@43d14bc2b83dec42d39ecae14e916627a18bb661 # v3.0.1
+        with:
+          subject-path: ${{ steps.pack.outputs.tarball }}
+      - name: Publish package
+        if: ${{ github.event_name == 'release' || inputs.dry_run != true }}
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          NPM_COMMAND: publish
+        run: npm "$NPM_COMMAND" "$TARBALL" --access public
