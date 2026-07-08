@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.0.6...infra-lens-mcp-v1.1.0) (2026-07-08)
+
+
+### Features
+
+* add collector capability inspection ([e1d3dac](https://github.com/oaslananka/infra-lens-mcp/commit/e1d3dacb134a30aba2816c43c689cf221e236ec7))
+* add SSH production policy controls ([fea2387](https://github.com/oaslananka/infra-lens-mcp/commit/fea2387e7cc7ada2e14f51f066f095fa2933f0e4))
+* add structured MCP tool outputs ([0efbbe2](https://github.com/oaslananka/infra-lens-mcp/commit/0efbbe20c06962c3923e30461a4707913fdfce31))
+* document OAuth gateway strategy ([1b98380](https://github.com/oaslananka/infra-lens-mcp/commit/1b9838049b2b6198d63f2bb4038fd1c979f85972))
+* expand linux diagnostic signals ([3964f9f](https://github.com/oaslananka/infra-lens-mcp/commit/3964f9fb270ea64074ff9947cb517a55e61b88f3))
+* harden HTTP request handling ([2f92d79](https://github.com/oaslananka/infra-lens-mcp/commit/2f92d799382a7390e342e3a57f0a43aaa1e927ec))
+* improve anomaly analysis ([be6f9c5](https://github.com/oaslananka/infra-lens-mcp/commit/be6f9c5ed07561d6b29f6c917232af0111a1a932))
+
+
+### Bug Fixes
+
+* align HTTP endpoint guards with MCP spec ([fb2e723](https://github.com/oaslananka/infra-lens-mcp/commit/fb2e723e0f4a19665dc07e566aa1b9f403d36fcd))
+* align package identity and publish readiness ([910f235](https://github.com/oaslananka/infra-lens-mcp/commit/910f235fcd8ffc7549e01bc5ff146da415db0432))
+* **packaging:** align npm metadata with repository ([fba380a](https://github.com/oaslananka/infra-lens-mcp/commit/fba380a0cc0618c788a3afbd5c34888a546f80d2))
+* **packaging:** sync release metadata versions ([8049836](https://github.com/oaslananka/infra-lens-mcp/commit/804983660e7cc6a790312809528dd8a146fdc04d))
+* **release:** generate SBOM from pnpm graph ([0889538](https://github.com/oaslananka/infra-lens-mcp/commit/08895387239b12a741afca24f639a135851b7688))
+* **release:** write SBOM to requested path ([5c2496d](https://github.com/oaslananka/infra-lens-mcp/commit/5c2496d7730bf5ac1a6406514d6e5d4e41f6a4d9))
+* **security:** clear dependency and code scanning alerts ([7c73371](https://github.com/oaslananka/infra-lens-mcp/commit/7c733712f8e7f27f25d370d69b562e2c6b0b87b9))
+
 ## [1.0.6](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.0.5...infra-lens-mcp-v1.0.6) (2026-05-26)
 
 
