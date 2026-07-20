@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { AnySchema } from '@modelcontextprotocol/sdk/server/zod-compat.js';
 
 import { analyzeSnapshot } from './analyzer.js';
-import { getBaseline, getHistory, saveSnapshot } from './baseline.js';
+import { getBaseline, getHistory, getHistoryPage, saveSnapshot } from './baseline.js';
 import { collectSampledSnapshot, collectSnapshot, inspectHostCapabilities } from './collector.js';
 import {
   AnalyzeOutputSchema,
@@ -77,6 +77,7 @@ export interface ToolDependencies {
   inspectHostCapabilities: typeof inspectHostCapabilities;
   getBaseline: typeof getBaseline;
   getHistory: typeof getHistory;
+  getHistoryPage?: typeof getHistoryPage;
   saveSnapshot: typeof saveSnapshot;
 }
 
@@ -91,6 +92,7 @@ const defaultDependencies: ToolDependencies = {
   inspectHostCapabilities,
   getBaseline,
   getHistory,
+  getHistoryPage,
   saveSnapshot
 };
 
@@ -107,15 +109,35 @@ function structuredResult<T extends Record<string, unknown>>(payload: T): ToolCo
 }
 
 function buildHistory(input: GetHistoryInput, dependencies: ToolDependencies) {
-  return dependencies.getHistory(input.host, input.metric, input.hours, input.label).map((row) => ({
-    timestamp: row.timestamp,
-    value:
-      input.metric === 'cpu'
-        ? row.cpu_percent
-        : input.metric === 'memory'
-          ? row.memory_percent
-          : row.load_1
-  }));
+  const page = dependencies.getHistoryPage
+    ? dependencies.getHistoryPage({
+        host: input.host,
+        metric: input.metric,
+        hours: input.hours,
+        label: input.label,
+        limit: input.limit ?? 100,
+        cursor: input.cursor
+      })
+    : {
+        items: dependencies
+          .getHistory(input.host, input.metric, input.hours, input.label)
+          .slice(0, input.limit ?? 100),
+        has_more: false,
+        next_cursor: null
+      };
+
+  return {
+    ...page,
+    history: page.items.map((row) => ({
+      timestamp: row.timestamp,
+      value:
+        input.metric === 'cpu'
+          ? row.cpu_percent
+          : input.metric === 'memory'
+            ? row.memory_percent
+            : row.load_1
+    }))
+  };
 }
 
 function isRemoteSafeProfile(profile: RuntimeProfile): boolean {
@@ -287,14 +309,16 @@ export function createToolDefinitions(
         annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false }
       },
       handler: async (input) => {
-        const history = buildHistory(input, dependencies);
+        const page = buildHistory(input, dependencies);
         return structuredResult({
           host: input.host,
           metric: input.metric,
           hours: input.hours,
           label: input.label ?? null,
-          data_points: history.length,
-          history
+          data_points: page.history.length,
+          has_more: page.has_more,
+          next_cursor: page.next_cursor,
+          history: page.history
         });
       }
     },

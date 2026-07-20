@@ -4,7 +4,13 @@ import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { getBaseline, getHistory, saveSnapshot } from '../../src/baseline.js';
+import {
+  getBaseline,
+  getHistory,
+  getHistoryPage,
+  pruneSnapshots,
+  saveSnapshot
+} from '../../src/baseline.js';
 import { closeAllDatabases, CURRENT_SCHEMA_VERSION, getDatabase } from '../../src/db.js';
 import type { MetricSnapshot } from '../../src/types.js';
 
@@ -48,6 +54,7 @@ beforeEach(() => {
 
 afterEach(() => {
   closeAllDatabases();
+  delete process.env.INFRA_LENS_RETENTION_DAYS;
 });
 
 afterAll(() => {
@@ -117,6 +124,111 @@ describe('baseline persistence', () => {
     expect(observationHistory).toHaveLength(1);
     expect(labeledHistory).toHaveLength(2);
     expect(labeledHistory.every((row) => row.classification === 'baseline')).toBe(true);
+  });
+
+  it('records named schema migrations and stable history indexes', () => {
+    const database = getDatabase();
+    const migrations = database
+      .prepare('SELECT version, name FROM schema_migrations ORDER BY version')
+      .all() as Array<{ version: number; name: string }>;
+    const indexes = database
+      .prepare("SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'snapshots'")
+      .all() as Array<{ name: string }>;
+
+    expect(migrations).toEqual([
+      { version: 1, name: 'snapshot-classification' },
+      { version: 2, name: 'history-lifecycle-indexes' }
+    ]);
+    expect(indexes.map((row) => row.name)).toEqual(
+      expect.arrayContaining([
+        'idx_snapshots_host_classification_timestamp_id',
+        'idx_snapshots_host_label_timestamp_id',
+        'idx_snapshots_timestamp'
+      ])
+    );
+  });
+
+  it('prunes snapshots outside the default retention window and supports disabling retention', () => {
+    const now = Date.now();
+    saveSnapshot(makeSnapshot(now - 31 * 24 * 60 * 60 * 1000));
+    saveSnapshot(makeSnapshot(now));
+
+    expect(getDatabase().prepare('SELECT COUNT(*) AS count FROM snapshots').get()).toEqual({
+      count: 1
+    });
+
+    process.env.INFRA_LENS_RETENTION_DAYS = '0';
+    saveSnapshot(makeSnapshot(now - 60 * 24 * 60 * 60 * 1000, 'archive-host'));
+    expect(pruneSnapshots(now)).toBe(0);
+    expect(
+      getDatabase()
+        .prepare('SELECT COUNT(*) AS count FROM snapshots WHERE host = ?')
+        .get('archive-host')
+    ).toEqual({ count: 1 });
+  });
+
+  it('paginates deterministically when rows share a timestamp', () => {
+    const timestamp = Date.now();
+    for (let index = 0; index < 5; index += 1) {
+      saveSnapshot(makeSnapshot(timestamp, 'page-host', 20 + index));
+    }
+
+    const first = getHistoryPage({
+      host: 'page-host',
+      metric: 'cpu',
+      hours: 1,
+      limit: 2,
+      now: timestamp + 1000
+    });
+    const second = getHistoryPage({
+      host: 'page-host',
+      metric: 'cpu',
+      hours: 1,
+      limit: 2,
+      cursor: first.next_cursor ?? undefined,
+      now: timestamp + 1000
+    });
+    const third = getHistoryPage({
+      host: 'page-host',
+      metric: 'cpu',
+      hours: 1,
+      limit: 2,
+      cursor: second.next_cursor ?? undefined,
+      now: timestamp + 1000
+    });
+
+    expect(first.has_more).toBe(true);
+    expect(second.has_more).toBe(true);
+    expect(third.has_more).toBe(false);
+    expect([...first.items, ...second.items, ...third.items].map((row) => row.cpu_percent)).toEqual(
+      [20, 21, 22, 23, 24]
+    );
+    expect(
+      new Set([...first.items, ...second.items, ...third.items].map((row) => row.id)).size
+    ).toBe(5);
+  });
+
+  it('rejects cursors reused for a different history stream', () => {
+    const timestamp = Date.now();
+    saveSnapshot(makeSnapshot(timestamp, 'cursor-host'));
+    saveSnapshot(makeSnapshot(timestamp + 1, 'cursor-host'));
+    const first = getHistoryPage({
+      host: 'cursor-host',
+      metric: 'cpu',
+      hours: 1,
+      limit: 1,
+      now: timestamp + 1000
+    });
+
+    expect(() =>
+      getHistoryPage({
+        host: 'other-host',
+        metric: 'cpu',
+        hours: 1,
+        cursor: first.next_cursor ?? undefined,
+        now: timestamp + 1000
+      })
+    ).toThrow('does not match');
   });
 
   it('keeps :memory: databases stable across calls', () => {

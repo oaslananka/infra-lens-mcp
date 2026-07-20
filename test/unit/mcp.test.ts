@@ -287,6 +287,64 @@ describe('registerInfraLensTools', () => {
     expect(loadPayload.history?.[0]?.value).toBe(0.5);
   });
 
+  it('returns stable pagination metadata from the history dependency', async () => {
+    const getHistoryPage = jest.fn(() => ({
+      items: [
+        {
+          id: 7,
+          timestamp: 10,
+          cpu_percent: 42,
+          memory_percent: 21,
+          load_1: 0.7,
+          raw_json: '{}',
+          label: 'default',
+          classification: 'observation' as const
+        }
+      ],
+      has_more: true,
+      next_cursor: 'next-page'
+    }));
+    const definitions = createToolDefinitions({
+      analyzeSnapshot: jest.fn(() => ({ anomalies: [], summary: 'healthy', health_score: 100 })),
+      collectSampledSnapshot: jest.fn(async () => baseSnapshot),
+      collectSnapshot: jest.fn(async () => baseSnapshot),
+      getBaseline: jest.fn(() => null),
+      inspectHostCapabilities: jest.fn(async () => ({ capabilities: [], warnings: [] })),
+      getHistory: jest.fn(() => []),
+      getHistoryPage,
+      saveSnapshot: jest.fn(() => undefined)
+    });
+
+    const result = await definitions[4].handler({
+      host: 'app-01.internal',
+      metric: 'cpu',
+      hours: 24,
+      limit: 1,
+      cursor: 'current-page'
+    } satisfies GetHistoryInput);
+    const payload = JSON.parse(result.content[0]?.text ?? '{}') as {
+      data_points?: number;
+      has_more?: boolean;
+      next_cursor?: string | null;
+      history?: Array<{ value: number }>;
+    };
+
+    expect(getHistoryPage).toHaveBeenCalledWith({
+      host: 'app-01.internal',
+      metric: 'cpu',
+      hours: 24,
+      label: undefined,
+      limit: 1,
+      cursor: 'current-page'
+    });
+    expect(payload).toMatchObject({
+      data_points: 1,
+      has_more: true,
+      next_cursor: 'next-page',
+      history: [{ timestamp: 10, value: 42 }]
+    });
+  });
+
   it('returns structured content matching each declared output schema', async () => {
     const definitions = createToolDefinitions({
       analyzeSnapshot: jest.fn(() => ({

@@ -21,9 +21,17 @@ export {
 } from './server-core.js';
 export { analyzeSnapshot } from './analyzer.js';
 export { collectSampledSnapshot, collectSnapshot, inspectHostCapabilities } from './collector.js';
-export { getBaseline, getHistory, saveSnapshot } from './baseline.js';
-export { closeAllDatabases, getDatabase, resolveDatabasePath } from './db.js';
+export {
+  getBaseline,
+  getHistory,
+  getHistoryPage,
+  pruneSnapshots,
+  saveSnapshot
+} from './baseline.js';
+export { closeAllDatabases, getDatabase, resolveDatabasePath, resolveRetentionDays } from './db.js';
 export { createConnectConfig, withSshSession } from './ssh.js';
+export { collectHistoryExport, formatHistoryExport } from './history-export.js';
+export type { HistoryExportFormat, HistoryExportRecord } from './history-export.js';
 export { getPackageVersion } from './version.js';
 export type { CollectorRunner, RawMetricOutput } from './collector.js';
 export type {
@@ -54,6 +62,8 @@ export type {
   ConnectionInput,
   DiskMetric,
   GetHistoryInput,
+  HistoryPage,
+  HistoryPageOptions,
   HostCapability,
   MetricSnapshot,
   MetricName,

@@ -8,7 +8,7 @@
 
 > **getHistory**(`host`, `_metric`, `hours`, `label?`): [`StoredSnapshotRow`](../interfaces/StoredSnapshotRow.md)[]
 
-Defined in: [baseline.ts:75](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/baseline.ts#L75)
+Defined in: [baseline.ts:204](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/baseline.ts#L204)
 
 ## Parameters
 

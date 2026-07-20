@@ -8,4 +8,4 @@
 
 > **MetricName** = `z.infer`\<*typeof* [`MetricNameSchema`](../variables/MetricNameSchema.md)\>
 
-Defined in: [types.ts:231](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L231)
+Defined in: [types.ts:241](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L241)

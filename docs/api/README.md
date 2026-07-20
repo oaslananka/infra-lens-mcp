@@ -8,6 +8,7 @@
 
 - [RawMetricOutput](interfaces/RawMetricOutput.md)
 - [CollectorRunner](interfaces/CollectorRunner.md)
+- [HistoryExportRecord](interfaces/HistoryExportRecord.md)
 - [ToolDefinition](interfaces/ToolDefinition.md)
 - [ToolRegistrar](interfaces/ToolRegistrar.md)
 - [ToolDependencies](interfaces/ToolDependencies.md)
@@ -26,10 +27,13 @@
 - [MetricSnapshot](interfaces/MetricSnapshot.md)
 - [HostCapability](interfaces/HostCapability.md)
 - [Anomaly](interfaces/Anomaly.md)
+- [HistoryPageOptions](interfaces/HistoryPageOptions.md)
+- [HistoryPage](interfaces/HistoryPage.md)
 - [StoredSnapshotRow](interfaces/StoredSnapshotRow.md)
 
 ## Type Aliases
 
+- [HistoryExportFormat](type-aliases/HistoryExportFormat.md)
 - [ToolContent](type-aliases/ToolContent.md)
 - [ToolHandler](type-aliases/ToolHandler.md)
 - [ToolConfig](type-aliases/ToolConfig.md)
@@ -65,15 +69,20 @@
 ## Functions
 
 - [analyzeSnapshot](functions/analyzeSnapshot.md)
+- [pruneSnapshots](functions/pruneSnapshots.md)
 - [saveSnapshot](functions/saveSnapshot.md)
 - [getBaseline](functions/getBaseline.md)
+- [getHistoryPage](functions/getHistoryPage.md)
 - [getHistory](functions/getHistory.md)
 - [inspectHostCapabilities](functions/inspectHostCapabilities.md)
 - [collectSnapshot](functions/collectSnapshot.md)
 - [collectSampledSnapshot](functions/collectSampledSnapshot.md)
 - [resolveDatabasePath](functions/resolveDatabasePath.md)
+- [resolveRetentionDays](functions/resolveRetentionDays.md)
 - [getDatabase](functions/getDatabase.md)
 - [closeAllDatabases](functions/closeAllDatabases.md)
+- [collectHistoryExport](functions/collectHistoryExport.md)
+- [formatHistoryExport](functions/formatHistoryExport.md)
 - [createToolDefinitions](functions/createToolDefinitions.md)
 - [registerInfraLensTools](functions/registerInfraLensTools.md)
 - [registerToolsOnServer](functions/registerToolsOnServer.md)

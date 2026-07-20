@@ -8,7 +8,7 @@
 
 > **closeAllDatabases**(): `void`
 
-Defined in: [db.ts:120](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/db.ts#L120)
+Defined in: [db.ts:184](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/db.ts#L184)
 
 ## Returns
 
