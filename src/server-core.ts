@@ -167,7 +167,7 @@ export function createToolDefinitions(
         description: 'Collect metrics from a server and explain any anomalies in human language',
         inputSchema: schemas.analyze,
         outputSchema: AnalyzeOutputSchema,
-        annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true }
+        annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true }
       },
       handler: async (input) => {
         const collectionOptions = {
@@ -209,7 +209,7 @@ export function createToolDefinitions(
         description: 'Collect and save current server metrics without analysis',
         inputSchema: schemas.snapshot,
         outputSchema: SnapshotOutputSchema,
-        annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true }
+        annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true }
       },
       handler: async (input) => {
         const snapshot = await dependencies.collectSnapshot(input.connection);

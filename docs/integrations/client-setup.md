@@ -80,10 +80,9 @@ Editor-specific file locations differ. Keep this repository's server settings st
 
 Remote HTTP should not receive raw SSH passwords, private keys, or passphrases in tool input. Use a remote-safe profile and an upstream OAuth-aware HTTPS gateway.
 
-Example backend process environment:
+Example backend process command and environment (`server-http.js` is the transport selector):
 
 ```bash
-MCP_TRANSPORT=http \
 MCP_PROFILE=chatgpt \
 MCP_HTTP_HOST=127.0.0.1 \
 MCP_HTTP_PORT=3000 \

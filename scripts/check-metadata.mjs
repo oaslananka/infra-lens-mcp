@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const root = process.cwd();
 const failures = [];
@@ -82,6 +83,59 @@ if (transports.has('http') && mcpJson.connector_readiness?.publishReady === true
   fail(
     'HTTP connector publish readiness cannot be true without production OAuth/HTTPS validation.'
   );
+}
+
+const runtimeModulePath = join(root, 'dist/server-core.js');
+if (!existsSync(runtimeModulePath)) {
+  fail(
+    'dist/server-core.js must exist so published metadata can be checked against runtime tools.'
+  );
+} else {
+  const runtimeModule = await import(pathToFileURL(runtimeModulePath).href);
+  const runtimeDefinitions = runtimeModule.createToolDefinitions();
+  const runtimeToolNames = runtimeDefinitions.map((definition) => definition.name);
+  const publishedToolNames = (mcpJson.tools ?? []).map((tool) => tool.name);
+
+  if (JSON.stringify(runtimeToolNames) !== JSON.stringify(publishedToolNames)) {
+    fail(
+      `mcp.json tools must match runtime registrations in order: ${runtimeToolNames.join(', ')}.`
+    );
+  }
+
+  const persistenceTools = new Set(['analyze_server', 'snapshot', 'record_baseline']);
+  for (const definition of runtimeDefinitions) {
+    if (persistenceTools.has(definition.name) && definition.config.annotations.readOnlyHint) {
+      fail(`${definition.name} persists SQLite data and must not advertise readOnlyHint=true.`);
+    }
+  }
+}
+
+const contractFiles = [
+  '.env.example',
+  '.mcp.json',
+  '.codex/config.example.toml',
+  '.vscode/mcp.example.json',
+  'opencode.example.jsonc',
+  'README.md',
+  'Dockerfile',
+  'docs/integrations/client-setup.md'
+];
+for (const contractFile of contractFiles) {
+  const content = readFileSync(join(root, contractFile), 'utf8');
+  for (const forbiddenVariable of ['INFRA_LENS_TRANSPORT', 'MCP_TRANSPORT']) {
+    if (content.includes(forbiddenVariable)) {
+      fail(
+        `${contractFile} must select transport by executable entry point, not ${forbiddenVariable}.`
+      );
+    }
+  }
+}
+
+const environmentExample = readFileSync(join(root, '.env.example'), 'utf8');
+for (const reservedVariable of ['OTEL_EXPORTER_OTLP_ENDPOINT', 'OTEL_SERVICE_NAME']) {
+  if (environmentExample.includes(reservedVariable)) {
+    fail(`${reservedVariable} must not be advertised before OpenTelemetry export is implemented.`);
+  }
 }
 
 if (process.env.CHECK_METADATA_REQUIRE_DIST === 'true') {
