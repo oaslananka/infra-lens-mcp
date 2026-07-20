@@ -22,7 +22,7 @@
   "branchConcurrentLimit": 8,
   "commitHourlyLimit": 4,
   "rangeStrategy": "bump",
-  "rebaseWhen": "conflicted",
+  "rebaseWhen": "behind-base-branch",
   "ignorePaths": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"],
   "lockFileMaintenance": {
     "enabled": true,
@@ -110,6 +110,13 @@
       "addLabels": ["requires-review", "runtime"]
     },
     {
+      "description": "Native database and SSH transport dependencies require explicit compatibility review.",
+      "matchPackageNames": ["better-sqlite3", "ssh2"],
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "addLabels": ["runtime", "requires-review", "risk:medium"]
+    },
+    {
       "description": "Keep Node runtime jumps explicit.",
       "matchPackageNames": ["node", "@types/node"],
       "dependencyDashboardApproval": true,
@@ -133,15 +140,27 @@
       "addLabels": ["security", "area:dx"]
     },
     {
+      "description": "Group repository-local mise security tooling updates.",
+      "matchManagers": ["mise"],
+      "matchPackageNames": ["pre-commit", "sonarqube-cli"],
+      "minimumReleaseAge": "3 days",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "groupName": "Local security tooling",
+      "groupSlug": "local-security-tooling",
+      "automerge": false,
+      "addLabels": ["security", "dependencies", "requires-review"]
+    },
+    {
       "description": "Security analysis tool updates require explicit review.",
       "matchPackageNames": [
-        "@sonar/scan",
         "semgrep",
         "pre-commit",
         "zizmor",
         "rhysd/actionlint",
         "gitleaks/gitleaks",
-        "renovate/renovate"
+        "renovate/renovate",
+        "sonarqube-cli"
       ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
@@ -201,15 +220,11 @@
       "depNameTemplate": "renovate/renovate",
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "description": "Update the pinned SonarScanner for NPM used by local pre-push analysis.",
-      "managerFilePatterns": ["/^scripts\\/run-sonar-local\\.mjs$/"],
-      "matchStrings": ["--package=@sonar/scan@(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
-      "depNameTemplate": "@sonar/scan",
-      "datasourceTemplate": "npm",
-      "versioningTemplate": "npm"
     }
-  ]
+  ],
+  "pre-commit": {
+    "enabled": true
+  },
+  "configMigration": true,
+  "schedule": ["after 3am and before 7am on monday"]
 }

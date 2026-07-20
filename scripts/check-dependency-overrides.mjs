@@ -59,7 +59,7 @@ function validateRecord(kind, key, record) {
   }
   const reviewBy = new Date(`${record.reviewBy}T23:59:59Z`);
   if (Number.isNaN(reviewBy.valueOf())) {
-    throw new Error(`${kind} ${key} has an invalid reviewBy date`);
+    throw new TypeError(`${kind} ${key} has an invalid reviewBy date`);
   }
   if (reviewBy < new Date()) throw new Error(`${kind} ${key} expired on ${record.reviewBy}`);
 }

@@ -53,7 +53,7 @@ Pull requests should describe risk, release impact, validation, and linked issue
 
 ## Dependency automation governance
 
-Renovate is the single source of truth for version updates. The repository does not run parallel Dependabot update automation. Repository policy changes must update `renovate.json`, `docs/security.md`, and the automated checks in the same pull request.
+Renovate is the single source of truth for version updates, including the explicitly enabled pre-commit manager and native mise manager. The repository does not run parallel Dependabot update automation. Repository policy changes must update `renovate.json`, `docs/security.md`, and the automated checks in the same pull request.
 
 Every `pnpm` override and supply-chain release-age exception is registered in `dependency-overrides.json`. Entries require:
 

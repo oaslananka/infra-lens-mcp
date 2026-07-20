@@ -5,11 +5,9 @@
 ```bash
 git clone https://github.com/oaslananka/infra-lens-mcp.git
 cd infra-lens-mcp
-corepack enable
-corepack prepare pnpm@11.3.0 --activate
+mise trust
+mise install
 pnpm install --frozen-lockfile
-pipx install pre-commit
-pipx install semgrep
 pnpm run hooks:install
 pnpm run build
 pnpm test
@@ -66,7 +64,7 @@ pnpm run package:dry-run
 pnpm run release:dry-run
 ```
 
-`pnpm run prepush` runs the standard local push gate. When `SONAR_TOKEN` is available it also submits a SonarQube Cloud analysis; contributors without the token still receive the protected SonarCloud pull-request check.
+`pnpm run prepush` runs the standard local push gate. SonarQube Cloud Automatic Analysis remains the protected pull-request check and must not be duplicated by a CI scanner.
 
 Run Docker-backed e2e tests when SSH, collector, Docker, or transport behavior changes:
 
@@ -91,3 +89,15 @@ Follow [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md). Use [SUPPORT.md](./SUPPORT.md
 Implementation PRs must not publish npm packages, containers, MCP Registry metadata, marketplace artifacts, or production GitHub Releases. Releases are created only by release-please after merge to `main`, followed by the protected `npm-production` release workflow.
 
 See [docs/release.md](./docs/release.md) and [docs/release-state-machine.md](./docs/release-state-machine.md).
+
+## Manual SonarQube secrets scan
+
+The current SonarQube CLI is pinned by `.mise.toml` and exposed as an authenticated manual pre-commit check for credential-handling, deployment, or release changes:
+
+```bash
+SONARQUBE_CLI_TOKEN='<user-token>' \
+SONARQUBE_CLI_ORG='oaslananka' \
+pnpm run sonar:secrets
+```
+
+Do not commit or print the token.

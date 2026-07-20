@@ -44,3 +44,41 @@ rules:
     languages: [javascript, typescript]
     patterns:
       - pattern-regex: '(?i)(console\.|logger\.)[^\n]*(process\.env\.[A-Z0-9_]*(TOKEN|SECRET|PASSWORD|PRIVATE_KEY|API_KEY))'
+
+  - id: infra-lens.http.authorization-direct-equality
+    message: Compare bearer authorization values with the constant-time helper.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include: [/src/**/*.ts]
+    patterns:
+      - pattern: $AUTHORIZATION === $EXPECTED
+      - metavariable-regex:
+          metavariable: $AUTHORIZATION
+          regex: ^authorization$
+
+  - id: infra-lens.http.gateway-secret-direct-equality
+    message: Compare gateway secrets with the constant-time helper.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include: [/src/**/*.ts]
+    pattern: $VALUE === $CONFIG.gatewaySecret
+
+  - id: infra-lens.no-tls-environment-bypass
+    message: Do not disable TLS certificate verification in source code or automation.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: [/src/**, /scripts/**, /.github/workflows/**, /Dockerfile*]
+    pattern-regex: >-
+      (?i)NODE_TLS_REJECT_UNAUTHORIZED\s*=\s*["']?0
+
+  - id: infra-lens.ssh.no-host-key-bypass
+    message: StrictHostKeyChecking=no is forbidden outside disposable external fixtures.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: [/src/**, /scripts/**, /.github/workflows/**, /Dockerfile*]
+    pattern-regex: >-
+      (?i)StrictHostKeyChecking\s*=\s*no
