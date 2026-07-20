@@ -6,7 +6,7 @@
 
 # Interface: DiskMetric
 
-Defined in: [types.ts:260](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L260)
+Defined in: [types.ts:264](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L264)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:260](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **filesystem**: `string`
 
-Defined in: [types.ts:261](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L261)
+Defined in: [types.ts:265](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L265)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [types.ts:261](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **mount**: `string`
 
-Defined in: [types.ts:262](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L262)
+Defined in: [types.ts:266](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L266)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [types.ts:262](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **total\_gb**: `number`
 
-Defined in: [types.ts:263](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L263)
+Defined in: [types.ts:267](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L267)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [types.ts:263](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **used\_gb**: `number`
 
-Defined in: [types.ts:264](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L264)
+Defined in: [types.ts:268](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L268)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [types.ts:264](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **usage\_percent**: `number`
 
-Defined in: [types.ts:265](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L265)
+Defined in: [types.ts:269](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L269)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [types.ts:265](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **inode\_total?**: `number`
 
-Defined in: [types.ts:266](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L266)
+Defined in: [types.ts:270](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L270)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [types.ts:266](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **inode\_used?**: `number`
 
-Defined in: [types.ts:267](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L267)
+Defined in: [types.ts:271](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L271)
 
 ***
 
@@ -70,4 +70,4 @@ Defined in: [types.ts:267](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **inode\_usage\_percent?**: `number`
 
-Defined in: [types.ts:268](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L268)
+Defined in: [types.ts:272](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L272)

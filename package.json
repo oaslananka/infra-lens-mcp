@@ -39,7 +39,8 @@
     "LICENSES",
     "REUSE.toml",
     "license-policy.json",
-    "package-size-policy.json"
+    "package-size-policy.json",
+    "!docs/demo.gif"
   ],
   "scripts": {
     "build": "node --eval \"require('node:fs').rmSync('dist',{ recursive: true, force: true })\" && tsc -p tsconfig.json",

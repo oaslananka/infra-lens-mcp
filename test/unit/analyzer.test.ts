@@ -158,6 +158,37 @@ describe('analyzeSnapshot', () => {
     expect(customResult.anomalies.some((anomaly: Anomaly) => anomaly.metric === 'cpu')).toBe(true);
   });
 
+  it('ignores lifetime network counters and unavailable kernel evidence', () => {
+    const result = analyzeSnapshot(
+      makeSnapshot({
+        network: [
+          {
+            interface: 'eth0',
+            rx_bytes: 1000,
+            tx_bytes: 2000,
+            rx_packets: 10,
+            tx_packets: 20,
+            rx_errors: 200,
+            tx_errors: 100,
+            rx_dropped: 50,
+            tx_dropped: 25
+          }
+        ],
+        system: {
+          failed_units: 0,
+          kernel_error_events: 20,
+          kernel_signal_available: false,
+          kernel_window_minutes: 5
+        }
+      })
+    );
+
+    expect(result.anomalies.some((anomaly) => anomaly.metric.startsWith('network:'))).toBe(false);
+    expect(result.anomalies.some((anomaly) => anomaly.metric === 'system:kernel_errors')).toBe(
+      false
+    );
+  });
+
   it('detects inode, network, and system health pressure', () => {
     const result = analyzeSnapshot(
       makeSnapshot({
@@ -181,10 +212,17 @@ describe('analyzeSnapshot', () => {
             rx_errors: 2,
             tx_errors: 3,
             rx_dropped: 4,
-            tx_dropped: 5
+            tx_dropped: 5,
+            sample_window_seconds: 1,
+            counter_reset: false
           }
         ],
-        system: { failed_units: 2, kernel_error_events: 1 }
+        system: {
+          failed_units: 2,
+          kernel_error_events: 1,
+          kernel_signal_available: true,
+          kernel_window_minutes: 5
+        }
       })
     );
 
