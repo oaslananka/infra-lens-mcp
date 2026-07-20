@@ -1,5 +1,5 @@
 [tools]
 node = "24"
-pnpm = "11.3.0"
+pnpm = "11.15.1"
 pre-commit = "4.6.0"
 sonarqube-cli = "1.4.0.3748"
