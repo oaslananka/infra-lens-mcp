@@ -63,3 +63,12 @@ The JSON output includes:
 - `next_safe_command`.
 
 Unknown API failures are reported as blockers rather than treated as missing artifacts.
+
+### npm lineage evidence
+
+Canonical npm releases use GitHub Trusted Publishing. Some trusted-publisher releases do not expose the historical `gitHead` registry field, so reconciliation accepts either of these equivalent lineage proofs:
+
+- `gitHead` exactly matches the immutable release tag commit; or
+- npm exposes GitHub Trusted Publishing plus SLSA provenance v1 whose repository, `main` ref, `publish-npm.yml` workflow, `repository_dispatch` event, resolved Git commit, package subject, and SHA-512 artifact digest all match the canonical release.
+
+A missing or mismatched provenance field is a hard reconciliation failure. The release must never be republished to repair registry metadata.

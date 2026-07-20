@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 
 import { evaluateReleaseState } from './release-state-core.mjs';
+import { integritySha512Hex, parseNpmProvenance } from './npm-provenance.mjs';
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
@@ -119,23 +120,94 @@ function githubReleaseState(repository, tagName) {
   return { exists: true, ...release, error: null };
 }
 
-function npmState(packageName, version) {
+async function npmState(packageName, version) {
   const result = run('npm', [
     'view',
     `${packageName}@${version}`,
     'version',
     'gitHead',
     'dist.integrity',
+    'dist.attestations.url',
+    '_npmUser.trustedPublisher.id',
+    '_npmUser.name',
     '--json'
   ]);
-  if (!result.ok) return { exists: false, version: null, gitHead: null, integrity: null };
+  if (!result.ok) {
+    return {
+      exists: false,
+      version: null,
+      gitHead: null,
+      integrity: null,
+      integritySha512: null,
+      attestationUrl: null,
+      trustedPublisher: { id: null, name: null },
+      provenance: { exists: false },
+      error: result.stderr || result.stdout || 'npm Registry request failed'
+    };
+  }
+
   const value = JSON.parse(result.stdout || '{}');
-  return {
+  const integrity = value['dist.integrity'] ?? value.dist?.integrity ?? null;
+  const attestationUrl = value['dist.attestations.url'] ?? value.dist?.attestations?.url ?? null;
+  const state = {
     exists: value.version === version,
     version: value.version ?? null,
     gitHead: value.gitHead ?? null,
-    integrity: value['dist.integrity'] ?? value.dist?.integrity ?? null
+    integrity,
+    integritySha512: integritySha512Hex(integrity),
+    attestationUrl,
+    trustedPublisher: {
+      id: value['_npmUser.trustedPublisher.id'] ?? value._npmUser?.trustedPublisher?.id ?? null,
+      name: value['_npmUser.name'] ?? value._npmUser?.name ?? null
+    },
+    provenance: { exists: false },
+    error: null
   };
+
+  if (!state.exists || !attestationUrl) return state;
+
+  const attestationResult = run('curl', [
+    '--silent',
+    '--show-error',
+    '--location',
+    '--retry',
+    '3',
+    '--retry-delay',
+    '2',
+    '--connect-timeout',
+    '10',
+    '--max-time',
+    '30',
+    '--write-out',
+    '\n%{http_code}',
+    attestationUrl
+  ]);
+  if (!attestationResult.ok) {
+    return {
+      ...state,
+      error: attestationResult.stderr || 'npm attestation request failed'
+    };
+  }
+
+  const separator = attestationResult.stdout.lastIndexOf('\n');
+  const bodyText = separator >= 0 ? attestationResult.stdout.slice(0, separator) : '';
+  const statusCode = Number(separator >= 0 ? attestationResult.stdout.slice(separator + 1) : 0);
+  if (statusCode === 404) return state;
+  if (statusCode < 200 || statusCode >= 300) {
+    return { ...state, error: `npm attestation request returned HTTP ${statusCode}` };
+  }
+
+  try {
+    return {
+      ...state,
+      provenance: parseNpmProvenance(JSON.parse(bodyText), packageName, version)
+    };
+  } catch (error) {
+    return {
+      ...state,
+      error: `npm attestation parsing failed: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
 }
 
 async function mcpRegistryState(serverName, version) {
@@ -244,7 +316,7 @@ async function collectState(versionOverride) {
   const expectedTag = `${packageJson.name}-v${version}`;
   const tag = tagState(expectedTag);
   const githubRelease = githubReleaseState(repository, expectedTag);
-  const npm = npmState(packageJson.name, version);
+  const npm = await npmState(packageJson.name, version);
   const mcpRegistry = await mcpRegistryState(serverJson.name, version);
   const ghcrRequired = existsSync('.github/workflows/publish-ghcr.yml');
   const ghcr = queryGhcr(owner, repositoryName, version);
@@ -260,6 +332,7 @@ async function collectState(versionOverride) {
 
   const evaluated = evaluateReleaseState({
     packageName: packageJson.name,
+    repository,
     serverName: serverJson.name,
     version,
     metadata: {
