@@ -6,7 +6,7 @@
   "plugin": ["typedoc-plugin-markdown"],
   "readme": "none",
   "name": "infra-lens-mcp",
-  "includeVersion": true,
+  "includeVersion": false,
   "gitRevision": "main",
   "skipErrorChecking": false,
   "excludePrivate": true,
