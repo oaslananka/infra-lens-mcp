@@ -75,7 +75,9 @@ const requiredFiles = [
   'CHANGELOG.md',
   'mcp.json',
   'server.json',
-  'docs'
+  'docs',
+  'performance-budget.json',
+  'examples'
 ];
 for (const file of requiredFiles) {
   if (!packageJson.files?.includes(file)) {

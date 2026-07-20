@@ -1,0 +1,85 @@
+{
+  "name": "Service and kernel pressure",
+  "description": "Multiple failed services coincide with recent bounded kernel errors.",
+  "snapshot": {
+    "timestamp": 1700000004000,
+    "host": "golden-service-kernel-pressure",
+    "cpu": {
+      "usage_percent": 30,
+      "load_1": 0.9,
+      "load_5": 0.8,
+      "load_15": 0.7,
+      "core_count": 4
+    },
+    "memory": {
+      "total_mb": 8192,
+      "used_mb": 3072,
+      "free_mb": 5120,
+      "usage_percent": 38,
+      "swap_used_mb": 0,
+      "swap_total_mb": 1024
+    },
+    "disk": [
+      {
+        "filesystem": "/dev/sda1",
+        "mount": "/",
+        "total_gb": 100,
+        "used_gb": 40,
+        "usage_percent": 40
+      }
+    ],
+    "network": [],
+    "system": {
+      "failed_units": 3,
+      "kernel_error_events": 6,
+      "kernel_signal_available": true,
+      "kernel_window_minutes": 5
+    },
+    "processes": [],
+    "os": {
+      "kernel": "6.8.0",
+      "hostname": "golden-service-kernel-pressure",
+      "distro": "Ubuntu 24.04 LTS",
+      "uptime_seconds": 432000
+    },
+    "warnings": []
+  },
+  "expected": {
+    "anomalies": [
+      {
+        "metric": "system:failed_units",
+        "severity": "high",
+        "value": 3,
+        "baseline_mean": 0,
+        "explanation": "3 systemd units are failed.",
+        "recommendation": "Run systemctl --failed and inspect the affected unit logs before restarting services.",
+        "confidence": 0.82,
+        "root_cause_hypothesis": "Service or kernel signals may explain the incident.",
+        "evidence": ["3 systemd units are failed."],
+        "suggested_next_checks": [
+          "Inspect service or kernel messages.",
+          "Correlate with restart times.",
+          "Check dependent services."
+        ]
+      },
+      {
+        "metric": "system:kernel_errors",
+        "severity": "high",
+        "value": 6,
+        "baseline_mean": 0,
+        "explanation": "6 kernel error events were found in the last 5 minutes.",
+        "recommendation": "Review dmesg for storage, network, OOM, or hardware errors that explain the symptom.",
+        "confidence": 0.82,
+        "root_cause_hypothesis": "Service or kernel signals may explain the incident.",
+        "evidence": ["6 kernel error events were found in the last 5 minutes."],
+        "suggested_next_checks": [
+          "Inspect service or kernel messages.",
+          "Correlate with restart times.",
+          "Check dependent services."
+        ]
+      }
+    ],
+    "summary": "Found 2 anomalyies on golden-service-kernel-pressure. Most urgent signal: 3 systemd units are failed.",
+    "health_score": 60
+  }
+}

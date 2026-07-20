@@ -8,7 +8,7 @@
 
 > **inspectHostCapabilities**(`connection`, `runner?`): `Promise`\<\{ `capabilities`: [`HostCapability`](../interfaces/HostCapability.md)[]; `warnings`: `string`[]; \}\>
 
-Defined in: [collector.ts:318](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/collector.ts#L318)
+Defined in: [collector.ts:375](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/collector.ts#L375)
 
 ## Parameters
 

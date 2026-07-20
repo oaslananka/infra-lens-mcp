@@ -1,0 +1,77 @@
+{
+  "name": "High CPU saturation",
+  "description": "A CPU-bound Node worker drives critical processor usage without load or memory pressure.",
+  "snapshot": {
+    "timestamp": 1700000000000,
+    "host": "golden-high-cpu",
+    "cpu": {
+      "usage_percent": 96,
+      "load_1": 3,
+      "load_5": 2.4,
+      "load_15": 1.8,
+      "core_count": 4
+    },
+    "memory": {
+      "total_mb": 8192,
+      "used_mb": 3072,
+      "free_mb": 5120,
+      "usage_percent": 38,
+      "swap_used_mb": 0,
+      "swap_total_mb": 1024
+    },
+    "disk": [
+      {
+        "filesystem": "/dev/sda1",
+        "mount": "/",
+        "total_gb": 100,
+        "used_gb": 40,
+        "usage_percent": 40
+      }
+    ],
+    "network": [],
+    "system": {
+      "failed_units": 0,
+      "kernel_error_events": 0,
+      "kernel_signal_available": true,
+      "kernel_window_minutes": 5
+    },
+    "processes": [
+      {
+        "pid": 4242,
+        "name": "node",
+        "cpu_percent": 88,
+        "mem_percent": 12,
+        "command": "node dist/worker.js"
+      }
+    ],
+    "os": {
+      "kernel": "6.8.0",
+      "hostname": "golden-high-cpu",
+      "distro": "Ubuntu 24.04 LTS",
+      "uptime_seconds": 86400
+    },
+    "warnings": []
+  },
+  "expected": {
+    "anomalies": [
+      {
+        "metric": "cpu",
+        "severity": "critical",
+        "value": 96,
+        "baseline_mean": 0,
+        "confidence": 0.9,
+        "root_cause_hypothesis": "node dist/worker.js is the most likely CPU pressure driver, but baseline confidence is limited.",
+        "evidence": ["CPU 96% exceeds warning threshold 85%.", "Top process: node dist/worker.js."],
+        "suggested_next_checks": [
+          "Record at least five healthy baseline samples.",
+          "Check top process logs and recent changes.",
+          "Confirm whether traffic or scheduled jobs explain the spike."
+        ],
+        "explanation": "CPU is at 96% with no baseline yet. Top process: node dist/worker.js.",
+        "recommendation": "Record more baseline samples with record_baseline before relying on z-score anomaly detection."
+      }
+    ],
+    "summary": "Found 1 anomaly on golden-high-cpu. Most urgent signal: CPU is at 96% with no baseline yet. Top process: node dist/worker.js.",
+    "health_score": 60
+  }
+}

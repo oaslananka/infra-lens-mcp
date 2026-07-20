@@ -1,0 +1,74 @@
+{
+  "name": "Inode exhaustion",
+  "description": "A spool filesystem has free bytes but almost no remaining inodes.",
+  "snapshot": {
+    "timestamp": 1700000002000,
+    "host": "golden-inode-pressure",
+    "cpu": {
+      "usage_percent": 15,
+      "load_1": 0.4,
+      "load_5": 0.4,
+      "load_15": 0.3,
+      "core_count": 4
+    },
+    "memory": {
+      "total_mb": 8192,
+      "used_mb": 3072,
+      "free_mb": 5120,
+      "usage_percent": 38,
+      "swap_used_mb": 0,
+      "swap_total_mb": 1024
+    },
+    "disk": [
+      {
+        "filesystem": "/dev/sdb1",
+        "mount": "/var/spool",
+        "total_gb": 200,
+        "used_gb": 80,
+        "usage_percent": 40,
+        "inode_total": 1000000,
+        "inode_used": 970000,
+        "inode_usage_percent": 97
+      }
+    ],
+    "network": [],
+    "system": {
+      "failed_units": 0,
+      "kernel_error_events": 0,
+      "kernel_signal_available": true,
+      "kernel_window_minutes": 5
+    },
+    "processes": [],
+    "os": {
+      "kernel": "6.8.0",
+      "hostname": "golden-inode-pressure",
+      "distro": "Ubuntu 24.04 LTS",
+      "uptime_seconds": 259200
+    },
+    "warnings": []
+  },
+  "expected": {
+    "anomalies": [
+      {
+        "metric": "disk_inode:/var/spool",
+        "severity": "critical",
+        "value": 97,
+        "baseline_mean": 0,
+        "explanation": "Disk /var/spool inode usage is 97% (970000/1000000 inodes). Space usage is 40%.",
+        "recommendation": "Find directories with many small files on /var/spool and clean cache, temp, or spool files before inode exhaustion blocks writes.",
+        "confidence": 0.9,
+        "root_cause_hypothesis": "Inode pressure is higher than byte pressure.",
+        "evidence": [
+          "Disk /var/spool inode usage is 97% (970000/1000000 inodes). Space usage is 40%."
+        ],
+        "suggested_next_checks": [
+          "Inspect large or high-file-count paths.",
+          "Check retention and cache paths.",
+          "Plan cleanup or capacity expansion."
+        ]
+      }
+    ],
+    "summary": "Found 1 anomaly on golden-inode-pressure. Most urgent signal: Disk /var/spool inode usage is 97% (970000/1000000 inodes). Space usage is 40%.",
+    "health_score": 60
+  }
+}

@@ -24,6 +24,23 @@ export interface RawMetricOutput {
   warnings?: string[];
 }
 
+type CollectionCommandKey =
+  | 'cpu'
+  | 'memory'
+  | 'disk'
+  | 'diskInodes'
+  | 'network'
+  | 'system'
+  | 'processes'
+  | 'os';
+
+export interface CollectionCommandPlanItem {
+  key: CollectionCommandKey;
+  name: string;
+  command: string;
+  required: boolean;
+}
+
 /** Pluggable collector runner used by tests and SSH-backed collection. */
 export interface CollectorRunner {
   run(connection: ConnectionInput, options: CollectionOptions): Promise<RawMetricOutput>;
@@ -62,34 +79,74 @@ const CAPABILITY_CHECKS: Array<{ name: string; source: string; command: string }
 const OS_COMMAND =
   'export LC_ALL=C; uname -r; hostname; (source /etc/os-release 2>/dev/null && printf "%s\\n" "$PRETTY_NAME") || echo Unknown; awk \'{print $1}\' /proc/uptime';
 
+export function buildCollectionCommandPlan(
+  options: CollectionOptions
+): CollectionCommandPlanItem[] {
+  return [
+    { key: 'cpu', name: 'cpu', command: CPU_COMMAND, required: true },
+    { key: 'memory', name: 'memory', command: MEMORY_COMMAND, required: true },
+    { key: 'disk', name: 'disk', command: DISK_COMMAND, required: true },
+    {
+      key: 'diskInodes',
+      name: 'disk inode',
+      command: DISK_INODE_COMMAND,
+      required: false
+    },
+    ...(options.includeNetwork
+      ? [{ key: 'network' as const, name: 'network', command: NETWORK_COMMAND, required: false }]
+      : []),
+    { key: 'system', name: 'system', command: SYSTEM_COMMAND, required: false },
+    ...(options.includeProcesses
+      ? [
+          {
+            key: 'processes' as const,
+            name: 'processes',
+            command: PROCESS_COMMAND,
+            required: false
+          }
+        ]
+      : []),
+    { key: 'os', name: 'os', command: OS_COMMAND, required: true }
+  ];
+}
+
 class SshCollectorRunner implements CollectorRunner {
   async run(connection: ConnectionInput, options: CollectionOptions): Promise<RawMetricOutput> {
     return withSshSession(connection, async (session) => {
       const warnings: string[] = [];
-      const [cpu, memory, disk, diskInodes, network, system, processes, os] = await Promise.all([
-        session.exec(CPU_COMMAND),
-        session.exec(MEMORY_COMMAND),
-        session.exec(DISK_COMMAND),
-        session.exec(DISK_INODE_COMMAND),
-        options.includeNetwork ? session.exec(NETWORK_COMMAND) : Promise.resolve(null),
-        session.exec(SYSTEM_COMMAND),
-        options.includeProcesses ? session.exec(PROCESS_COMMAND) : Promise.resolve(null),
-        session.exec(OS_COMMAND)
-      ]);
-      assertCommandSucceeded('cpu', cpu);
-      assertCommandSucceeded('memory', memory);
-      assertCommandSucceeded('disk', disk);
-      assertCommandSucceeded('os', os);
+      const plan = buildCollectionCommandPlan(options);
+      const executed = await Promise.all(
+        plan.map(async (item) => [item, await session.exec(item.command)] as const)
+      );
+      const results = new Map(executed.map(([item, result]) => [item.key, { item, result }]));
+
+      for (const { item, result } of results.values()) {
+        if (item.required) {
+          assertCommandSucceeded(item.name, result);
+        }
+      }
+
+      const requiredOutput = (key: CollectionCommandKey): string => {
+        const entry = results.get(key);
+        if (!entry) {
+          throw new Error(`Collector command plan omitted required output ${key}.`);
+        }
+        return entry.result.stdout;
+      };
+      const optionalOutput = (key: CollectionCommandKey): string => {
+        const entry = results.get(key);
+        return entry ? commandOutputOrWarning(entry.item.name, entry.result, warnings) : '';
+      };
 
       return {
-        cpu: cpu.stdout,
-        memory: memory.stdout,
-        disk: disk.stdout,
-        diskInodes: commandOutputOrWarning('disk inode', diskInodes, warnings),
-        network: commandOutputOrWarning('network', network, warnings),
-        system: commandOutputOrWarning('system', system, warnings),
-        processes: commandOutputOrWarning('processes', processes, warnings),
-        os: os.stdout,
+        cpu: requiredOutput('cpu'),
+        memory: requiredOutput('memory'),
+        disk: requiredOutput('disk'),
+        diskInodes: optionalOutput('diskInodes'),
+        network: optionalOutput('network'),
+        system: optionalOutput('system'),
+        processes: optionalOutput('processes'),
+        os: requiredOutput('os'),
         warnings
       };
     });
