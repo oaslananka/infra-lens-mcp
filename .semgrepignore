@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+docs/api/
+.infra-lens-mcp/
+test/fixtures/
+*.min.js

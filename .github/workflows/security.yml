@@ -54,11 +54,22 @@ jobs:
       - name: Workflow security lint
         run: zizmor --offline --min-severity low .github/workflows
 
+      - name: Repository pre-commit policy
+        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd
+        with:
+          extra_args: --all-files
+
+      - name: Renovate configuration validation
+        run: |
+          pnpm run check:renovate
+          pnpm run check:overrides
+          docker run --rm --volume "$PWD:/workspace:ro" --workdir /workspace --entrypoint renovate-config-validator renovate/renovate:43.272.4@sha256:6aaa848f2e0660525a1a10bd6b24b8e5de806666915015eed1556a2b8eb283fc
+
       - name: Secret scan
         run: gitleaks detect --source . --no-git --redact --verbose
 
-      - name: Dependency audit
-        run: pnpm audit --audit-level moderate
+      - name: Dependency audit policy
+        run: pnpm run check:audit
 
       - name: License and SPDX policy
         run: pnpm run check:licenses

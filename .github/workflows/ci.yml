@@ -59,6 +59,11 @@ jobs:
       - name: Release state evaluator tests
         run: pnpm run test:release-state
 
+      - name: Dependency automation policy
+        run: |
+          pnpm run check:renovate
+          pnpm run check:overrides
+
       - name: API docs drift check
         run: pnpm run docs:api:check
 

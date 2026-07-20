@@ -57,7 +57,7 @@
     "test:perf": "node scripts/check-performance.mjs",
     "test:release-state": "node scripts/check-release-state.mjs",
     "test:ci": "pnpm run test:coverage",
-    "security": "pnpm audit --audit-level moderate && pnpm run check:licenses",
+    "security": "pnpm run check:audit && pnpm run check:licenses && pnpm run security:semgrep",
     "check:dead-code": "knip --include files,exports,types",
     "check:package-size": "node scripts/check-package-size.mjs",
     "check:metadata": "node scripts/check-metadata.mjs",
@@ -69,7 +69,15 @@
     "release:dry-run": "node scripts/release-state.mjs --dry-run",
     "prepare": "pnpm run build",
     "test:e2e:raw": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --testPathPatterns=e2e",
-    "docs:links:check": "node scripts/check-doc-links.mjs"
+    "docs:links:check": "node scripts/check-doc-links.mjs",
+    "check:renovate": "node scripts/check-renovate-config.mjs",
+    "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off",
+    "sonar:local": "node scripts/run-sonar-local.mjs",
+    "hooks:install": "node scripts/install-git-hooks.mjs",
+    "precommit": "pnpm run format:check && pnpm run lint && pnpm run check:renovate && pnpm run check:overrides && pnpm run security:semgrep",
+    "prepush": "pnpm run lint && pnpm run test:coverage && pnpm run build && pnpm run check:metadata && pnpm run check:renovate && pnpm run check:overrides && pnpm run check:audit && pnpm run security:semgrep && pnpm run sonar:local",
+    "check:overrides": "node scripts/check-dependency-overrides.mjs",
+    "check:audit": "node scripts/check-audit-policy.mjs"
   },
   "engines": {
     "node": ">=22"
