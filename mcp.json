@@ -1,17 +1,29 @@
 {
   "name": "infra-lens-mcp",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "Connect to Linux servers over SSH. Collect live metrics, detect anomalies with z-score analysis against recorded baselines, and get plain-English explanations of what is wrong and why.",
   "homepage": "https://github.com/oaslananka/infra-lens-mcp",
   "repository": "https://github.com/oaslananka/infra-lens-mcp",
   "license": "MIT",
-  "tags": ["infrastructure", "monitoring", "ssh", "devops", "sre", "anomaly-detection"],
-  "transport": ["stdio", "http"],
+  "tags": [
+    "infrastructure",
+    "monitoring",
+    "ssh",
+    "devops",
+    "sre",
+    "anomaly-detection"
+  ],
+  "transport": [
+    "stdio",
+    "http"
+  ],
   "connector_readiness": {
     "publishReady": false,
     "reason": "HTTP transport supports local and guarded deployments, but public connector publication requires production OAuth/HTTPS gateway configuration outside this package."
   },
-  "runtimes": ["node"],
+  "runtimes": [
+    "node"
+  ],
   "node_version": ">=22",
   "install": {
     "npx": "npx -y infra-lens-mcp",
@@ -20,7 +32,10 @@
   "mcpServers": {
     "infra-lens": {
       "command": "npx",
-      "args": ["-y", "infra-lens-mcp"],
+      "args": [
+        "-y",
+        "infra-lens-mcp"
+      ],
       "env": {
         "INFRA_LENS_DB": {
           "description": "Path to SQLite database for metric history",
