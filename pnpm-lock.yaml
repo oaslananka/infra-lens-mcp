@@ -7,7 +7,7 @@ settings:
 overrides:
   qs: 6.15.2
   test-exclude: 8.0.0
-  js-yaml: 5.1.0
+  js-yaml: 5.2.1
   hono: 4.12.25
   '@babel/core': 7.29.7
   brace-expansion@>=2.0.0 <3.0.0: 2.1.2
@@ -1856,8 +1856,8 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@5.1.0:
-    resolution: {integrity: sha512-s8VA5jkR8f22S3NAXmhKPFqGUduqZGlsufabVOgN14iTdw/RXcym7bKkbwjxLK9Yw2lEvvmJjFp119+KPeo8Kg==}
+  js-yaml@5.2.1:
+    resolution: {integrity: sha512-zfLtNfQqxVqq3uaTqSkh4x4hZw3KHobGUA0fJUj4wawW8bsQLTVqpHdXSIzidh7o+4lEW36tANuAGdaFx6Zgnw==}
     hasBin: true
 
   jsesc@3.1.0:
@@ -2927,7 +2927,7 @@ snapshots:
       camelcase: 5.3.1
       find-up: 4.1.0
       get-package-type: 0.1.0
-      js-yaml: 5.1.0
+      js-yaml: 5.2.1
       resolve-from: 5.0.0
 
   '@istanbuljs/schema@0.1.6': {}
@@ -4613,7 +4613,7 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
-  js-yaml@5.1.0:
+  js-yaml@5.2.1:
     dependencies:
       argparse: 2.0.1
 

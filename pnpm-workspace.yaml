@@ -6,7 +6,7 @@ allowBuilds:
 overrides:
   qs: 6.15.2
   test-exclude: 8.0.0
-  js-yaml: 5.1.0
+  js-yaml: 5.2.1
   hono: 4.12.25
   "@babel/core": 7.29.7
   "brace-expansion@>=2.0.0 <3.0.0": 2.1.2

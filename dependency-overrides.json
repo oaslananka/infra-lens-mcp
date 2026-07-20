@@ -15,10 +15,10 @@
       "reviewBy": "2026-08-31"
     },
     "js-yaml": {
-      "version": "5.1.0",
+      "version": "5.2.1",
       "owner": "oaslananka",
-      "reason": "Development-only parser security floor for the Istanbul/Jest configuration-loading chain.",
-      "upstream": "https://github.com/nodeca/js-yaml/releases/tag/5.1.0",
+      "reason": "Development-only parser security floor for the Istanbul/Jest configuration-loading chain affected by GHSA-g796-fgmg-93mv and GHSA-724g-mxrg-4qvm.",
+      "upstream": "https://github.com/nodeca/js-yaml/releases/tag/5.2.1",
       "reviewBy": "2026-08-31"
     },
     "hono": {
