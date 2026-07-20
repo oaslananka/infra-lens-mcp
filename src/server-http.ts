@@ -230,6 +230,7 @@ export async function startHttpRuntime(
   return { config, transport, httpServer };
 }
 
+/* istanbul ignore next -- exercised by black-box process tests */
 if (isMainModule(import.meta.url)) {
   await startHttpRuntime();
 }

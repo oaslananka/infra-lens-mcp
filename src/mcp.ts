@@ -60,6 +60,7 @@ export async function startStdioRuntime(
   return { server, transport };
 }
 
+/* istanbul ignore next -- exercised by black-box process tests */
 if (isMainModule(import.meta.url)) {
   await startStdioRuntime();
 }

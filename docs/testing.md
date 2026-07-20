@@ -63,6 +63,10 @@ pnpm run release:dry-run
 
 The thresholds are intentionally broad enough for shared CI variance and are meant to catch algorithmic or resource regressions, not small machine-to-machine noise. Budget changes require before/after measurements in the pull request. Sampling tests also assert that timers are released after success and failure.
 
+## Critical-path coverage
+
+The coverage gate includes both executable entry points and enforces a global branch floor of 80%. Critical modules also have per-file branch floors: collector 75%, HTTP security 80%, SSH 80%, and shutdown 70%. Integration tests spawn the stdio and HTTP entry points as child processes, complete a real MCP initialize/tools-list handshake, exercise a real listening socket, and verify SIGTERM cleanup.
+
 ## Golden incident fixtures
 
 `examples/incidents` contains reviewed snapshots and exact expected analysis output for CPU saturation, memory pressure, inode exhaustion, bounded network loss, and service/kernel pressure. CI runs:
