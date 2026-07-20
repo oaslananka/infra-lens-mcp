@@ -6,7 +6,7 @@ Use pnpm through Corepack:
 
 ```bash
 corepack enable
-corepack prepare pnpm@11.3.0 --activate
+corepack prepare pnpm@11.15.1 --activate
 pnpm install --frozen-lockfile
 ```
 

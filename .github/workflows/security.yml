@@ -28,7 +28,7 @@ jobs:
       - name: Prepare pnpm
         run: |
           corepack enable
-          corepack prepare pnpm@11.3.0 --activate
+          corepack prepare pnpm@11.15.1 --activate
 
       - name: Use Node.js 24
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
