@@ -106,7 +106,6 @@ Run `pnpm run check:licenses` before changing license metadata, dependency manif
 - Installed dependency licenses reported by `pnpm licenses list --json --long` match `license-policy.json`.
 
 When adding a new file, keep it covered by `REUSE.toml` or add file-specific SPDX metadata if it uses a different license. When adding a dependency, run `pnpm run check:licenses`; if the dependency introduces a new license expression, either choose a dependency with an already-approved license or update `license-policy.json` with a review note in the pull request.
+### Development-toolchain security floors
 
-### Current time-bounded audit acceptance
-
-`GHSA-4x5r-pxfx-6jf8` in development-only `@babel/core` is recorded in `audit-policy.json` through 2026-08-15. The advisory names `>=7.29.1` as fixed, but that compatible release is not published; forcing Babel 8 into Jest is not accepted as a safe patch. `pnpm run check:audit` will fail if the advisory severity increases, a different advisory appears, the acceptance expires, or the finding disappears without the stale policy entry being removed.
+The pnpm override registry pins `@babel/core` to `7.29.7` for the Jest/Istanbul transform chain affected by `GHSA-4x5r-pxfx-6jf8`. The override is development-only, governed by `dependency-overrides.json`, and must be removed when the upstream dependency graph resolves to a fixed compatible version without an override.
