@@ -72,3 +72,7 @@ Canonical npm releases use GitHub Trusted Publishing. Some trusted-publisher rel
 - npm exposes GitHub Trusted Publishing plus SLSA provenance v1 whose repository, `main` ref, `publish-npm.yml` workflow, `repository_dispatch` event, resolved Git commit, package subject, and SHA-512 artifact digest all match the canonical release.
 
 A missing or mismatched provenance field is a hard reconciliation failure. The release must never be republished to repair registry metadata.
+
+### Historical reconciliation verifier
+
+The reconciliation workflow checks out the immutable release tag as its working tree, then checks out only the current verifier scripts from `main` into `.release-verifier`. This keeps released metadata immutable while allowing verifier bug fixes and new registry evidence formats to validate historical releases without recreating tags or republishing artifacts.
