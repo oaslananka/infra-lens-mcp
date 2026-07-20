@@ -188,7 +188,7 @@ INFRA_LENS_E2E_SKIP_FIXTURE=1 pnpm run test:e2e:raw
 
 Generated API docs live in [docs/api](./docs/api/README.md). Client setup recipes live in [docs/integrations/client-setup.md](./docs/integrations/client-setup.md), and SQLite backup, retention, pagination, and export procedures live in [docs/storage-lifecycle.md](./docs/storage-lifecycle.md).
 
-See [docs/testing.md](./docs/testing.md), [docs/security.md](./docs/security.md), [docs/operations.md](./docs/operations.md), [docs/release.md](./docs/release.md), the [Node support policy](./docs/compatibility/node-support.md), and the [repository control baseline](./docs/governance/repository-controls.md) for the full operational workflow.
+See [docs/testing.md](./docs/testing.md), [docs/security.md](./docs/security.md), the [threat model](./docs/security-threat-model.md), [docs/operations.md](./docs/operations.md), [docs/release.md](./docs/release.md), the [Node support policy](./docs/compatibility/node-support.md), and the [repository control baseline](./docs/governance/repository-controls.md) for the full operational workflow.
 
 ## Community
 

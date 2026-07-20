@@ -50,6 +50,9 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      - name: Threat-model abuse cases
+        run: pnpm run test:abuse
+
       - name: Build
         run: pnpm run build
 
