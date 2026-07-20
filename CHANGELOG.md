@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.1.0...infra-lens-mcp-v1.1.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* **deps:** raise Babel security floor ([#95](https://github.com/oaslananka/infra-lens-mcp/issues/95)) ([aaeecf4](https://github.com/oaslananka/infra-lens-mcp/commit/aaeecf41bcd57be323d4a8176d486150667e639a))
+* **release:** run current verifier against immutable tags ([#91](https://github.com/oaslananka/infra-lens-mcp/issues/91)) ([6c3a817](https://github.com/oaslananka/infra-lens-mcp/commit/6c3a817a295fbc3ed82f7bb975163cf34afb084a))
+* **release:** verify npm trusted-publisher provenance ([#89](https://github.com/oaslananka/infra-lens-mcp/issues/89)) ([b84d43f](https://github.com/oaslananka/infra-lens-mcp/commit/b84d43f94762a1aa6703a2445fdfca915a8b5708))
+* **security:** harden dependency and local analysis tooling ([#93](https://github.com/oaslananka/infra-lens-mcp/issues/93)) ([615f9f6](https://github.com/oaslananka/infra-lens-mcp/commit/615f9f6e80ee3f12e505eb82a62b77578b98a494))
+* **toolchain:** raise pnpm security floor ([#94](https://github.com/oaslananka/infra-lens-mcp/issues/94)) ([da06089](https://github.com/oaslananka/infra-lens-mcp/commit/da06089c706753e0273cbf036451cc86591186c4))
+
 ## [1.1.0](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.0.6...infra-lens-mcp-v1.1.0) (2026-07-20)
 
 
