@@ -4,38 +4,48 @@ import { readFileSync } from 'node:fs';
 const workspace = readFileSync('pnpm-workspace.yaml', 'utf8');
 const governance = JSON.parse(readFileSync('dependency-overrides.json', 'utf8'));
 
-function parseMapping(sectionName) {
-  const lines = workspace.split(/\r?\n/);
-  const values = new Map();
-  let inSection = false;
+function stripYamlScalar(value) {
+  const trimmed = value.trim();
+  const first = trimmed.at(0);
+  const last = trimmed.at(-1);
+  if ((first === "'" && last === "'") || (first === '"' && last === '"')) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
 
-  for (const line of lines) {
-    if (line === `${sectionName}:`) {
-      inSection = true;
-      continue;
-    }
-    if (!inSection) continue;
+function sectionLines(sectionName) {
+  const lines = workspace.split(/\r?\n/);
+  const start = lines.indexOf(`${sectionName}:`);
+  if (start < 0) return [];
+
+  const section = [];
+  for (const line of lines.slice(start + 1)) {
     if (line && !line.startsWith(' ')) break;
-    const match = line.match(/^ {2}(['"]?)([^:'"]+)\1:\s*(.+)$/);
-    if (match) values.set(match[2], match[3].trim().replace(/^['"]|['"]$/g, ''));
+    if (line) section.push(line);
+  }
+  return section;
+}
+
+function parseMapping(sectionName) {
+  const values = new Map();
+  for (const line of sectionLines(sectionName)) {
+    if (!line.startsWith('  ') || line.startsWith('    ')) continue;
+    const entry = line.slice(2);
+    const separator = entry.indexOf(':');
+    if (separator < 1) continue;
+    const key = stripYamlScalar(entry.slice(0, separator));
+    const value = stripYamlScalar(entry.slice(separator + 1));
+    if (key && value) values.set(key, value);
   }
   return values;
 }
 
 function parseList(sectionName) {
-  const lines = workspace.split(/\r?\n/);
   const values = [];
-  let inSection = false;
-
-  for (const line of lines) {
-    if (line === `${sectionName}:`) {
-      inSection = true;
-      continue;
-    }
-    if (!inSection) continue;
-    if (line && !line.startsWith(' ')) break;
-    const match = line.match(/^ {2}-\s+['"]?(.+?)['"]?$/);
-    if (match) values.push(match[1]);
+  for (const line of sectionLines(sectionName)) {
+    if (!line.startsWith('  - ')) continue;
+    values.push(stripYamlScalar(line.slice(4)));
   }
   return values;
 }
@@ -44,12 +54,13 @@ function validateRecord(kind, key, record) {
   for (const field of ['owner', 'reason', 'upstream', 'reviewBy']) {
     if (!record?.[field]) throw new Error(`${kind} ${key} is missing ${field}`);
   }
-  if (!/^https:\/\//.test(record.upstream)) {
+  if (!record.upstream.startsWith('https://')) {
     throw new Error(`${kind} ${key} must use an HTTPS upstream reference`);
   }
   const reviewBy = new Date(`${record.reviewBy}T23:59:59Z`);
-  if (Number.isNaN(reviewBy.valueOf()))
+  if (Number.isNaN(reviewBy.valueOf())) {
     throw new Error(`${kind} ${key} has an invalid reviewBy date`);
+  }
   if (reviewBy < new Date()) throw new Error(`${kind} ${key} expired on ${record.reviewBy}`);
 }
 
@@ -67,8 +78,9 @@ for (const [name, version] of overrides) {
   }
 }
 for (const name of governedOverrides.keys()) {
-  if (!overrides.has(name))
+  if (!overrides.has(name)) {
     throw new Error(`Governance metadata for ${name} has no active pnpm override`);
+  }
 }
 
 const exceptions = parseList('minimumReleaseAgeExclude');

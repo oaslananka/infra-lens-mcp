@@ -40,7 +40,7 @@ if (!managers.some((manager) => manager.depNameTemplate === 'pnpm')) {
 if (!managers.some((manager) => manager.datasourceTemplate === 'pypi')) {
   fail('pinned Python security tools must be managed by a custom manager');
 }
-if (!managers.some((manager) => manager.depNameTemplate === 'renovate')) {
+if (!managers.some((manager) => manager.depNameTemplate === 'renovate/renovate')) {
   fail('the pinned Renovate validator must manage itself');
 }
 if (!managers.some((manager) => manager.depNameTemplate === '@sonar/scan')) {

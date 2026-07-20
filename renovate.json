@@ -141,7 +141,7 @@
         "zizmor",
         "rhysd/actionlint",
         "gitleaks/gitleaks",
-        "renovate"
+        "renovate/renovate"
       ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
@@ -193,14 +193,14 @@
     },
     {
       "customType": "regex",
-      "description": "Update the official Renovate config validator used in CI.",
+      "description": "Update the digest-pinned Renovate validator container used in CI.",
       "managerFilePatterns": ["/^\\.github\\/workflows\\/security\\.yml$/"],
       "matchStrings": [
-        "npx --yes --package=renovate@(?<currentValue>\\d+\\.\\d+\\.\\d+) renovate-config-validator"
+        "renovate/renovate:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
-      "depNameTemplate": "renovate",
-      "datasourceTemplate": "npm",
-      "versioningTemplate": "npm"
+      "depNameTemplate": "renovate/renovate",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
     },
     {
       "customType": "regex",
