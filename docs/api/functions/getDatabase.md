@@ -8,7 +8,7 @@
 
 > **getDatabase**(): `Database`
 
-Defined in: [db.ts:96](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/db.ts#L96)
+Defined in: [db.ts:160](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/db.ts#L160)
 
 ## Returns
 

@@ -84,6 +84,7 @@ Transport is selected by the executable entry point, not by an environment varia
 | Variable | Default | Description |
 | --- | --- | --- |
 | `INFRA_LENS_DB` | `~/.infra-lens-mcp/metrics.db` | SQLite database path |
+| `INFRA_LENS_RETENTION_DAYS` | `30` | Snapshot retention in days; `0` disables automatic pruning |
 | `MCP_HTTP_HOST` | `127.0.0.1` | HTTP bind host. `HOST` remains a deprecated alias |
 | `MCP_HTTP_PORT` | `3000` | HTTP bind port. `PORT` remains a deprecated alias |
 | `MCP_HTTP_ENDPOINT_PATH` | `/mcp` | Canonical Streamable HTTP MCP endpoint path |
@@ -185,7 +186,7 @@ If a fixture is already running and you intentionally want to skip lifecycle man
 INFRA_LENS_E2E_SKIP_FIXTURE=1 pnpm run test:e2e:raw
 ```
 
-Generated API docs live in [docs/api](./docs/api/README.md). Client setup recipes live in [docs/integrations/client-setup.md](./docs/integrations/client-setup.md).
+Generated API docs live in [docs/api](./docs/api/README.md). Client setup recipes live in [docs/integrations/client-setup.md](./docs/integrations/client-setup.md), and SQLite backup, retention, pagination, and export procedures live in [docs/storage-lifecycle.md](./docs/storage-lifecycle.md).
 
 See [docs/testing.md](./docs/testing.md), [docs/security.md](./docs/security.md), [docs/operations.md](./docs/operations.md), [docs/release.md](./docs/release.md), the [Node support policy](./docs/compatibility/node-support.md), and the [repository control baseline](./docs/governance/repository-controls.md) for the full operational workflow.
 

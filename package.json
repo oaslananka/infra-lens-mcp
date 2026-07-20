@@ -26,7 +26,8 @@
   },
   "bin": {
     "infra-lens-mcp": "dist/mcp.js",
-    "mcp-infra-lens": "dist/mcp.js"
+    "mcp-infra-lens": "dist/mcp.js",
+    "infra-lens-export": "dist/export-history.js"
   },
   "files": [
     "dist",

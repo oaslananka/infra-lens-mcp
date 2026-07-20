@@ -1,10 +1,11 @@
 {
   "maxPackageSizeBytes": 350000,
   "maxUnpackedSizeBytes": 600000,
-  "maxFileCount": 150,
+  "maxFileCount": 170,
   "notes": [
     "Budgets are based on the npm tarball generated from version 1.0.6 plus headroom for docs and generated API references.",
     "Run pnpm run build before pnpm run check:package-size so dist reflects the current source.",
-    "Repository-only demo media is excluded from the npm artifact so runtime and operational files retain budget headroom."
+    "Repository-only demo media is excluded from the npm artifact so runtime and operational files retain budget headroom.",
+    "The storage lifecycle release adds public pagination/export APIs, generated TypeDoc pages, and operational backup documentation; the file-count budget increases to 170 while byte budgets remain unchanged."
   ]
 }

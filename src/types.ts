@@ -72,7 +72,15 @@ export const GetHistorySchema = z.object({
   label: z
     .string()
     .optional()
-    .describe('Optional label filter; omitted returns observations, set returns matching records')
+    .describe('Optional label filter; omitted returns observations, set returns matching records'),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(200)
+    .optional()
+    .describe('Maximum history points returned in one page; defaults to 100'),
+  cursor: z.string().optional().describe('Opaque cursor returned by a previous history page')
 });
 
 export const DiskMetricSchema = z.object({
@@ -218,6 +226,8 @@ export const GetHistoryOutputSchema = z.object({
   hours: z.number().int().min(1).max(168),
   label: z.string().nullable(),
   data_points: z.number().int().min(0),
+  has_more: z.boolean(),
+  next_cursor: z.string().nullable(),
   history: z.array(HistoryPointSchema)
 });
 
@@ -358,7 +368,24 @@ export interface Anomaly {
 
 export type SnapshotClassification = 'observation' | 'baseline';
 
+export interface HistoryPageOptions {
+  host: string;
+  metric: MetricName;
+  hours: number;
+  label?: string;
+  limit?: number;
+  cursor?: string;
+  now?: number;
+}
+
+export interface HistoryPage {
+  items: StoredSnapshotRow[];
+  has_more: boolean;
+  next_cursor: string | null;
+}
+
 export interface StoredSnapshotRow {
+  id?: number;
   timestamp: number;
   cpu_percent: number;
   memory_percent: number;

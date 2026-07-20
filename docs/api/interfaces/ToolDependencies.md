@@ -272,11 +272,29 @@ Defined in: [server-core.ts:79](https://github.com/oaslananka/infra-lens-mcp/blo
 
 ***
 
+### getHistoryPage?
+
+> `optional` **getHistoryPage?**: (`options`) => [`HistoryPage`](HistoryPage.md)
+
+Defined in: [server-core.ts:80](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L80)
+
+#### Parameters
+
+##### options
+
+[`HistoryPageOptions`](HistoryPageOptions.md)
+
+#### Returns
+
+[`HistoryPage`](HistoryPage.md)
+
+***
+
 ### saveSnapshot
 
 > **saveSnapshot**: (`snapshot`, `label`, `classification`) => `void`
 
-Defined in: [server-core.ts:80](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L80)
+Defined in: [server-core.ts:81](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L81)
 
 #### Parameters
 

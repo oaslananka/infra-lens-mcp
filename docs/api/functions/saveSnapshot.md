@@ -8,7 +8,7 @@
 
 > **saveSnapshot**(`snapshot`, `label?`, `classification?`): `void`
 
-Defined in: [baseline.ts:15](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/baseline.ts#L15)
+Defined in: [baseline.ts:85](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/baseline.ts#L85)
 
 ## Parameters
 

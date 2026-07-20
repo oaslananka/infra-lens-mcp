@@ -58,6 +58,16 @@ if (mcpJson.node_version !== packageJson.engines?.node) {
   fail('mcp.json node_version must match package.json engines.node.');
 }
 
+const requiredBins = {
+  'infra-lens-mcp': 'dist/mcp.js',
+  'infra-lens-export': 'dist/export-history.js'
+};
+for (const [binName, binPath] of Object.entries(requiredBins)) {
+  if (packageJson.bin?.[binName] !== binPath) {
+    fail(`package.json bin ${binName} must point to ${binPath}.`);
+  }
+}
+
 const requiredFiles = [
   'dist',
   'README.md',

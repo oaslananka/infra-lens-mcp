@@ -8,4 +8,4 @@
 
 > `const` **toolDefinitions**: readonly [`ToolDefinition`](../interfaces/ToolDefinition.md)\<`unknown`\>[]
 
-Defined in: [server-core.ts:323](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L323)
+Defined in: [server-core.ts:347](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L347)
