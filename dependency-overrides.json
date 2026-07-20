@@ -34,6 +34,20 @@
       "reason": "Development-only security floor for the Jest and Istanbul transform chain affected by GHSA-4x5r-pxfx-6jf8.",
       "upstream": "https://github.com/advisories/GHSA-4x5r-pxfx-6jf8",
       "reviewBy": "2026-08-31"
+    },
+    "brace-expansion@>=2.0.0 <3.0.0": {
+      "version": "2.1.2",
+      "owner": "oaslananka",
+      "reason": "Development-toolchain security floor for Jest glob/minimatch paths affected by GHSA-3jxr-9vmj-r5cp.",
+      "upstream": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+      "reviewBy": "2026-08-31"
+    },
+    "brace-expansion@>=3.0.0": {
+      "version": "5.0.7",
+      "owner": "oaslananka",
+      "reason": "Development-toolchain security floor for ESLint, TypeScript-ESLint, TypeDoc, and Istanbul minimatch paths affected by GHSA-3jxr-9vmj-r5cp.",
+      "upstream": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+      "reviewBy": "2026-08-31"
     }
   },
   "releaseAgeExceptions": {}

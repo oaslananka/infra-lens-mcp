@@ -112,3 +112,5 @@ When adding a new file, keep it covered by `REUSE.toml` or add file-specific SPD
 ### Development-toolchain security floors
 
 The pnpm override registry pins `@babel/core` to `7.29.7` for the Jest/Istanbul transform chain affected by `GHSA-4x5r-pxfx-6jf8`. The override is development-only, governed by `dependency-overrides.json`, and must be removed when the upstream dependency graph resolves to a fixed compatible version without an override.
+
+The override registry also pins `brace-expansion` 2.x to `2.1.2` and 3.x-or-newer dependency paths to `5.0.7` for the development toolchain affected by `GHSA-3jxr-9vmj-r5cp`. These overrides remain governed and must be removed when Jest, ESLint, TypeDoc, and their transitive minimatch paths resolve safely without them.
