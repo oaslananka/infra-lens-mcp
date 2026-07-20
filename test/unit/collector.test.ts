@@ -215,6 +215,63 @@ describe('collectSnapshot', () => {
     expect(snapshot.processes[0]?.command).toBe('node api.js');
   });
 
+  it('marks unsampled quality counters unsupported instead of treating lifetime totals as incidents', async () => {
+    const snapshot = await collectSnapshot(connection, {
+      run: async () => ({
+        cpu: '10\n0.10 0.10 0.10 0/0 0\n4',
+        memory: '4096 1024 3072\n0 0',
+        disk: '',
+        network: 'eth0 1000 2000 10 20 8 7 6 5',
+        system:
+          'failed_units 0\nkernel_error_events 0\nkernel_signal_available 0\nkernel_window_minutes 5',
+        processes: '',
+        os: '6.8.0\nserver.example.com\nUbuntu 24.04.1 LTS\n86400'
+      })
+    });
+
+    expect(snapshot.network[0]?.sample_window_seconds).toBeUndefined();
+    expect(snapshot.warnings).toContain(
+      'Network quality counters were not sampled over a bounded window; anomaly detection skipped for eth0.'
+    );
+    expect(snapshot.warnings).toContain(
+      'Recent kernel error evidence is unavailable; kernel anomaly detection was skipped.'
+    );
+  });
+
+  it('parses bounded network deltas, reset evidence, and a recent kernel window', async () => {
+    const snapshot = await collectSnapshot(connection, {
+      run: async () => ({
+        cpu: '10\n0.10 0.10 0.10 0/0 0\n4',
+        memory: '4096 1024 3072\n0 0',
+        disk: '',
+        network: 'eth0 1000 2000 10 20 1 2 3 4 1',
+        system:
+          'failed_units 0\nkernel_error_events 2\nkernel_signal_available 1\nkernel_window_minutes 5',
+        processes: '',
+        os: '6.8.0\nserver.example.com\nUbuntu 24.04.1 LTS\n86400'
+      })
+    });
+
+    expect(snapshot.network[0]).toMatchObject({
+      interface: 'eth0',
+      rx_errors: 1,
+      tx_errors: 2,
+      rx_dropped: 3,
+      tx_dropped: 4,
+      sample_window_seconds: 1,
+      counter_reset: true
+    });
+    expect(snapshot.system).toEqual({
+      failed_units: 0,
+      kernel_error_events: 2,
+      kernel_signal_available: true,
+      kernel_window_minutes: 5
+    });
+    expect(snapshot.warnings).toContain(
+      'Network counters reset or wrapped during the sample window for eth0; anomaly detection skipped for that interface.'
+    );
+  });
+
   it('parses inode, network quality, and system health signals', async () => {
     const snapshot = await collectSnapshot(connection, {
       run: async () => ({
@@ -222,8 +279,9 @@ describe('collectSnapshot', () => {
         memory: '4096 1024 3072\n0 0',
         disk: '/dev/sda1 / 100 40 40',
         diskInodes: '/dev/sda1 / 100000 95000 95',
-        network: 'eth0 1000 2000 10 20 1 2 3 4',
-        system: 'failed_units 2\nkernel_error_events 5',
+        network: 'eth0 1000 2000 10 20 1 2 3 4 0',
+        system:
+          'failed_units 2\nkernel_error_events 5\nkernel_signal_available 1\nkernel_window_minutes 5',
         processes: '',
         os: '6.8.0\nserver.example.com\nUbuntu 24.04.1 LTS\n86400'
       })
@@ -240,8 +298,15 @@ describe('collectSnapshot', () => {
       rx_errors: 1,
       tx_errors: 2,
       rx_dropped: 3,
-      tx_dropped: 4
+      tx_dropped: 4,
+      sample_window_seconds: 1,
+      counter_reset: false
     });
-    expect(snapshot.system).toEqual({ failed_units: 2, kernel_error_events: 5 });
+    expect(snapshot.system).toEqual({
+      failed_units: 2,
+      kernel_error_events: 5,
+      kernel_signal_available: true,
+      kernel_window_minutes: 5
+    });
   });
 });

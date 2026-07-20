@@ -39,9 +39,9 @@ const DISK_COMMAND =
 const DISK_INODE_COMMAND =
   'export LC_ALL=C; df -Pi --output=source,target,itotal,iused,ipcent | awk \'NR>1 && $1 != "tmpfs" && $1 != "udev" {gsub("%", "", $5); print $1, $2, $3, $4, $5}\'';
 const NETWORK_COMMAND =
-  'export LC_ALL=C; cat /proc/net/dev | awk \'NR>2 {gsub(":", "", $1); if ($1 != "lo") print $1, $2, $10, $3, $11, $4, $12, $5, $13}\'';
+  'export LC_ALL=C; first=$(mktemp); second=$(mktemp); trap \'rm -f "$first" "$second"\' EXIT; cat /proc/net/dev >"$first"; sleep 1; cat /proc/net/dev >"$second"; awk \'function delta(current, previous) { return current >= previous ? current - previous : current } FILENAME == ARGV[1] && FNR > 2 { gsub(":", "", $1); if ($1 != "lo") { seen[$1] = 1; rx_bytes[$1] = $2; rx_packets[$1] = $3; rx_errors[$1] = $4; rx_dropped[$1] = $5; tx_bytes[$1] = $10; tx_packets[$1] = $11; tx_errors[$1] = $12; tx_dropped[$1] = $13 } next } FNR > 2 { gsub(":", "", $1); if ($1 != "lo") { reset = !seen[$1] || $2 < rx_bytes[$1] || $3 < rx_packets[$1] || $4 < rx_errors[$1] || $5 < rx_dropped[$1] || $10 < tx_bytes[$1] || $11 < tx_packets[$1] || $12 < tx_errors[$1] || $13 < tx_dropped[$1]; print $1, delta($2, rx_bytes[$1]), delta($10, tx_bytes[$1]), delta($3, rx_packets[$1]), delta($11, tx_packets[$1]), delta($4, rx_errors[$1]), delta($12, tx_errors[$1]), delta($5, rx_dropped[$1]), delta($13, tx_dropped[$1]), reset ? 1 : 0 } }\' "$first" "$second"';
 const SYSTEM_COMMAND =
-  'export LC_ALL=C; failed=0; if command -v systemctl >/dev/null 2>&1; then failed=$(systemctl --failed --no-legend --plain --no-pager 2>/dev/null | wc -l | tr -d " "); fi; printf "failed_units %s\n" "${failed:-0}"; kernel_errors=0; if command -v dmesg >/dev/null 2>&1; then kernel_errors=$(dmesg -T --level=err,crit,alert,emerg 2>/dev/null | tail -20 | wc -l | tr -d " " || true); fi; printf "kernel_error_events %s\n" "${kernel_errors:-0}"';
+  'export LC_ALL=C; failed=0; if command -v systemctl >/dev/null 2>&1; then failed=$(systemctl --failed --no-legend --plain --no-pager 2>/dev/null | awk \'NF { count++ } END { print count + 0 }\'); fi; printf "failed_units %s\n" "${failed:-0}"; kernel_window=5; kernel_errors=0; kernel_available=0; if command -v journalctl >/dev/null 2>&1; then kernel_output=$(journalctl -k --since "-${kernel_window} minutes" -p err..emerg --no-pager --output=cat 2>/dev/null); kernel_status=$?; if [ "$kernel_status" -eq 0 ]; then kernel_available=1; kernel_errors=$(printf "%s\n" "$kernel_output" | awk \'NF { count++ } END { print count + 0 }\'); fi; elif command -v dmesg >/dev/null 2>&1 && dmesg --help 2>&1 | grep -q -- --since; then kernel_output=$(dmesg --since "${kernel_window} minutes ago" --level=err,crit,alert,emerg 2>/dev/null); kernel_status=$?; if [ "$kernel_status" -eq 0 ]; then kernel_available=1; kernel_errors=$(printf "%s\n" "$kernel_output" | awk \'NF { count++ } END { print count + 0 }\'); fi; fi; printf "kernel_error_events %s\n" "${kernel_errors:-0}"; printf "kernel_signal_available %s\n" "${kernel_available}"; printf "kernel_window_minutes %s\n" "${kernel_window}"';
 const PROCESS_COMMAND =
   'export LC_ALL=C; ps -eo pid,comm,%cpu,%mem --sort=-%cpu | awk \'NR>1 && NR<=11 {printf "%s\\t%s\\t%s\\t%s\\t%s\\n", $1, $2, $3, $4, $2}\'';
 
@@ -249,7 +249,13 @@ function parseNetworkMetrics(raw: string): NetworkMetric[] {
             rx_errors: Number.parseInt(parts[5] ?? '0', 10),
             tx_errors: Number.parseInt(parts[6] ?? '0', 10),
             rx_dropped: Number.parseInt(parts[7] ?? '0', 10),
-            tx_dropped: Number.parseInt(parts[8] ?? '0', 10)
+            tx_dropped: Number.parseInt(parts[8] ?? '0', 10),
+            ...(parts.length >= 10
+              ? {
+                  sample_window_seconds: 1,
+                  counter_reset: parts[9] === '1'
+                }
+              : {})
           }
         : {})
     }));
@@ -266,7 +272,13 @@ function parseSystemMetrics(raw: string): SystemMetric {
 
   return {
     failed_units: values.get('failed_units') ?? 0,
-    kernel_error_events: values.get('kernel_error_events') ?? 0
+    kernel_error_events: values.get('kernel_error_events') ?? 0,
+    ...(values.has('kernel_signal_available')
+      ? { kernel_signal_available: values.get('kernel_signal_available') === 1 }
+      : {}),
+    ...(values.has('kernel_window_minutes')
+      ? { kernel_window_minutes: values.get('kernel_window_minutes') }
+      : {})
   };
 }
 
@@ -340,6 +352,34 @@ export async function collectSnapshot(
   const usedMemory = Math.max(0, totalMemory - availableMemory);
   const osLines = raw.os.split('\n');
 
+  const network = parseNetworkMetrics(raw.network);
+  const system = parseSystemMetrics(raw.system ?? '');
+  const warnings = [...(raw.warnings ?? [])];
+
+  for (const metric of network) {
+    const hasQualityCounters =
+      metric.rx_errors !== undefined ||
+      metric.tx_errors !== undefined ||
+      metric.rx_dropped !== undefined ||
+      metric.tx_dropped !== undefined;
+    if (hasQualityCounters && metric.sample_window_seconds === undefined) {
+      warnings.push(
+        `Network quality counters were not sampled over a bounded window; anomaly detection skipped for ${metric.interface}.`
+      );
+    }
+    if (metric.counter_reset) {
+      warnings.push(
+        `Network counters reset or wrapped during the sample window for ${metric.interface}; anomaly detection skipped for that interface.`
+      );
+    }
+  }
+
+  if (system.kernel_signal_available === false) {
+    warnings.push(
+      'Recent kernel error evidence is unavailable; kernel anomaly detection was skipped.'
+    );
+  }
+
   return {
     timestamp: Date.now(),
     host: connection.host,
@@ -353,8 +393,8 @@ export async function collectSnapshot(
       swap_total_mb: Number.parseInt(swapParts[1] ?? '0', 10)
     },
     disk: parseDiskMetrics(raw.disk, raw.diskInodes),
-    network: parseNetworkMetrics(raw.network),
-    system: parseSystemMetrics(raw.system ?? ''),
+    network,
+    system,
     processes: parseProcessMetrics(raw.processes),
     os: {
       kernel: osLines[0] ?? '',
@@ -362,7 +402,7 @@ export async function collectSnapshot(
       distro: osLines[2] || 'Unknown',
       uptime_seconds: Number.parseFloat(osLines[3] ?? '0')
     },
-    warnings: raw.warnings ?? []
+    warnings
   };
 }
 

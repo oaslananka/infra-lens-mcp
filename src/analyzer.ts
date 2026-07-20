@@ -271,22 +271,45 @@ export function analyzeSnapshot(
   }
 
   for (const network of snapshot.network) {
+    if (!network.sample_window_seconds || network.counter_reset) {
+      continue;
+    }
+
     const errorCount =
       (network.rx_errors ?? 0) +
       (network.tx_errors ?? 0) +
       (network.rx_dropped ?? 0) +
       (network.tx_dropped ?? 0);
+    const packetCount = (network.rx_packets ?? 0) + (network.tx_packets ?? 0);
+    let errorRate = 0;
+    if (packetCount > 0) {
+      errorRate = errorCount / packetCount;
+    } else if (errorCount > 0) {
+      errorRate = 1;
+    }
+
     if (errorCount > 0) {
+      let severity: Anomaly['severity'] = 'low';
+      if (errorCount >= 10 && errorRate >= 0.05) {
+        severity = 'high';
+      } else if (errorCount >= 5 && errorRate >= 0.01) {
+        severity = 'medium';
+      }
       anomalies.push({
         metric: `network:${network.interface}`,
-        severity: errorCount >= 100 ? 'high' : errorCount >= 10 ? 'medium' : 'low',
+        severity,
         value: errorCount,
         baseline_mean: 0,
-        explanation: `Interface ${network.interface} reports ${errorCount} packet errors or drops. RX/TX bytes are ${network.rx_bytes}/${network.tx_bytes}.`,
+        evidence: [
+          `${errorCount} errors or drops across ${packetCount} packets during a ${network.sample_window_seconds}s sample.`,
+          `Bounded packet-loss ratio ${roundTo(errorRate * 100, 2)}%.`,
+          `RX/TX byte deltas ${network.rx_bytes}/${network.tx_bytes}.`
+        ],
+        explanation: `Interface ${network.interface} recorded ${errorCount} packet errors or drops during a ${network.sample_window_seconds}s sample (${roundTo(errorRate * 100, 2)}% of sampled packets).`,
         recommendation:
-          errorCount >= 100
+          severity === 'high'
             ? 'Inspect NIC, driver, MTU, duplex, and upstream switch counters immediately.'
-            : 'Watch the interface counters and compare them with application latency or packet loss symptoms.'
+            : 'Repeat the bounded sample and correlate it with application latency or packet loss symptoms.'
       });
     }
   }
@@ -303,13 +326,13 @@ export function analyzeSnapshot(
     });
   }
 
-  if (system.kernel_error_events > 0) {
+  if (system.kernel_signal_available === true && system.kernel_error_events > 0) {
     anomalies.push({
       metric: 'system:kernel_errors',
       severity: system.kernel_error_events >= 5 ? 'high' : 'medium',
       value: system.kernel_error_events,
       baseline_mean: 0,
-      explanation: `${system.kernel_error_events} recent kernel error event${system.kernel_error_events === 1 ? '' : 's'} were found.`,
+      explanation: `${system.kernel_error_events} kernel error event${system.kernel_error_events === 1 ? '' : 's'} were found in the last ${system.kernel_window_minutes ?? 5} minutes.`,
       recommendation:
         'Review dmesg for storage, network, OOM, or hardware errors that explain the symptom.'
     });

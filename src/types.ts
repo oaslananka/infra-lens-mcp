@@ -95,12 +95,16 @@ export const NetworkMetricSchema = z.object({
   rx_errors: z.number().optional(),
   tx_errors: z.number().optional(),
   rx_dropped: z.number().optional(),
-  tx_dropped: z.number().optional()
+  tx_dropped: z.number().optional(),
+  sample_window_seconds: z.number().positive().optional(),
+  counter_reset: z.boolean().optional()
 });
 
 export const SystemMetricSchema = z.object({
   failed_units: z.number().int().min(0),
-  kernel_error_events: z.number().int().min(0)
+  kernel_error_events: z.number().int().min(0),
+  kernel_signal_available: z.boolean().optional(),
+  kernel_window_minutes: z.number().int().positive().optional()
 });
 
 export const ProcessMetricSchema = z.object({
@@ -278,11 +282,15 @@ export interface NetworkMetric {
   tx_errors?: number;
   rx_dropped?: number;
   tx_dropped?: number;
+  sample_window_seconds?: number;
+  counter_reset?: boolean;
 }
 
 export interface SystemMetric {
   failed_units: number;
   kernel_error_events: number;
+  kernel_signal_available?: boolean;
+  kernel_window_minutes?: number;
 }
 
 export interface ProcessMetric {
