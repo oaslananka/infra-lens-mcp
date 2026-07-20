@@ -9,7 +9,7 @@ Default `full` profile inputs may include local SSH credentials:
   "connection": {
     "host": "app-01.internal",
     "username": "ops",
-    "privateKey": "-----BEGIN OPENSSH PRIVATE KEY-----...",
+    "privateKey": "<redacted-private-key-material>",
     "hostKeySha256": "SHA256:..."
   }
 }

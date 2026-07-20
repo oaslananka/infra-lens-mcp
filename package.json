@@ -72,12 +72,12 @@
     "docs:links:check": "node scripts/check-doc-links.mjs",
     "check:renovate": "node scripts/check-renovate-config.mjs",
     "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off",
-    "sonar:local": "node scripts/run-sonar-local.mjs",
     "hooks:install": "node scripts/install-git-hooks.mjs",
     "precommit": "pnpm run format:check && pnpm run lint && pnpm run check:renovate && pnpm run check:overrides && pnpm run security:semgrep",
-    "prepush": "pnpm run lint && pnpm run test:coverage && pnpm run build && pnpm run check:metadata && pnpm run check:renovate && pnpm run check:overrides && pnpm run check:audit && pnpm run security:semgrep && pnpm run sonar:local",
+    "prepush": "pnpm run lint && pnpm run test:coverage && pnpm run build && pnpm run check:metadata && pnpm run check:renovate && pnpm run check:overrides && pnpm run check:audit && pnpm run security:semgrep",
     "check:overrides": "node scripts/check-dependency-overrides.mjs",
-    "check:audit": "node scripts/check-audit-policy.mjs"
+    "check:audit": "node scripts/check-audit-policy.mjs",
+    "sonar:secrets": "pre-commit run sonar-secrets --all-files --hook-stage manual"
   },
   "engines": {
     "node": ">=22"

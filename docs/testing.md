@@ -90,7 +90,7 @@ The e2e fixture explicitly disables strict host checking for the disposable cont
 
 ## Workflow security tools
 
-The CI security workflow installs and runs:
+The CI security workflow runs SHA-pinned actionlint/Gitleaks tool versions and the SHA-pinned official `zizmor-action`. Equivalent local checks are:
 
 ```bash
 actionlint
@@ -105,8 +105,8 @@ Run the same tools locally when changing workflows or release automation.
 Install the cross-platform hook framework once per clone:
 
 ```bash
-pipx install pre-commit
-pipx install semgrep
+mise trust
+mise install
 pnpm run hooks:install
 ```
 
@@ -116,7 +116,7 @@ The pre-commit stage validates file hygiene, JSON/YAML syntax, staged formatting
 pnpm run prepush
 ```
 
-`pnpm run sonar:local` uses `sonar-project.properties` and the official `@sonar/scan` package. It generates coverage when needed and submits analysis only when `SONAR_TOKEN` exists; otherwise it exits successfully with an explicit skip message. SonarQube Cloud remains enforced on pull requests even when a contributor does not have a local token.
+SonarQube Cloud uses Automatic Analysis and `.sonarcloud.properties`; there is intentionally no `sonar-project.properties` or CI scanner workflow. Run `pnpm run sonar:secrets` manually with `SONARQUBE_CLI_TOKEN` and `SONARQUBE_CLI_ORG=oaslananka` when a local credential-leak scan is required.
 
 Run the deterministic security checks directly with:
 

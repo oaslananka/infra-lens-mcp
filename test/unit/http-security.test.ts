@@ -254,11 +254,13 @@ describe('HTTP security configuration', () => {
       statusCode: 401,
       message: 'Authentication is required.'
     });
-    expect(authorizeHttpRequest('Bearer wrong-token', config)).toMatchObject({
-      ok: false,
-      statusCode: 401,
-      message: 'Authentication is invalid.'
-    });
+    for (const invalidToken of ['Bearer x', 'Bearer rejected-token']) {
+      expect(authorizeHttpRequest(invalidToken, config)).toMatchObject({
+        ok: false,
+        statusCode: 401,
+        message: 'Authentication is invalid.'
+      });
+    }
     expect(authorizeHttpRequest('Bearer expected-token', config)).toEqual({ ok: true });
   });
 
@@ -297,13 +299,17 @@ describe('HTTP security configuration', () => {
       statusCode: 401,
       message: 'OAuth gateway authentication is required.'
     });
-    expect(
-      authorizeHttpRequest(undefined, config, { 'x-infra-lens-gateway-auth': 'wrong-secret' })
-    ).toMatchObject({
-      ok: false,
-      statusCode: 403,
-      message: 'OAuth gateway authentication is invalid.'
-    });
+    for (const invalidSecret of ['x', 'wrong--secret']) {
+      expect(
+        authorizeHttpRequest(undefined, config, {
+          'x-infra-lens-gateway-auth': invalidSecret
+        })
+      ).toMatchObject({
+        ok: false,
+        statusCode: 403,
+        message: 'OAuth gateway authentication is invalid.'
+      });
+    }
     expect(
       authorizeHttpRequest(undefined, config, { 'x-infra-lens-gateway-auth': 'shared-secret' })
     ).toEqual({ ok: true });

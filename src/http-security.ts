@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import type { IncomingHttpHeaders, IncomingMessage, ServerResponse } from 'node:http';
 
 type HttpAuthMode = 'none' | 'bearer' | 'oauth-gateway';
@@ -33,6 +34,17 @@ const DEFAULT_BODY_LIMIT_BYTES = 1024 * 1024;
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_CONCURRENT_REQUESTS = 100;
 const SUPPORTED_HTTP_PROTOCOL_VERSIONS = new Set(['2025-11-25', '2025-06-18', '2025-03-26']);
+
+function constantTimeEquals(actual: string, expected: string): boolean {
+  const actualBytes = Buffer.from(actual);
+  const expectedBytes = Buffer.from(expected);
+
+  if (actualBytes.length !== expectedBytes.length) {
+    return false;
+  }
+
+  return timingSafeEqual(actualBytes, expectedBytes);
+}
 
 function parseCsv(value: string | undefined): string[] {
   return (value ?? '')
@@ -288,7 +300,7 @@ export function authorizeHttpRequest(
     }
 
     const expected = `Bearer ${config.bearerToken}`;
-    return authorization === expected
+    return constantTimeEquals(authorization, expected)
       ? { ok: true }
       : {
           ok: false,
@@ -308,7 +320,7 @@ export function authorizeHttpRequest(
     };
   }
 
-  return gatewayValue === config.gatewaySecret
+  return constantTimeEquals(gatewayValue, config.gatewaySecret ?? '')
     ? { ok: true }
     : {
         ok: false,

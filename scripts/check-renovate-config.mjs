@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 
 const config = JSON.parse(readFileSync('renovate.json', 'utf8'));
+const miseConfig = readFileSync('.mise.toml', 'utf8');
 const fail = (message) => {
   throw new Error(`Renovate policy check failed: ${message}`);
 };
@@ -18,6 +19,12 @@ if (!hasExtend(':dependencyDashboard') || !hasExtend(':configMigration')) {
 if (config.timezone !== 'Europe/Istanbul') {
   fail('timezone must remain Europe/Istanbul');
 }
+if (config.rebaseWhen !== 'behind-base-branch') {
+  fail('Renovate branches must stay current with the protected base branch');
+}
+if (config.rebaseWhen !== 'behind-base-branch') {
+  fail('Renovate branches must stay current with the protected base branch');
+}
 if (config.lockFileMaintenance?.enabled !== true) {
   fail('weekly pnpm lock-file maintenance must remain enabled');
 }
@@ -31,8 +38,27 @@ if (
 ) {
   fail('major updates must require Dependency Dashboard approval');
 }
+if (config['pre-commit']?.enabled !== true) {
+  fail('the beta pre-commit manager must be explicitly enabled');
+}
 if (!rules.some((rule) => rule.matchManagers?.includes('pre-commit'))) {
   fail('pre-commit hook revisions must be managed by Renovate');
+}
+if (
+  !rules.some(
+    (rule) =>
+      rule.matchManagers?.includes('mise') &&
+      rule.matchPackageNames?.includes('pre-commit') &&
+      rule.matchPackageNames?.includes('sonarqube-cli')
+  )
+) {
+  fail('mise-managed pre-commit and SonarQube CLI updates must be governed by Renovate');
+}
+if (!/pre-commit\s*=\s*"4\.6\.0"/.test(miseConfig)) {
+  fail('mise must pin pre-commit');
+}
+if (!/sonarqube-cli\s*=\s*"1\.4\.0\.3748"/.test(miseConfig)) {
+  fail('mise must pin SonarQube CLI');
 }
 if (!managers.some((manager) => manager.depNameTemplate === 'pnpm')) {
   fail('workflow pnpm pins must be managed by a custom manager');
@@ -42,9 +68,6 @@ if (!managers.some((manager) => manager.datasourceTemplate === 'pypi')) {
 }
 if (!managers.some((manager) => manager.depNameTemplate === 'renovate/renovate')) {
   fail('the pinned Renovate validator must manage itself');
-}
-if (!managers.some((manager) => manager.depNameTemplate === '@sonar/scan')) {
-  fail('the pinned SonarScanner for NPM must be managed by Renovate');
 }
 
 console.log('Renovate repository policy check passed.');

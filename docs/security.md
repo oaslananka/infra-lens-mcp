@@ -67,7 +67,7 @@ Do not add workflow-level write permissions. If a future release job needs addit
 
 Renovate is the canonical dependency-update automation for this repository. Its repository-local policy is defined in `renovate.json`, validated by `pnpm run check:renovate`, and surfaced through the Renovate Dependency Dashboard. GitHub-native Dependabot version and security-update automation remain disabled to avoid duplicate pull requests; secret scanning, push protection, dependency review, and GitHub advisory visibility remain enabled independently.
 
-Renovate manages npm and pnpm dependencies, Node runtime files, Docker images, GitHub Actions, pre-commit hook revisions, workflow pnpm pins, and pinned security tools. The policy applies a three-day release-age guard, weekly lock-file maintenance, explicit approval for major/runtime-sensitive updates, digest automerge only after protected checks, and manual review for MCP SDK, schema/runtime, security scanner, and release-tool changes.
+Renovate manages npm and pnpm dependencies, Node runtime files, Docker images, GitHub Actions, pre-commit hook revisions, mise tool pins, workflow pnpm pins, and pinned security tools. The policy applies a three-day release-age guard, weekly lock-file maintenance, explicit approval for major/runtime-sensitive updates, digest automerge only after protected checks, and manual review for MCP SDK, schema/runtime, security scanner, and release-tool changes.
 
 Dependency Dashboard triage occurs at least weekly:
 
@@ -92,9 +92,9 @@ Development-only findings use the same triage targets. A longer acceptance requi
 
 ## Local and CI static analysis
 
-`.pre-commit-config.yaml` runs repository hygiene, staged Prettier/ESLint checks, TypeScript typechecking, and deterministic local Semgrep rules. The pre-push stage runs coverage, build, metadata, Renovate/override governance, Semgrep, and optional SonarQube Cloud analysis. `pnpm run hooks:install` installs both hook types after `pre-commit` is installed with `pipx`.
+`.pre-commit-config.yaml` runs repository hygiene, staged Prettier/ESLint checks, TypeScript typechecking, and deterministic local Semgrep rules. The pre-push stage runs coverage, build, metadata, Renovate/override governance, and Semgrep. `.mise.toml` pins Node, pnpm, pre-commit, and SonarQube CLI; `pnpm run hooks:install` installs both hook types.
 
-Semgrep is also enforced in GitHub Actions. The deterministic `.semgrep.yml` policy runs for every pull request, including forks; internal branches additionally run the Semgrep AppSec Platform scan through `SEMGREP_APP_TOKEN`. SonarQube Cloud remains a protected pull-request check. Local Sonar analysis uses the official `@sonar/scan` package and runs only when `SONAR_TOKEN` is present, so secrets are never required for ordinary commits.
+Semgrep is also enforced in GitHub Actions. The deterministic `.semgrep.yml` policy runs for every pull request, including forks; internal branches additionally run the Semgrep AppSec Platform scan when `SEMGREP_APP_TOKEN` is configured. SonarQube Cloud Automatic Analysis remains a protected pull-request check and is scoped by `.sonarcloud.properties`. The mise-pinned SonarQube CLI exposes an authenticated manual secrets hook; ordinary commits never require a Sonar token.
 
 ## License and SPDX standards
 

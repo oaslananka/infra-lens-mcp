@@ -5,12 +5,7 @@ const commands = [
   {
     command: process.platform === 'win32' ? 'pre-commit.exe' : 'pre-commit',
     name: 'pre-commit',
-    install: 'pipx install pre-commit'
-  },
-  {
-    command: process.platform === 'win32' ? 'semgrep.exe' : 'semgrep',
-    name: 'Semgrep',
-    install: 'pipx install semgrep'
+    install: 'mise install or pipx install pre-commit'
   }
 ];
 
