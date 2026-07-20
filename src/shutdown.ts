@@ -19,7 +19,13 @@ export function createStdioShutdownHandler(
   server: AsyncCloseable,
   exit: ExitHandler = (code) => process.exit(code)
 ): (signal: string) => void {
+  let shuttingDown = false;
+
   return (signal: string) => {
+    if (shuttingDown) {
+      return;
+    }
+    shuttingDown = true;
     stdioLogger.info(`Received ${signal}, shutting down`);
     Promise.resolve(server.close()).then(
       () => exit(0),
@@ -34,19 +40,37 @@ export function createHttpShutdownHandler(
   exit: ExitHandler = (code) => process.exit(code),
   timeoutMs = 10_000
 ): (signal: string) => void {
+  let shuttingDown = false;
+  let settled = false;
+
+  const settle = (code: number): void => {
+    if (settled) {
+      return;
+    }
+    settled = true;
+    exit(code);
+  };
+
   return (signal: string) => {
+    if (shuttingDown) {
+      return;
+    }
+    shuttingDown = true;
     httpLogger.info(`Received ${signal}, shutting down`);
 
     const timeout = setTimeout(() => {
-      exit(1);
+      settle(1);
     }, timeoutMs);
     timeout.unref();
 
     httpServer.close(() => {
       clearTimeout(timeout);
+      if (settled) {
+        return;
+      }
       Promise.resolve(transport.close?.()).then(
-        () => exit(0),
-        () => exit(1)
+        () => settle(0),
+        () => settle(1)
       );
     });
   };
