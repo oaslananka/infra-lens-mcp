@@ -8,7 +8,7 @@
 
 > **resolveDatabasePath**(): `string`
 
-Defined in: [db.ts:11](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/db.ts#L11)
+Defined in: [db.ts:92](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/db.ts#L92)
 
 ## Returns
 

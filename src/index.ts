@@ -60,6 +60,7 @@ export type {
   NetworkMetric,
   ProcessMetric,
   RuntimeProfile,
+  SnapshotClassification,
   SystemMetric,
   SnapshotInput,
   StoredSnapshotRow

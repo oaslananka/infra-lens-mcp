@@ -181,8 +181,8 @@ export function createToolDefinitions(
           undefined,
           collectionOptions
         );
-        dependencies.saveSnapshot(snapshot);
         const analysis = dependencies.analyzeSnapshot(snapshot);
+        dependencies.saveSnapshot(snapshot, 'default', 'observation');
         return structuredResult({
           host: snapshot.host,
           timestamp: new Date(snapshot.timestamp).toISOString(),
@@ -213,7 +213,7 @@ export function createToolDefinitions(
       },
       handler: async (input) => {
         const snapshot = await dependencies.collectSnapshot(input.connection);
-        dependencies.saveSnapshot(snapshot);
+        dependencies.saveSnapshot(snapshot, 'default', 'observation');
         return structuredResult({
           saved: true,
           host: snapshot.host,
@@ -234,7 +234,7 @@ export function createToolDefinitions(
       },
       handler: async (input) => {
         const snapshot = await dependencies.collectSnapshot(input.connection);
-        dependencies.saveSnapshot(snapshot, input.label);
+        dependencies.saveSnapshot(snapshot, input.label, 'baseline');
         const baseline = dependencies.getBaseline(snapshot.host, input.label);
         const sampleCount = baseline?.sample_count ?? 1;
         const samplesRemaining = Math.max(0, 10 - sampleCount);

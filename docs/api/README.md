@@ -43,6 +43,7 @@
 - [GetHistoryInput](type-aliases/GetHistoryInput.md)
 - [MetricName](type-aliases/MetricName.md)
 - [RuntimeProfile](type-aliases/RuntimeProfile.md)
+- [SnapshotClassification](type-aliases/SnapshotClassification.md)
 
 ## Variables
 

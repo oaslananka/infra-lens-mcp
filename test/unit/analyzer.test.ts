@@ -66,7 +66,11 @@ describe('analyzeSnapshot', () => {
 
   it('detects z-score CPU anomaly when enough baseline samples exist', () => {
     for (let index = 0; index < 6; index += 1) {
-      saveSnapshot(makeSnapshot({ timestamp: Date.now() - (index + 1) * 60_000 }));
+      saveSnapshot(
+        makeSnapshot({ timestamp: Date.now() - (index + 1) * 60_000 }),
+        'default',
+        'baseline'
+      );
     }
 
     const result = analyzeSnapshot(

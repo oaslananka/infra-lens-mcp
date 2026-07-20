@@ -6,9 +6,9 @@
 
 # Function: saveSnapshot()
 
-> **saveSnapshot**(`snapshot`, `label?`): `void`
+> **saveSnapshot**(`snapshot`, `label?`, `classification?`): `void`
 
-Defined in: [baseline.ts:10](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/baseline.ts#L10)
+Defined in: [baseline.ts:15](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/baseline.ts#L15)
 
 ## Parameters
 
@@ -19,6 +19,10 @@ Defined in: [baseline.ts:10](https://github.com/oaslananka/infra-lens-mcp/blob/m
 ### label?
 
 `string` = `'default'`
+
+### classification?
+
+[`SnapshotClassification`](../type-aliases/SnapshotClassification.md) = `'observation'`
 
 ## Returns
 
