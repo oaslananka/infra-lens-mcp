@@ -1,0 +1,69 @@
+name: Reconcile Release
+
+on:
+  repository_dispatch:
+    types: [infra-lens-release]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing release version to verify, without a leading v.
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: reconcile-release-${{ github.event.client_payload.version || inputs.version }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Resolve version and tag
+        id: release
+        env:
+          DISPATCH_VERSION: ${{ github.event.client_payload.version }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          version="${DISPATCH_VERSION:-${INPUT_VERSION}}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=infra-lens-mcp-v${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout immutable release tag
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Reconcile release lineage
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node scripts/release-state.mjs \
+            --version "${{ steps.release.outputs.version }}" \
+            --require-complete \
+            --wait-seconds 900 | tee release-reconciliation.json
+          {
+            echo '## Release reconciliation'
+            echo '```json'
+            cat release-reconciliation.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

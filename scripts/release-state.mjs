@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+
+import { evaluateReleaseState } from './release-state-core.mjs';
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
 function quoteCmdArg(value) {
-  return /^[A-Za-z0-9@._:/\\=-]+$/.test(value) ? value : `"${value.replace(/"/g, '""')}"`;
+  return /^[A-Za-z0-9@._:/\\=-]+$/.test(value) ? value : `"${String(value).replace(/"/g, '""')}"`;
 }
 
 function resolveCommand(command, args) {
@@ -17,7 +19,6 @@ function resolveCommand(command, args) {
       args: ['/d', '/s', '/c', ['npm', ...args].map(quoteCmdArg).join(' ')]
     };
   }
-
   return { command, args };
 }
 
@@ -27,22 +28,12 @@ function run(command, args) {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe']
   });
-
-  if (result.status === 0 && !result.error) {
-    return {
-      ok: true,
-      stdout: String(result.stdout ?? '').trim()
-    };
-  }
-
-  {
-    const error = result.error;
-    return {
-      ok: false,
-      stdout: String(result.stdout ?? '').trim(),
-      stderr: String(result.stderr ?? error?.message ?? '').trim()
-    };
-  }
+  return {
+    ok: result.status === 0 && !result.error,
+    status: result.status,
+    stdout: String(result.stdout ?? '').trim(),
+    stderr: String(result.stderr ?? result.error?.message ?? '').trim()
+  };
 }
 
 function normalizeRepositoryUrl(value) {
@@ -55,10 +46,7 @@ function normalizeRepositoryUrl(value) {
 function resolveGitHubRepository(value) {
   const normalized = normalizeRepositoryUrl(value);
   const sshMatch = normalized.match(/^git@github\.com:([^/]+)\/(.+)$/);
-  if (sshMatch) {
-    return `${sshMatch[1]}/${sshMatch[2]}`;
-  }
-
+  if (sshMatch) return `${sshMatch[1]}/${sshMatch[2]}`;
   try {
     const url = new URL(normalized);
     const [owner, repo] = url.pathname.replace(/^\/|\/$/g, '').split('/');
@@ -68,114 +56,252 @@ function resolveGitHubRepository(value) {
   }
 }
 
-function listReleasePullRequests(repository) {
-  if (!repository) {
-    return { ok: false, prs: [], error: 'package repository is not a GitHub URL' };
+function parseArgs(argv) {
+  const args = { strict: false, requireComplete: false, waitSeconds: 0, version: undefined };
+  for (let index = 0; index < argv.length; index += 1) {
+    const value = argv[index];
+    if (value === '--strict') args.strict = true;
+    else if (value === '--require-complete') args.requireComplete = true;
+    else if (value === '--wait-seconds') args.waitSeconds = Number(argv[++index] ?? 0);
+    else if (value === '--version') args.version = argv[++index];
   }
-
-  const result = run('gh', ['api', `repos/${repository}/pulls?state=open&per_page=100`]);
-  if (!result.ok) {
-    return { ok: false, prs: [], error: result.stderr || result.stdout || 'gh api failed' };
+  if (!Number.isFinite(args.waitSeconds) || args.waitSeconds < 0) {
+    throw new Error('--wait-seconds must be a non-negative number.');
   }
+  return args;
+}
 
-  const pulls = JSON.parse(result.stdout || '[]');
+function releasePullRequests(repository) {
+  const result = run('gh', [
+    'pr',
+    'list',
+    '--repo',
+    repository,
+    '--state',
+    'open',
+    '--json',
+    'number,title,url,headRefName,isDraft'
+  ]);
+  if (!result.ok) return { values: [], error: result.stderr || result.stdout };
+  const values = JSON.parse(result.stdout || '[]').filter((pull) =>
+    String(pull.headRefName ?? '').startsWith('release-please')
+  );
+  return { values, error: null };
+}
+
+function tagState(tagName) {
+  const listed = run('git', ['tag', '--list', tagName]);
+  const exists = listed.ok && listed.stdout.split('\n').includes(tagName);
+  const commit = exists ? run('git', ['rev-list', '-n', '1', tagName]) : null;
   return {
-    ok: true,
-    prs: pulls
-      .filter((pull) => String(pull.head?.ref ?? '').startsWith('release-please'))
-      .map((pull) => ({
-        number: pull.number,
-        url: pull.html_url,
-        title: pull.title,
-        isDraft: pull.draft
-      }))
+    exists,
+    name: tagName,
+    commit: commit?.ok ? commit.stdout : null,
+    error: commit && !commit.ok ? commit.stderr : null
   };
 }
 
-function inferState({ hasReleasePr, tagExists, releaseExists, npmExists }) {
-  if (npmExists && releaseExists && tagExists) {
-    return 'complete';
+function githubReleaseState(repository, tagName) {
+  const result = run('gh', [
+    'release',
+    'view',
+    tagName,
+    '--repo',
+    repository,
+    '--json',
+    'tagName,url,isDraft,isPrerelease,publishedAt'
+  ]);
+  if (!result.ok) {
+    const missing = /release not found|not found/i.test(`${result.stderr}\n${result.stdout}`);
+    return { exists: false, tagName: null, error: missing ? null : result.stderr || result.stdout };
   }
+  const release = JSON.parse(result.stdout);
+  return { exists: true, ...release, error: null };
+}
 
-  if (npmExists || tagExists || releaseExists) {
-    return 'blocked';
+function npmState(packageName, version) {
+  const result = run('npm', [
+    'view',
+    `${packageName}@${version}`,
+    'version',
+    'gitHead',
+    'dist.integrity',
+    '--json'
+  ]);
+  if (!result.ok) return { exists: false, version: null, gitHead: null, integrity: null };
+  const value = JSON.parse(result.stdout || '{}');
+  return {
+    exists: value.version === version,
+    version: value.version ?? null,
+    gitHead: value.gitHead ?? null,
+    integrity: value['dist.integrity'] ?? value.dist?.integrity ?? null
+  };
+}
+
+async function mcpRegistryState(serverName, version) {
+  const encodedName = encodeURIComponent(serverName);
+  const url = `https://registry.modelcontextprotocol.io/v0.1/servers/${encodedName}/versions/${version}`;
+  const result = run('curl', [
+    '--silent',
+    '--show-error',
+    '--location',
+    '--retry',
+    '3',
+    '--retry-delay',
+    '2',
+    '--connect-timeout',
+    '10',
+    '--max-time',
+    '30',
+    '--write-out',
+    '\\n%{http_code}',
+    url
+  ]);
+  if (!result.ok) {
+    return {
+      exists: false,
+      version: null,
+      packageVersion: null,
+      status: null,
+      error: result.stderr || 'MCP Registry request failed'
+    };
   }
-
-  if (hasReleasePr) {
-    return 'release-pr-open';
+  const separator = result.stdout.lastIndexOf('\n');
+  const bodyText = separator >= 0 ? result.stdout.slice(0, separator) : '';
+  const statusCode = Number(separator >= 0 ? result.stdout.slice(separator + 1) : 0);
+  if (statusCode === 404) {
+    return { exists: false, version: null, packageVersion: null, status: null };
   }
-
-  return 'no-release';
+  if (statusCode < 200 || statusCode >= 300) {
+    return {
+      exists: false,
+      version: null,
+      packageVersion: null,
+      status: null,
+      error: `HTTP ${statusCode}`
+    };
+  }
+  try {
+    const body = JSON.parse(bodyText);
+    const npmPackage = body.server?.packages?.find((entry) => entry.registryType === 'npm');
+    const official = body._meta?.['io.modelcontextprotocol.registry/official'];
+    return {
+      exists: true,
+      name: body.server?.name ?? null,
+      version: body.server?.version ?? null,
+      packageIdentifier: npmPackage?.identifier ?? null,
+      packageVersion: npmPackage?.version ?? null,
+      status: official?.status ?? null,
+      publishedAt: official?.publishedAt ?? null
+    };
+  } catch (error) {
+    return {
+      exists: false,
+      version: null,
+      packageVersion: null,
+      status: null,
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
 }
 
-const packageJson = readJson('package.json');
-const serverJson = readJson('server.json');
-const version = packageJson.version;
-const reservedFailedVersions = new Set(['1.0.3', '1.0.4', '1.0.5', '1.0.6']);
-const tagName = `${packageJson.name}-v${version}`;
-const repository = resolveGitHubRepository(packageJson.repository?.url ?? packageJson.repository);
-const tagResult = run('git', ['tag', '--list', tagName]);
-const ghReleaseResult = run('gh', ['release', 'view', tagName, '--json', 'tagName,url,isDraft']);
-const npmResult = run('npm', ['view', `${packageJson.name}@${version}`, 'version']);
-const releasePrResult = listReleasePullRequests(repository);
-
-const releasePrs = releasePrResult.prs;
-const tagExists = tagResult.ok && tagResult.stdout.split('\n').includes(tagName);
-const releaseExists = ghReleaseResult.ok && ghReleaseResult.stdout.length > 0;
-const npmExists = npmResult.ok && npmResult.stdout === version;
-const state = inferState({
-  hasReleasePr: releasePrs.length > 0,
-  tagExists,
-  releaseExists,
-  npmExists
-});
-const blockers = [];
-
-if (packageJson.version !== serverJson.version || serverJson.packages?.[0]?.version !== version) {
-  blockers.push('version metadata drift');
+function queryGhcr(owner, repositoryName, version) {
+  for (const scope of ['users', 'orgs']) {
+    const result = run('gh', [
+      'api',
+      `/${scope}/${owner}/packages/container/${repositoryName}/versions?per_page=100`
+    ]);
+    if (!result.ok) {
+      if (/404|not found/i.test(`${result.stderr}\n${result.stdout}`)) continue;
+      return { exists: false, version, error: result.stderr || result.stdout };
+    }
+    const versions = JSON.parse(result.stdout || '[]');
+    const match = versions.find((entry) => entry.metadata?.container?.tags?.includes(version));
+    return {
+      exists: Boolean(match),
+      version,
+      packageVersionId: match?.id ?? null,
+      tags: match?.metadata?.container?.tags ?? []
+    };
+  }
+  return { exists: false, version, packageVersionId: null, tags: [] };
 }
 
-if (reservedFailedVersions.has(version)) {
-  blockers.push(
-    `version ${version} is reserved by earlier failed package publication attempts; wait for release-please to choose a newer patch version`
-  );
+async function collectState(versionOverride) {
+  const packageJson = readJson('package.json');
+  const mcpJson = readJson('mcp.json');
+  const serverJson = readJson('server.json');
+  const manifest = readJson('.release-please-manifest.json');
+  const version = versionOverride ?? packageJson.version;
+  if (version !== packageJson.version) {
+    throw new Error(
+      `Requested version ${version} does not match checked-out package version ${packageJson.version}.`
+    );
+  }
+  const repository = resolveGitHubRepository(packageJson.repository?.url ?? packageJson.repository);
+  if (!repository) throw new Error('package.json repository must resolve to a GitHub repository.');
+  const [owner, repositoryName] = repository.split('/');
+  const expectedTag = `${packageJson.name}-v${version}`;
+  const tag = tagState(expectedTag);
+  const githubRelease = githubReleaseState(repository, expectedTag);
+  const npm = npmState(packageJson.name, version);
+  const mcpRegistry = await mcpRegistryState(serverJson.name, version);
+  const ghcrRequired = existsSync('.github/workflows/publish-ghcr.yml');
+  const ghcr = queryGhcr(owner, repositoryName, version);
+  const releasePrs = releasePullRequests(repository);
+
+  const artifacts = {
+    tag,
+    github_release: githubRelease,
+    npm,
+    mcp_registry: mcpRegistry,
+    ghcr: { ...ghcr, required: ghcrRequired }
+  };
+
+  const evaluated = evaluateReleaseState({
+    packageName: packageJson.name,
+    serverName: serverJson.name,
+    version,
+    metadata: {
+      package: packageJson.version,
+      mcp: mcpJson.version,
+      server: serverJson.version,
+      serverPackage: serverJson.packages?.[0]?.version,
+      manifest: manifest['.']
+    },
+    tag,
+    githubRelease,
+    npm,
+    mcpRegistry,
+    ghcr,
+    ghcrRequired,
+    releasePrs: releasePrs.values,
+    artifacts
+  });
+
+  const lookupErrors = [];
+  if (releasePrs.error) lookupErrors.push(`release PR lookup failed: ${releasePrs.error}`);
+  for (const [name, artifact] of Object.entries(artifacts)) {
+    if (artifact.error) lookupErrors.push(`${name} lookup failed: ${artifact.error}`);
+  }
+  if (lookupErrors.length > 0) {
+    evaluated.blockers.push(...lookupErrors);
+    evaluated.coherent = false;
+    evaluated.safe_to_publish = false;
+  }
+  return { ...evaluated, repository, checked_at: new Date().toISOString() };
 }
 
-if (npmExists) {
-  blockers.push(`npm package ${packageJson.name}@${version} already exists`);
-}
+const args = parseArgs(process.argv.slice(2));
+const deadline = Date.now() + args.waitSeconds * 1000;
+let result = await collectState(args.version);
 
-if (tagExists) {
-  blockers.push(`git tag ${tagName} already exists`);
+while (!(result.state === 'complete' && result.coherent) && Date.now() < deadline) {
+  await new Promise((resolve) => setTimeout(resolve, 15_000));
+  result = await collectState(args.version);
 }
-
-if (releaseExists) {
-  blockers.push(`GitHub Release ${tagName} already exists`);
-}
-
-if (!releasePrResult.ok) {
-  blockers.push(`release PR lookup failed: ${releasePrResult.error}`);
-}
-
-const safeToPublish = blockers.length === 0 && state !== 'blocked';
-const result = {
-  package: packageJson.name,
-  version,
-  repository,
-  state,
-  safe_to_publish: safeToPublish,
-  tag: { name: tagName, exists: tagExists },
-  github_release: { exists: releaseExists },
-  npm: { exists: npmExists },
-  release_prs: releasePrs,
-  blockers,
-  next_safe_command: safeToPublish
-    ? 'Merge the release-please PR after required checks and protected environment approval.'
-    : 'Do not publish; resolve blockers or wait for release-please to choose the next version.'
-};
 
 console.log(JSON.stringify(result, null, 2));
 
-if (process.argv.includes('--strict') && !safeToPublish) {
-  process.exit(1);
-}
+if (args.requireComplete && !(result.state === 'complete' && result.coherent)) process.exit(1);
+if (args.strict && !result.safe_to_publish) process.exit(1);

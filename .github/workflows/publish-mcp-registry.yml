@@ -6,20 +6,21 @@ on:
       - server.json
       - package.json
       - .github/workflows/publish-mcp-registry.yml
-  release:
-    types: [published]
+      - scripts/verify-release-event.mjs
+  repository_dispatch:
+    types: [infra-lens-release]
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: Validate metadata without publishing.
-        type: boolean
-        default: true
+      ref:
+        description: Git ref to validate without publishing.
+        type: string
+        default: main
 
 permissions:
   contents: read
 
 concurrency:
-  group: publish-mcp-registry-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: publish-mcp-registry-${{ github.event.pull_request.number || github.event.client_payload.tag || inputs.ref || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
@@ -31,17 +32,17 @@ env:
 
 jobs:
   validate:
-    if: >-
-      ${{
-        github.event_name == 'pull_request' ||
-        (github.event_name == 'workflow_dispatch' && inputs.dry_run == true)
-      }}
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
           persist-credentials: false
+
       - name: Validate MCP registry metadata
         run: |
           set -euo pipefail
@@ -55,26 +56,37 @@ jobs:
           const npmPackage = server.packages.find((entry) => entry.registryType === 'npm');
           if (!npmPackage) throw new Error('server.json must include an npm package entry');
           if (npmPackage.identifier !== pkg.name) throw new Error(`npm package identifier ${npmPackage.identifier} must match ${pkg.name}`);
+          if (npmPackage.version !== pkg.version) throw new Error(`npm package version ${npmPackage.version} must match ${pkg.version}`);
           console.log(`MCP metadata ready for ${server.name}@${server.version}`);
           NODE
 
+      - name: Summarize validation-only run
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: echo "Manual dispatch is validation-only and cannot publish MCP Registry metadata." >> "$GITHUB_STEP_SUMMARY"
+
   publish:
-    if: >-
-      ${{
-        github.repository_owner == 'oaslananka' &&
-        (github.event_name == 'release' ||
-         (github.event_name == 'workflow_dispatch' && inputs.dry_run != true))
-      }}
+    if: ${{ github.repository_owner == 'oaslananka' && github.event_name == 'repository_dispatch' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: mcp-registry
     permissions:
       contents: read
-      id-token: write # required for mcp-publisher GitHub OIDC login
+      id-token: write
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Checkout immutable release tag
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
+          ref: ${{ github.event.client_payload.tag }}
+          fetch-depth: 0
           persist-credentials: false
+
+      - name: Verify canonical GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.client_payload.tag }}
+          RELEASE_VERSION: ${{ github.event.client_payload.version }}
+        run: node scripts/verify-release-event.mjs
+
       - name: Verify npm package exists
         run: |
           set -euo pipefail
@@ -91,6 +103,7 @@ jobs:
           done
           echo "npm package ${package_name}@${package_version} was not verifiable." >&2
           exit 1
+
       - name: Install mcp-publisher
         run: |
           set -euo pipefail
@@ -98,6 +111,7 @@ jobs:
           tar -xzf mcp-publisher.tar.gz mcp-publisher
           chmod +x mcp-publisher
           sudo mv mcp-publisher /usr/local/bin/mcp-publisher
+
       - name: Publish to MCP Registry
         run: |
           set -euo pipefail

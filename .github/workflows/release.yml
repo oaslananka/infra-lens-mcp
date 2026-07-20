@@ -34,3 +34,22 @@ jobs:
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Dispatch canonical publication workflows
+        if: ${{ steps.release.outputs.release_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/dispatches" --input - <<JSON
+          {
+            "event_type": "infra-lens-release",
+            "client_payload": {
+              "tag": "${RELEASE_TAG}",
+              "version": "${RELEASE_VERSION}",
+              "release_run_id": "${GITHUB_RUN_ID}"
+            }
+          }
+          JSON
