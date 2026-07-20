@@ -18,6 +18,9 @@ describe('HTTP security configuration', () => {
   it('parses the canonical MCP endpoint path with a /mcp default', () => {
     expect(parseHttpConfig({}).endpointPath).toBe('/mcp');
     expect(parseHttpConfig({ MCP_HTTP_ENDPOINT_PATH: 'custom/' }).endpointPath).toBe('/custom');
+    expect(
+      parseHttpConfig({ MCP_HTTP_ENDPOINT_PATH: `custom${'/'.repeat(20_000)}` }).endpointPath
+    ).toBe('/custom');
   });
 
   it('parses request hardening defaults and environment overrides', () => {
