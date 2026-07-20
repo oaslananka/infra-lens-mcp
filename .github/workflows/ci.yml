@@ -56,6 +56,9 @@ jobs:
       - name: Performance regression gate
         run: pnpm run test:perf
 
+      - name: Release state evaluator tests
+        run: pnpm run test:release-state
+
       - name: API docs drift check
         run: pnpm run docs:api:check
 

@@ -55,6 +55,7 @@
     "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --testPathPatterns=integration",
     "test:e2e": "node scripts/run-ssh-e2e.mjs",
     "test:perf": "node scripts/check-performance.mjs",
+    "test:release-state": "node scripts/check-release-state.mjs",
     "test:ci": "pnpm run test:coverage",
     "security": "pnpm audit --audit-level moderate && pnpm run check:licenses",
     "check:dead-code": "knip --include files,exports,types",
