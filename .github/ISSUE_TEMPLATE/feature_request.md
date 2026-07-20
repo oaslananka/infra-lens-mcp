@@ -21,3 +21,12 @@ Explain the user or operator value.
 ## Additional context
 
 Add examples, sample payloads, or prior art if helpful.
+
+## Acceptance criteria
+
+- [ ] State the observable outcome that closes this issue.
+- [ ] Name required tests, documentation, migration, or release evidence.
+
+## Validation evidence
+
+List commands, fixtures, logs, screenshots, or links that will demonstrate completion.

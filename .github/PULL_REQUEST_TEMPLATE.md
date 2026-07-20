@@ -30,6 +30,11 @@ pnpm run build
 - [ ] npm package metadata or published artifacts changed
 - [ ] Docs or package contents changed
 
+## Bot and agent review
+
+- [ ] I inspected automated comments, inline findings, security reports, and unresolved review threads.
+- [ ] Every actionable finding is fixed, answered, or documented with evidence.
+
 ## Notes for Review
 
 <!-- Add reviewer notes or leave blank. -->

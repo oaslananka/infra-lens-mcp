@@ -23,3 +23,12 @@ Describe what you expected instead.
 ## Logs or output
 
 Include any redacted output that helps reproduce the issue.
+
+## Acceptance criteria
+
+- [ ] State the observable outcome that closes this issue.
+- [ ] Name required tests, documentation, migration, or release evidence.
+
+## Validation evidence
+
+List commands, fixtures, logs, screenshots, or links that will demonstrate completion.

@@ -1,18 +1,21 @@
 # Client setup recipes
 
-This guide collects copy-paste setup patterns for common MCP clients and agent hosts. Keep secrets out of tool input when the server is exposed beyond a trusted local desktop.
+This guide provides copy-paste configurations for local MCP clients and guarded remote hosts. Never place SSH private keys, passwords, passphrases, bearer tokens, or gateway secrets in committed project files.
 
-## Recommended modes
+## Choose a deployment mode
 
-| Client or host | Recommended transport | Recommended profile | Notes |
+| Client or host | Transport | Profile | Configuration location |
 | --- | --- | --- | --- |
-| Local stdio MCP clients | `stdio` | `full` | Best for a trusted workstation where raw SSH credentials never leave the local client. |
-| Claude Desktop | `stdio` | `full` | Use `npx -y infra-lens-mcp` and a local SQLite DB path. |
-| Cursor, Windsurf, VS Code MCP clients | `stdio` | `full` | Use the same stdio command and environment values as Claude Desktop. |
-| ChatGPT or public remote connectors | Streamable HTTP | `remote-safe`, `chatgpt`, or `claude` | Put the Node process behind an OAuth-aware HTTPS gateway and use host/origin allowlists. |
-| CI or automation runners | `stdio` or guarded HTTP | `remote-safe` | Prefer SSH agent, known hosts, pinned host keys, and allowlists. |
+| Claude Desktop | stdio | `full` | Claude Desktop developer configuration |
+| Cursor | stdio | `full` | `.cursor/mcp.json` or `~/.cursor/mcp.json` |
+| Windsurf Cascade | stdio | `full` | `~/.codeium/windsurf/mcp_config.json` |
+| VS Code MCP | stdio | `full` | `.vscode/mcp.json` |
+| ChatGPT custom app | Streamable HTTP over HTTPS | `chatgpt` | Settings or workspace settings → Apps → Create |
+| CI or private automation | stdio or guarded HTTP | `remote-safe` | Secret-managed runner configuration |
 
-## Local stdio
+The executable selects the transport. `npx -y infra-lens-mcp` starts stdio. `node dist/server-http.js` starts Streamable HTTP. There is no transport environment switch.
+
+## Shared stdio definition
 
 ```json
 {
@@ -21,66 +24,42 @@ This guide collects copy-paste setup patterns for common MCP clients and agent h
       "command": "npx",
       "args": ["-y", "infra-lens-mcp"],
       "env": {
-        "INFRA_LENS_DB": "/Users/you/.infra-lens-mcp/metrics.db"
+        "INFRA_LENS_DB": "/absolute/path/to/metrics.db",
+        "MCP_PROFILE": "full"
       }
     }
   }
 }
 ```
 
-Use this mode for local Claude Desktop, Cursor, Windsurf, VS Code, and other desktop clients that launch MCP servers as subprocesses.
+Use an absolute SQLite path. Keep SSH host verification strict through `knownHostsPath` or `hostKeySha256` in tool input, and use an SSH agent instead of embedding key material.
 
 ## Claude Desktop
 
-Add the `infra-lens` server to your Claude Desktop MCP config. Keep the transport on stdio and let the desktop client own the subprocess lifecycle.
+Open Claude Desktop developer settings and add the shared stdio definition. Typical local configuration paths are:
 
-```json
-{
-  "mcpServers": {
-    "infra-lens": {
-      "command": "npx",
-      "args": ["-y", "infra-lens-mcp"],
-      "env": {
-        "INFRA_LENS_DB": "/Users/you/.infra-lens-mcp/metrics.db",
-        "MCP_PROFILE": "full"
-      }
-    }
-  }
-}
-```
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
-Security notes:
+Restart Claude Desktop after changing the file. Managed environments can restrict local development MCP access through enterprise policy.
 
-- Keep `MCP_PROFILE=full` only for trusted local desktop usage.
-- Prefer `knownHostsPath` or `hostKeySha256` for SSH targets.
-- Avoid storing raw SSH secrets in shared project files.
+## Cursor
 
-## Cursor, Windsurf, and VS Code style clients
+Create `.cursor/mcp.json` for a project-specific server or `~/.cursor/mcp.json` for a global server. Paste the shared stdio definition, then verify it through Cursor's MCP settings or `cursor-agent mcp list`.
 
-Most editor MCP clients accept the same stdio command shape:
+## Windsurf Cascade
 
-```json
-{
-  "mcpServers": {
-    "infra-lens": {
-      "command": "npx",
-      "args": ["-y", "infra-lens-mcp"],
-      "env": {
-        "INFRA_LENS_DB": "${HOME}/.infra-lens-mcp/metrics.db",
-        "MCP_PROFILE": "full"
-      }
-    }
-  }
-}
-```
+Edit `~/.codeium/windsurf/mcp_config.json`, or open Settings → Tools → Windsurf Settings → Add Server → View Raw Config. Paste the shared stdio definition and refresh the MCP list after saving.
 
-Editor-specific file locations differ. Keep this repository's server settings stable and adapt only the wrapper location required by the client.
+## VS Code
 
-## ChatGPT or other remote HTTP hosts
+Copy `.vscode/mcp.example.json` to `.vscode/mcp.json`. Keep the real file local when it contains machine-specific paths. The repository example uses the same `npx -y infra-lens-mcp` command as the other stdio clients.
 
-Remote HTTP should not receive raw SSH passwords, private keys, or passphrases in tool input. Use a remote-safe profile and an upstream OAuth-aware HTTPS gateway.
+## ChatGPT custom app
 
-Example backend process command and environment (`server-http.js` is the transport selector):
+ChatGPT connects to a remote MCP endpoint, not directly to a local stdio process. Enable developer mode for an eligible account or workspace, go to Apps → Create, enter the HTTPS MCP endpoint, select the configured authentication method, and scan tools. A private-network deployment can use a supported secure tunnel instead of exposing the Node process directly.
+
+Run the backend only on loopback or a private interface:
 
 ```bash
 MCP_PROFILE=chatgpt \
@@ -88,24 +67,54 @@ MCP_HTTP_HOST=127.0.0.1 \
 MCP_HTTP_PORT=3000 \
 MCP_HTTP_ENDPOINT_PATH=/mcp \
 MCP_HTTP_AUTH_MODE=oauth-gateway \
-MCP_HTTP_OAUTH_GATEWAY_SECRET=replace-with-a-secret \
+MCP_HTTP_OAUTH_GATEWAY_SECRET=replace-from-secret-manager \
 MCP_HTTP_ALLOWED_ORIGINS=https://chatgpt.com \
 MCP_HTTP_ALLOWED_HOSTS=infra-lens.example.com \
 MCP_SSH_ALLOWED_HOSTS=10.0.0.0/24,server.example.com \
 node dist/server-http.js
 ```
 
-Gateway requirements:
+### Nginx gateway example
 
-- Terminate HTTPS before requests reach the Node process.
-- Validate user identity and authorization outside this package.
-- Inject the configured gateway secret header only after successful authorization.
-- Block direct internet access to the Node process.
-- Preserve strict Host and Origin allowlists.
+```nginx
+server {
+  listen 443 ssl http2;
+  server_name infra-lens.example.com;
+
+  location = /mcp {
+    proxy_pass http://127.0.0.1:3000/mcp;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header Origin $http_origin;
+    proxy_set_header Authorization $http_authorization;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_request_buffering off;
+  }
+}
+```
+
+The OAuth-aware layer must authenticate and authorize the user before injecting `MCP_HTTP_OAUTH_GATEWAY_HEADER` with the configured shared gateway secret. Do not accept that header from the public client.
+
+### Caddy gateway example
+
+```caddyfile
+infra-lens.example.com {
+  @mcp path /mcp
+  reverse_proxy @mcp 127.0.0.1:3000 {
+    header_up Host {host}
+    header_up Origin {header.Origin}
+    header_up Authorization {header.Authorization}
+    header_up X-Forwarded-Proto https
+  }
+}
+```
+
+Place identity enforcement before `reverse_proxy`, block direct internet access to port 3000, and preserve the original Host and Origin values so application allowlists remain effective.
 
 ## SSH input examples
 
-Pinned host key input:
+Pinned host key:
 
 ```json
 {
@@ -120,7 +129,7 @@ Pinned host key input:
 }
 ```
 
-Known hosts input:
+Known hosts:
 
 ```json
 {
@@ -128,24 +137,34 @@ Known hosts input:
     "host": "server.example.com",
     "port": 22,
     "username": "deploy",
-    "knownHostsPath": "/Users/you/.ssh/known_hosts"
+    "knownHostsPath": "/absolute/path/to/known_hosts"
   }
 }
 ```
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Symptom | Resolution |
 | --- | --- |
-| Client cannot start the server | Confirm Node 22+ and `npx -y infra-lens-mcp` work in the same shell. |
-| HTTP remote mode fails fast | Configure remote-safe profile, auth mode, allowed origins, and allowed hosts. |
-| SSH connection rejected | Check `MCP_SSH_ALLOWED_HOSTS`, username/port allowlists, and host key settings. |
-| Empty or partial metrics | Run `inspect_host_capabilities` first and review `warnings`. |
-| MCP client cannot parse output | Use `structuredContent`; all tools also return readable JSON text for compatibility. |
+| Desktop client cannot launch the server | Run `node --version` and `npx -y infra-lens-mcp` in the same user environment; Node 22+ is required. |
+| Client shows no tools | Restart or refresh the client, confirm the key is `mcpServers`, and ensure the process writes protocol messages only to stdout. |
+| Remote tool scan fails | Confirm the public URL ends in `/mcp`, HTTPS is valid, the gateway permits POST, and Host, Origin, and auth values survive proxying. |
+| HTTP server rejects the request | Match `MCP_HTTP_ALLOWED_HOSTS`, `MCP_HTTP_ALLOWED_ORIGINS`, auth mode, endpoint path, and gateway header settings. |
+| SSH connection is rejected | Check host, user, and port allowlists and provide `knownHostsPath` or `hostKeySha256`. |
+| Metrics are partial | Run `inspect_host_capabilities` and review `warnings`; optional unsupported signals are reported rather than fabricated. |
+| ChatGPT cannot connect to localhost | Deploy remotely or use a supported secure MCP tunnel; ChatGPT does not directly launch the local stdio process. |
 
-## Related docs
+## Upstream references
+
+- [OpenAI: developer mode and custom MCP apps](https://help.openai.com/en/articles/12584461-developer-mode-apps-and-full-mcp-connectors-in-chatgpt-beta)
+- [Anthropic: Claude Desktop local MCP servers](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
+- [Cursor: MCP configuration](https://docs.cursor.com/context/model-context-protocol)
+- [Windsurf: Cascade MCP integration](https://docs.windsurf.com/windsurf/cascade/mcp)
+
+## Related documentation
 
 - [Usage](../usage.md)
 - [Security](../security.md)
-- [MCP 2025-11-25 compliance matrix](../compliance/mcp-2025-11-25.md)
+- [Node support](../compatibility/node-support.md)
+- [MCP compliance](../compliance/mcp-2025-11-25.md)
 - [OAuth gateway ADR](../adr/0006-oauth-gateway-strategy.md)
