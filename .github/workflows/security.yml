@@ -45,6 +45,8 @@ jobs:
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
           go install github.com/zricethezav/gitleaks/v8@v8.30.1
           python -m pip install --user zizmor==1.24.1
+          python -m pip install --user semgrep==1.170.0
+          python -m pip install --user pre-commit==4.6.0
           echo "$HOME/go/bin" >> "$GITHUB_PATH"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
@@ -54,11 +56,23 @@ jobs:
       - name: Workflow security lint
         run: zizmor --offline --min-severity low .github/workflows
 
+      - name: Pre-commit configuration validation
+        run: pre-commit validate-config .pre-commit-config.yaml
+
+      - name: Renovate configuration validation
+        run: |
+          pnpm run check:renovate
+          pnpm run check:overrides
+          npx --yes --package=renovate@43.272.4 renovate-config-validator
+
+      - name: Semgrep repository policy
+        run: pnpm run security:semgrep
+
       - name: Secret scan
         run: gitleaks detect --source . --no-git --redact --verbose
 
-      - name: Dependency audit
-        run: pnpm audit --audit-level moderate
+      - name: Dependency audit policy
+        run: pnpm run check:audit
 
       - name: License and SPDX policy
         run: pnpm run check:licenses

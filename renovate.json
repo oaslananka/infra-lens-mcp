@@ -8,7 +8,8 @@
     ":semanticCommitTypeAll(chore)",
     ":separateMultipleMajorReleases",
     "group:recommended",
-    "helpers:pinGitHubActionDigestsToSemver"
+    "helpers:pinGitHubActionDigestsToSemver",
+    ":configMigration"
   ],
   "timezone": "Europe/Istanbul",
   "labels": ["dependencies"],
@@ -66,7 +67,18 @@
     },
     {
       "description": "Group TypeScript quality toolchain updates.",
-      "matchPackageNames": ["typescript", "ts-node", "tsx", "eslint", "eslint-*", "@eslint/**", "@typescript-eslint/**", "typescript-eslint", "prettier", "@types/**"],
+      "matchPackageNames": [
+        "typescript",
+        "ts-node",
+        "tsx",
+        "eslint",
+        "eslint-*",
+        "@eslint/**",
+        "@typescript-eslint/**",
+        "typescript-eslint",
+        "prettier",
+        "@types/**"
+      ],
       "groupName": "TypeScript quality toolchain",
       "groupSlug": "typescript-quality-toolchain",
       "addLabels": ["javascript"]
@@ -102,6 +114,102 @@
       "matchPackageNames": ["node", "@types/node"],
       "dependencyDashboardApproval": true,
       "addLabels": ["runtime", "requires-review"]
+    },
+    {
+      "description": "Keep pnpm packageManager and workflow bootstrap pins in one reviewed update.",
+      "matchPackageNames": ["pnpm"],
+      "groupName": "pnpm toolchain",
+      "groupSlug": "pnpm-toolchain",
+      "addLabels": ["javascript", "ci"]
+    },
+    {
+      "description": "Group pre-commit hook revisions and hold them for the release-age window.",
+      "matchManagers": ["pre-commit"],
+      "minimumReleaseAge": "3 days",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "groupName": "Pre-commit hooks",
+      "groupSlug": "pre-commit-hooks",
+      "addLabels": ["security", "area:dx"]
+    },
+    {
+      "description": "Security analysis tool updates require explicit review.",
+      "matchPackageNames": [
+        "@sonar/scan",
+        "semgrep",
+        "pre-commit",
+        "zizmor",
+        "rhysd/actionlint",
+        "gitleaks/gitleaks",
+        "renovate"
+      ],
+      "minimumReleaseAge": "3 days",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "automerge": false,
+      "addLabels": ["security", "requires-review"]
+    }
+  ],
+  "automergeStrategy": "squash",
+  "postUpdateOptions": ["pnpmDedupe"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Keep pnpm workflow bootstrap pins aligned with packageManager.",
+      "managerFilePatterns": ["/^\\.github\\/workflows\\/.*\\.ya?ml$/"],
+      "matchStrings": ["corepack prepare pnpm@(?<currentValue>\\d+\\.\\d+\\.\\d+) --activate"],
+      "depNameTemplate": "pnpm",
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Update pinned Python security tooling used by GitHub Actions.",
+      "managerFilePatterns": ["/^\\.github\\/workflows\\/.*\\.ya?ml$/"],
+      "matchStrings": [
+        "python -m pip install --user (?<depName>[a-z0-9-]+)==(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pinned actionlint release.",
+      "managerFilePatterns": ["/^\\.github\\/workflows\\/security\\.yml$/"],
+      "matchStrings": [
+        "go install github\\.com/rhysd/actionlint/cmd/actionlint@(?<currentValue>v?\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "rhysd/actionlint",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pinned Gitleaks release.",
+      "managerFilePatterns": ["/^\\.github\\/workflows\\/security\\.yml$/"],
+      "matchStrings": [
+        "go install github\\.com/zricethezav/gitleaks/v8@(?<currentValue>v?\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "gitleaks/gitleaks",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the official Renovate config validator used in CI.",
+      "managerFilePatterns": ["/^\\.github\\/workflows\\/security\\.yml$/"],
+      "matchStrings": [
+        "npx --yes --package=renovate@(?<currentValue>\\d+\\.\\d+\\.\\d+) renovate-config-validator"
+      ],
+      "depNameTemplate": "renovate",
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pinned SonarScanner for NPM used by local pre-push analysis.",
+      "managerFilePatterns": ["/^scripts\\/run-sonar-local\\.mjs$/"],
+      "matchStrings": ["--package=@sonar/scan@(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "@sonar/scan",
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
     }
   ]
 }

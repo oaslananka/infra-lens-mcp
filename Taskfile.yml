@@ -21,9 +21,23 @@ tasks:
     cmds:
       - pnpm run test:integration
 
+  test:coverage:
+    cmds:
+      - pnpm run test:coverage
+
   security:
     cmds:
       - pnpm run security
+
+  semgrep:
+    cmds:
+      - pnpm run security:semgrep
+
+  dependency-policy:
+    cmds:
+      - pnpm run check:renovate
+      - pnpm run check:overrides
+      - pnpm run check:audit
 
   build:
     cmds:
@@ -43,15 +57,26 @@ tasks:
     cmds:
       - pnpm run release:dry-run
 
+  hooks:install:
+    cmds:
+      - pnpm run hooks:install
+
   ci:
     cmds:
       - pnpm run format:check
       - pnpm run lint
-      - pnpm run typecheck
+      - pnpm run check:dead-code
       - pnpm test
       - pnpm run test:integration
-      - pnpm run security
+      - pnpm run test:coverage
       - pnpm run build
+      - pnpm run test:perf
+      - pnpm run test:release-state
+      - task: dependency-policy
+      - pnpm run docs:api:check
       - task: check:metadata
+      - pnpm run check:package-size
+      - pnpm run check:licenses
+      - pnpm run security:semgrep
       - pnpm run package:dry-run
       - pnpm run release:dry-run

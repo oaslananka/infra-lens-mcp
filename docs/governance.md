@@ -50,3 +50,19 @@ Before closing as stale, leave a comment explaining what evidence is still neede
 ## Pull request policy
 
 Pull requests should describe risk, release impact, validation, and linked issues. Implementation PRs must not publish npm packages, containers, MCP Registry metadata, marketplace artifacts, or production GitHub Releases.
+
+## Dependency automation governance
+
+Renovate is the single source of truth for version updates. The repository does not run parallel Dependabot update automation. Repository policy changes must update `renovate.json`, `docs/security.md`, and the automated checks in the same pull request.
+
+Every `pnpm` override and supply-chain release-age exception is registered in `dependency-overrides.json`. Entries require:
+
+- a named owner accountable for removal;
+- a concrete compatibility or security reason;
+- an HTTPS upstream advisory, issue, changelog, or release reference;
+- a review/removal date;
+- the exact override version when applicable.
+
+`pnpm run check:overrides` compares the registry against `pnpm-workspace.yaml`, rejects undocumented or orphaned entries, and fails after a review date. Override renewal requires fresh evidence in the pull request; changing only the date is not sufficient.
+
+Renovate pull requests follow the same protected checks as maintainer changes. Digest-only automerge is permitted only through Renovate after all required checks pass. Major, Node runtime, MCP SDK, schema/runtime, security scanner, and release-tool changes require explicit review.

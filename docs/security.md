@@ -65,11 +65,36 @@ Do not add workflow-level write permissions. If a future release job needs addit
 
 ## Dependency update policy
 
-Dependabot version updates run weekly for npm, GitHub Actions, and Docker base images. npm patch/minor updates are grouped by production versus development dependency type, while major npm updates are isolated so migrations such as TypeScript, ESLint, or Zod can be reviewed independently.
+Renovate is the canonical dependency-update automation for this repository. Its repository-local policy is defined in `renovate.json`, validated by `pnpm run check:renovate`, and surfaced through the Renovate Dependency Dashboard. GitHub-native Dependabot version and security-update automation remain disabled to avoid duplicate pull requests; secret scanning, push protection, dependency review, and GitHub advisory visibility remain enabled independently.
 
-Dependabot is the canonical version-update automation for this repository. Do not add a second dependency-update bot configuration unless the governance issue for dependency automation is updated first.
+Renovate manages npm and pnpm dependencies, Node runtime files, Docker images, GitHub Actions, pre-commit hook revisions, workflow pnpm pins, and pinned security tools. The policy applies a three-day release-age guard, weekly lock-file maintenance, explicit approval for major/runtime-sensitive updates, digest automerge only after protected checks, and manual review for MCP SDK, schema/runtime, security scanner, and release-tool changes.
 
-Dependabot pull requests must pass the same required branch checks as maintainer-authored changes. If an update changes release behavior, package metadata, workflow permissions, or container base images, include the upstream changelog link and any new deprecation/security notes in the pull request.
+Dependency Dashboard triage occurs at least weekly:
+
+- approve intentional major and runtime updates only after migration notes are reviewed;
+- investigate branches waiting on internal checks instead of force-creating a PR without evidence;
+- delete or let Renovate recreate branches that are more than seven days stale or no longer based on current `main`;
+- use the dashboard manual-run checkbox after policy changes or stale-branch cleanup;
+- never bypass required branch checks for bot-authored pull requests.
+
+Urgent vulnerability fixes may bypass the normal release-age window only when the exception is recorded in `dependency-overrides.json` with an owner, reason, upstream advisory or release, and a near-term review date. `pnpm run check:overrides` fails after the review date or when an active override/exception lacks governance metadata.
+
+Audit response targets are:
+
+| Severity | Initial response | Resolution target |
+| --- | --- | --- |
+| Critical | Same day | 24 hours or disable the affected path |
+| High | 1 business day | 3 business days |
+| Moderate | 3 business days | 7 calendar days |
+| Low | 7 business days | 30 calendar days |
+
+Development-only findings use the same triage targets. A longer acceptance requires documented non-exploitability, an owner, and an expiry date; findings must not remain indefinitely below the blocking threshold without review.
+
+## Local and CI static analysis
+
+`.pre-commit-config.yaml` runs repository hygiene, staged Prettier/ESLint checks, TypeScript typechecking, and deterministic local Semgrep rules. The pre-push stage runs coverage, build, metadata, Renovate/override governance, Semgrep, and optional SonarQube Cloud analysis. `pnpm run hooks:install` installs both hook types after `pre-commit` is installed with `pipx`.
+
+Semgrep is also enforced in GitHub Actions. The deterministic `.semgrep.yml` policy runs for every pull request, including forks; internal branches additionally run the Semgrep AppSec Platform scan through `SEMGREP_APP_TOKEN`. SonarQube Cloud remains a protected pull-request check. Local Sonar analysis uses the official `@sonar/scan` package and runs only when `SONAR_TOKEN` is present, so secrets are never required for ordinary commits.
 
 ## License and SPDX standards
 
@@ -81,3 +106,7 @@ Run `pnpm run check:licenses` before changing license metadata, dependency manif
 - Installed dependency licenses reported by `pnpm licenses list --json --long` match `license-policy.json`.
 
 When adding a new file, keep it covered by `REUSE.toml` or add file-specific SPDX metadata if it uses a different license. When adding a dependency, run `pnpm run check:licenses`; if the dependency introduces a new license expression, either choose a dependency with an already-approved license or update `license-policy.json` with a review note in the pull request.
+
+### Current time-bounded audit acceptance
+
+`GHSA-4x5r-pxfx-6jf8` in development-only `@babel/core` is recorded in `audit-policy.json` through 2026-08-15. The advisory names `>=7.29.1` as fixed, but that compatible release is not published; forcing Babel 8 into Jest is not accepted as a safe patch. `pnpm run check:audit` will fail if the advisory severity increases, a different advisory appears, the acceptance expires, or the finding disappears without the stale policy entry being removed.

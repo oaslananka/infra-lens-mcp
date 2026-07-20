@@ -1,0 +1,46 @@
+rules:
+  - id: infra-lens.no-eval
+    message: Dynamic code execution is prohibited in runtime and maintenance code.
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+
+  - id: infra-lens.no-child-process-exec
+    message: Use spawn/execFile with an argument array instead of shell-based child_process.exec.
+    severity: ERROR
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: require("node:child_process").exec(...)
+          - pattern: require("child_process").exec(...)
+          - patterns:
+              - pattern-inside: |
+                  import { ..., exec, ... } from "node:child_process";
+                  ...
+              - pattern: exec(...)
+          - patterns:
+              - pattern-inside: |
+                  import { ..., exec, ... } from "child_process";
+                  ...
+              - pattern: exec(...)
+
+  - id: infra-lens.no-shell-true
+    message: shell=true reintroduces command-injection risk; execute a binary with an explicit argument array.
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern: '$RUNNER(..., { ..., shell: true, ... }, ...)'
+
+  - id: infra-lens.no-disabled-tls-verification
+    message: TLS certificate verification must not be disabled.
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern: '{ ..., rejectUnauthorized: false, ... }'
+
+  - id: infra-lens.no-secret-environment-logging
+    message: Do not write secret-bearing environment variables to logs.
+    severity: ERROR
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-regex: '(?i)(console\.|logger\.)[^\n]*(process\.env\.[A-Z0-9_]*(TOKEN|SECRET|PASSWORD|PRIVATE_KEY|API_KEY))'

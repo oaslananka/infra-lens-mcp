@@ -1,0 +1,33 @@
+{
+  "overrides": {
+    "qs": {
+      "version": "6.15.2",
+      "owner": "oaslananka",
+      "reason": "Runtime security floor for the qs version reached through @modelcontextprotocol/sdk, Express, and body-parser.",
+      "upstream": "https://github.com/ljharb/qs/releases/tag/v6.15.2",
+      "reviewBy": "2026-08-31"
+    },
+    "test-exclude": {
+      "version": "8.0.0",
+      "owner": "oaslananka",
+      "reason": "Development-only coverage-tooling floor while Jest and babel-plugin-istanbul retain broader transitive ranges.",
+      "upstream": "https://registry.npmjs.org/test-exclude/8.0.0",
+      "reviewBy": "2026-08-31"
+    },
+    "js-yaml": {
+      "version": "5.1.0",
+      "owner": "oaslananka",
+      "reason": "Development-only parser security floor for the Istanbul/Jest configuration-loading chain.",
+      "upstream": "https://github.com/nodeca/js-yaml/releases/tag/5.1.0",
+      "reviewBy": "2026-08-31"
+    },
+    "hono": {
+      "version": "4.12.25",
+      "owner": "oaslananka",
+      "reason": "Runtime security floor for the Hono version reached through @modelcontextprotocol/sdk and @hono/node-server.",
+      "upstream": "https://github.com/honojs/hono/releases/tag/v4.12.25",
+      "reviewBy": "2026-08-31"
+    }
+  },
+  "releaseAgeExceptions": {}
+}

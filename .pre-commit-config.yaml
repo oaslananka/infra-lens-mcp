@@ -1,0 +1,51 @@
+minimum_pre_commit_version: '4.5.0'
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: ^docs/api/
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+        exclude: ^docs/api/
+
+  - repo: https://github.com/semgrep/pre-commit
+    rev: v1.170.0
+    hooks:
+      - id: semgrep
+        name: Semgrep repository security rules
+        args: [--config=.semgrep.yml, --error, --metrics=off]
+        files: ^(src|scripts|test)/.*\.(ts|mjs)$
+
+  - repo: local
+    hooks:
+      - id: prettier-staged
+        name: Prettier staged files
+        entry: pnpm exec prettier --check
+        language: system
+        files: ^(src|scripts|test|docs|\.github/workflows)/.*\.(ts|mjs|md|ya?ml)$|^(package|renovate|dependency-overrides|audit-policy)\.json$|^\.(pre-commit-config|semgrep)\.ya?ml$
+        exclude: ^docs/api/|^\.github/workflows/agent-runtime-config\.yml$
+      - id: eslint-staged
+        name: ESLint staged source files
+        entry: pnpm exec eslint
+        language: system
+        files: ^(src|scripts|test)/.*\.(ts|mjs)$
+      - id: typescript-typecheck
+        name: TypeScript typecheck
+        entry: pnpm run typecheck
+        language: system
+        pass_filenames: false
+      - id: repository-pre-push
+        name: Repository pre-push gates
+        entry: pnpm run prepush
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

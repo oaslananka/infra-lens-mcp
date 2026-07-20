@@ -99,3 +99,30 @@ gitleaks detect --source . --no-git --redact --verbose
 ```
 
 Run the same tools locally when changing workflows or release automation.
+
+## Git hooks and static analysis
+
+Install the cross-platform hook framework once per clone:
+
+```bash
+pipx install pre-commit
+pipx install semgrep
+pnpm run hooks:install
+```
+
+The pre-commit stage validates file hygiene, JSON/YAML syntax, staged formatting and lint, TypeScript types, and repository-specific Semgrep rules. The pre-push stage runs the broader repository gates:
+
+```bash
+pnpm run prepush
+```
+
+`pnpm run sonar:local` uses `sonar-project.properties` and the official `@sonar/scan` package. It generates coverage when needed and submits analysis only when `SONAR_TOKEN` exists; otherwise it exits successfully with an explicit skip message. SonarQube Cloud remains enforced on pull requests even when a contributor does not have a local token.
+
+Run the deterministic security checks directly with:
+
+```bash
+pnpm run security:semgrep
+pnpm run check:renovate
+pnpm run check:overrides
+pre-commit run --all-files
+```

@@ -8,6 +8,9 @@ cd infra-lens-mcp
 corepack enable
 corepack prepare pnpm@11.3.0 --activate
 pnpm install --frozen-lockfile
+pipx install pre-commit
+pipx install semgrep
+pnpm run hooks:install
 pnpm run build
 pnpm test
 ```
@@ -32,6 +35,8 @@ Use Node.js 24 LTS for local development when possible. The package keeps `engin
 - `OSSF Scorecard`
 - `Analyze JavaScript and TypeScript`
 - `Review Thread Gate`
+- `Semgrep`
+- `SonarCloud Code Analysis`
 
 Approvals are not required while this repository has a single active maintainer; enable at least one required approval when another maintainer can review without blocking releases.
 
@@ -53,9 +58,15 @@ pnpm run test:coverage
 pnpm run build
 pnpm run docs:api:check
 pnpm run check:metadata
+pnpm run check:renovate
+pnpm run check:overrides
+pnpm run check:audit
+pnpm run security:semgrep
 pnpm run package:dry-run
 pnpm run release:dry-run
 ```
+
+`pnpm run prepush` runs the standard local push gate. When `SONAR_TOKEN` is available it also submits a SonarQube Cloud analysis; contributors without the token still receive the protected SonarCloud pull-request check.
 
 Run Docker-backed e2e tests when SSH, collector, Docker, or transport behavior changes:
 

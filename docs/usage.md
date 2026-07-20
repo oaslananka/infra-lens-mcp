@@ -106,4 +106,3 @@ Snapshots include additional Linux signals beyond CPU, memory, disk space, proce
 - `system.failed_units` and `system.kernel_error_events` summarize service failures and recent kernel-level error signals.
 
 `analyze_server` reports these as `disk_inode:*`, `network:*`, `system:failed_units`, and `system:kernel_errors` anomalies when they indicate operational risk. The fields are also returned in `structuredContent` for agent-friendly triage.
-
