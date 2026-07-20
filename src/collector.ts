@@ -484,7 +484,7 @@ export async function collectSampledSnapshot(
     }
   }
 
-  const lastSnapshot = snapshots[snapshots.length - 1]!;
+  const lastSnapshot = snapshots.at(-1)!;
 
   return {
     ...lastSnapshot,

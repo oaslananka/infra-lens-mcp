@@ -70,7 +70,7 @@ function normalizeEndpointPath(value: string | undefined): string {
 
   const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
   let end = withLeadingSlash.length;
-  while (end > 1 && withLeadingSlash.charCodeAt(end - 1) === 47) {
+  while (end > 1 && withLeadingSlash.codePointAt(end - 1) === 47) {
     end -= 1;
   }
   return withLeadingSlash.slice(0, end) || '/mcp';
