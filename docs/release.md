@@ -77,8 +77,8 @@ The repository must keep these settings enabled:
 
 - default workflow token permission: read-only;
 - allow GitHub Actions to create pull requests, required by Release Please;
-- protected `npm-production` and `mcp-registry` environments;
-- required branch-protection checks for CI, CodeQL, Security Gates, dependency review, schema validation, and unresolved review threads.
+- protected `npm-production` and `mcp-registry` environments restricted to protected branches;
+- the active `main-ci-solo-maintainer` ruleset and its required CI, security, dependency-review, Semgrep, SonarQube Cloud, Docker, Windows, and review-thread gates. See [Repository control baseline](./governance/repository-controls.md).
 
 Enabling Actions pull-request creation does not grant broad write access by default. The repository default remains read-only, while `release.yml` requests only the explicit permissions needed by Release Please.
 

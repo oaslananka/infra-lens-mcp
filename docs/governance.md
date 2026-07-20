@@ -66,3 +66,18 @@ Every `pnpm` override and supply-chain release-age exception is registered in `d
 `pnpm run check:overrides` compares the registry against `pnpm-workspace.yaml`, rejects undocumented or orphaned entries, and fails after a review date. Override renewal requires fresh evidence in the pull request; changing only the date is not sufficient.
 
 Renovate pull requests follow the same protected checks as maintainer changes. Digest-only automerge is permitted only through Renovate after all required checks pass. Major, Node runtime, MCP SDK, schema/runtime, security scanner, and release-tool changes require explicit review.
+
+## Operating cadence
+
+- **Weekly triage:** classify new issues, confirm acceptance criteria, remove duplicates, and update priority/risk labels.
+- **Monthly roadmap review:** review the [infra-lens-mcp Governance project](https://github.com/users/oaslananka/projects/7), dependencies, milestones, and blocked work.
+- **Release checkpoint:** before merging a Release Please PR, confirm protected checks, unresolved review threads, package metadata, and publication readiness. After release, require a coherent reconciliation result.
+- **Quarterly policy review:** verify Node support, MCP specification/SDK status, security scanners, branch rules, environments, and dependency automation.
+
+An issue is done only when its acceptance criteria are demonstrated, relevant automated tests or reproducible checks pass, public behavior is documented, and any release or migration evidence is linked. Closing comments should name the implementing PR or operational evidence.
+
+The project board is the portfolio view for active issues; GitHub Issues remain the source of truth. Every open repository issue is linked to project 7. Project status never replaces issue state or acceptance criteria.
+
+## Repository controls
+
+The live branch ruleset, protected environments, external analysis expectations, and verification commands are documented in [Repository control baseline](./governance/repository-controls.md).

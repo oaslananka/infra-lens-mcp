@@ -187,11 +187,11 @@ INFRA_LENS_E2E_SKIP_FIXTURE=1 pnpm run test:e2e:raw
 
 Generated API docs live in [docs/api](./docs/api/README.md). Client setup recipes live in [docs/integrations/client-setup.md](./docs/integrations/client-setup.md).
 
-See [docs/testing.md](./docs/testing.md), [docs/security.md](./docs/security.md), [docs/operations.md](./docs/operations.md), and [docs/release.md](./docs/release.md) for the full operational workflow.
+See [docs/testing.md](./docs/testing.md), [docs/security.md](./docs/security.md), [docs/operations.md](./docs/operations.md), [docs/release.md](./docs/release.md), the [Node support policy](./docs/compatibility/node-support.md), and the [repository control baseline](./docs/governance/repository-controls.md) for the full operational workflow.
 
 ## Community
 
-Use [SUPPORT.md](./SUPPORT.md) for support channels and response expectations. Project conduct is defined in [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), and maintainer triage policy lives in [docs/governance.md](./docs/governance.md).
+Use [SUPPORT.md](./SUPPORT.md) for support channels and response expectations. Active work is tracked in the [infra-lens-mcp Governance project](https://github.com/users/oaslananka/projects/7). Project conduct is defined in [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), and maintainer triage policy lives in [docs/governance.md](./docs/governance.md).
 
 ## Release
 
