@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "latency": {
+    "collector_parse_ms_per_op": { "iterations": 800, "maxMsPerOp": 2.5 },
+    "sqlite_write_ms_per_op": { "iterations": 500, "maxMsPerOp": 5 },
+    "baseline_analysis_ms_per_op": { "iterations": 800, "maxMsPerOp": 2.5 },
+    "http_validation_ms_per_op": { "iterations": 12000, "maxMsPerOp": 0.25 },
+    "large_history_page_ms_per_op": { "iterations": 100, "maxMsPerOp": 10 }
+  },
+  "resources": {
+    "largeHistoryRows": 5000,
+    "maxHeapGrowthBytes": 83886080,
+    "maxExportBytes": 12582912,
+    "maxExportMs": 2000,
+    "maxFullCollectionCommands": 8,
+    "maxMinimalCollectionCommands": 6
+  },
+  "notes": [
+    "Budgets are deterministic regression guards rather than production capacity guarantees.",
+    "Latency limits are intentionally broad enough for shared GitHub runners.",
+    "Large-history resources cover a 5000-row synthetic observation stream exported through the public pagination path."
+  ]
+}

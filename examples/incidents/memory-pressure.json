@@ -1,0 +1,79 @@
+{
+  "name": "Memory pressure",
+  "description": "A Java service consumes most available memory and creates immediate OOM risk.",
+  "snapshot": {
+    "timestamp": 1700000001000,
+    "host": "golden-memory-pressure",
+    "cpu": {
+      "usage_percent": 20,
+      "load_1": 0.8,
+      "load_5": 0.7,
+      "load_15": 0.6,
+      "core_count": 4
+    },
+    "memory": {
+      "total_mb": 16384,
+      "used_mb": 15729,
+      "free_mb": 655,
+      "usage_percent": 96,
+      "swap_used_mb": 1536,
+      "swap_total_mb": 2048
+    },
+    "disk": [
+      {
+        "filesystem": "/dev/sda1",
+        "mount": "/",
+        "total_gb": 100,
+        "used_gb": 45,
+        "usage_percent": 45
+      }
+    ],
+    "network": [],
+    "system": {
+      "failed_units": 0,
+      "kernel_error_events": 0,
+      "kernel_signal_available": true,
+      "kernel_window_minutes": 5
+    },
+    "processes": [
+      {
+        "pid": 5151,
+        "name": "java",
+        "cpu_percent": 18,
+        "mem_percent": 84,
+        "command": "java -jar api.jar"
+      }
+    ],
+    "os": {
+      "kernel": "6.8.0",
+      "hostname": "golden-memory-pressure",
+      "distro": "Ubuntu 24.04 LTS",
+      "uptime_seconds": 172800
+    },
+    "warnings": []
+  },
+  "expected": {
+    "anomalies": [
+      {
+        "metric": "memory",
+        "severity": "critical",
+        "value": 96,
+        "baseline_mean": 0,
+        "explanation": "Memory usage is 96% (15729MB/16384MB). Swap usage is 1536MB. Top memory consumer: java -jar api.jar (84%).",
+        "recommendation": "OOM risk is high. Restart or scale java -jar api.jar immediately.",
+        "confidence": 0.9,
+        "root_cause_hypothesis": "java -jar api.jar is the most likely memory pressure driver.",
+        "evidence": [
+          "Memory usage is 96% (15729MB/16384MB). Swap usage is 1536MB. Top memory consumer: java -jar api.jar (84%)."
+        ],
+        "suggested_next_checks": [
+          "Check process memory growth.",
+          "Review OOM and kernel logs.",
+          "Compare with baseline windows."
+        ]
+      }
+    ],
+    "summary": "Found 1 anomaly on golden-memory-pressure. Most urgent signal: Memory usage is 96% (15729MB/16384MB). Swap usage is 1536MB. Top memory consumer: java -jar api.jar (84%).",
+    "health_score": 60
+  }
+}

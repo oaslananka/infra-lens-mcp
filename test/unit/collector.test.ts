@@ -1,6 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
 import {
+  buildCollectionCommandPlan,
   collectSampledSnapshot,
   collectSnapshot,
   inspectHostCapabilities
@@ -13,6 +14,39 @@ const connection = {
 };
 
 describe('collectSnapshot', () => {
+  it('keeps full and minimal SSH command plans within explicit budgets', () => {
+    const full = buildCollectionCommandPlan({ includeProcesses: true, includeNetwork: true });
+    const minimal = buildCollectionCommandPlan({
+      includeProcesses: false,
+      includeNetwork: false
+    });
+
+    expect(full.map((item) => item.key)).toEqual([
+      'cpu',
+      'memory',
+      'disk',
+      'diskInodes',
+      'network',
+      'system',
+      'processes',
+      'os'
+    ]);
+    expect(minimal.map((item) => item.key)).toEqual([
+      'cpu',
+      'memory',
+      'disk',
+      'diskInodes',
+      'system',
+      'os'
+    ]);
+    expect(full.filter((item) => item.required).map((item) => item.key)).toEqual([
+      'cpu',
+      'memory',
+      'disk',
+      'os'
+    ]);
+  });
+
   it('parses Linux metric output into a snapshot', async () => {
     const snapshot = await collectSnapshot(connection, {
       run: async () => ({
@@ -204,6 +238,7 @@ describe('collectSnapshot', () => {
 
     await jest.advanceTimersByTimeAsync(30_000);
     const snapshot = await sampledPromise;
+    expect(jest.getTimerCount()).toBe(0);
     jest.useRealTimers();
 
     expect(sampleIndex).toBe(2);
@@ -213,6 +248,38 @@ describe('collectSnapshot', () => {
     expect(snapshot.memory.usage_percent).toBe(50);
     expect(snapshot.disk[0]?.usage_percent).toBe(60);
     expect(snapshot.processes[0]?.command).toBe('node api.js');
+  });
+
+  it('cleans up sampling timers when a later sample fails', async () => {
+    jest.useFakeTimers();
+    let sampleIndex = 0;
+    const sampledPromise = collectSampledSnapshot(connection, 1, 30, {
+      run: async () => {
+        sampleIndex += 1;
+        if (sampleIndex > 1) {
+          throw new Error('second sample timed out');
+        }
+        return {
+          cpu: '20\n1.00 0.90 0.80 0/0 0\n4',
+          memory: '8192 2048 6144\n0 1024',
+          disk: '',
+          network: '',
+          processes: '',
+          os: '6.8.0\nserver.example.com\nUbuntu 24.04.1 LTS\n86400'
+        };
+      }
+    });
+
+    const outcome = sampledPromise.then(
+      () => null,
+      (error: unknown) => error
+    );
+    await jest.advanceTimersByTimeAsync(30_000);
+    const error = await outcome;
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toBe('second sample timed out');
+    expect(jest.getTimerCount()).toBe(0);
+    jest.useRealTimers();
   });
 
   it('marks unsampled quality counters unsupported instead of treating lifetime totals as incidents', async () => {

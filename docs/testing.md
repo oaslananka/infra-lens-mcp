@@ -31,6 +31,7 @@ pnpm test
 pnpm run test:integration
 pnpm run test:coverage
 pnpm run build
+pnpm run check:golden
 pnpm run test:perf
 pnpm run docs:api:check
 CHECK_METADATA_REQUIRE_DIST=true pnpm run check:metadata
@@ -46,18 +47,38 @@ pnpm run release:dry-run
 
 `pnpm run check:dead-code` uses Knip to report unused TypeScript files, exports, and exported types across `src`, `test`, and `scripts`. `knip.json` intentionally treats test files and repository scripts as entry points because they are invoked by package scripts, CI workflows, and release tooling rather than by application imports.
 
-`pnpm run check:package-size` reads `package-size-policy.json` and validates the packed npm artifact from `npm pack --dry-run --json --ignore-scripts`. Run `pnpm run build` first. The budget intentionally includes generated `dist`, generated API docs, and `docs/demo.gif`; raise the budget only with release-note evidence explaining why the public package must grow.
+`pnpm run check:package-size` reads `package-size-policy.json` and validates the packed npm artifact from `npm pack --dry-run --json --ignore-scripts`. Run `pnpm run build` first. The byte budgets include generated `dist`, generated API docs, the machine-readable performance policy, and reviewed incident examples. `docs/demo.gif` is intentionally excluded from the npm artifact. Raise a budget only with measured evidence explaining why the public package must grow.
 
 ## Performance regression gate
 
-`pnpm run test:perf` runs deterministic local benchmarks against the built `dist` output. Run `pnpm run build` first. The gate covers:
+`pnpm run test:perf` runs deterministic local benchmarks against the built `dist` output. Run `pnpm run build` first. The gate reads `performance-budget.json` and covers:
 
 - SSH collection parsing with a local fake runner, no production SSH host.
+- Full and minimal SSH command-plan counts.
 - SQLite history writes against a temporary database.
 - Baseline anomaly analysis with seeded local samples.
 - HTTP origin, host, and bearer validation.
+- Cursor pagination over a 5,000-row synthetic history.
+- JSON/NDJSON export elapsed time, output bytes, and retained heap growth.
 
-The thresholds are intentionally broad enough for CI variance and are meant to catch algorithmic regressions, not small machine-to-machine noise. Add evidence from this command to release or performance-sensitive PRs.
+The thresholds are intentionally broad enough for shared CI variance and are meant to catch algorithmic or resource regressions, not small machine-to-machine noise. Budget changes require before/after measurements in the pull request. Sampling tests also assert that timers are released after success and failure.
+
+## Golden incident fixtures
+
+`examples/incidents` contains reviewed snapshots and exact expected analysis output for CPU saturation, memory pressure, inode exhaustion, bounded network loss, and service/kernel pressure. CI runs:
+
+```bash
+pnpm run check:golden
+```
+
+Intentional analyzer-output changes must be regenerated explicitly and reviewed as JSON diffs:
+
+```bash
+pnpm run golden:update
+pnpm run check:golden
+```
+
+Do not update golden output merely to make a failing test pass; the pull request must explain the behavior change and why each changed recommendation, severity, health score, or evidence field is correct.
 
 ## Docker-backed SSH e2e target
 

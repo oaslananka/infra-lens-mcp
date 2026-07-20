@@ -1,0 +1,87 @@
+{
+  "name": "Bounded network loss",
+  "description": "A one-second NIC sample records a high packet error and drop ratio.",
+  "snapshot": {
+    "timestamp": 1700000003000,
+    "host": "golden-network-loss",
+    "cpu": {
+      "usage_percent": 25,
+      "load_1": 0.6,
+      "load_5": 0.5,
+      "load_15": 0.4,
+      "core_count": 4
+    },
+    "memory": {
+      "total_mb": 8192,
+      "used_mb": 3072,
+      "free_mb": 5120,
+      "usage_percent": 38,
+      "swap_used_mb": 0,
+      "swap_total_mb": 1024
+    },
+    "disk": [
+      {
+        "filesystem": "/dev/sda1",
+        "mount": "/",
+        "total_gb": 100,
+        "used_gb": 40,
+        "usage_percent": 40
+      }
+    ],
+    "network": [
+      {
+        "interface": "eth0",
+        "rx_bytes": 120000,
+        "tx_bytes": 80000,
+        "rx_packets": 100,
+        "tx_packets": 100,
+        "rx_errors": 5,
+        "tx_errors": 5,
+        "rx_dropped": 5,
+        "tx_dropped": 5,
+        "sample_window_seconds": 1,
+        "counter_reset": false
+      }
+    ],
+    "system": {
+      "failed_units": 0,
+      "kernel_error_events": 0,
+      "kernel_signal_available": true,
+      "kernel_window_minutes": 5
+    },
+    "processes": [],
+    "os": {
+      "kernel": "6.8.0",
+      "hostname": "golden-network-loss",
+      "distro": "Ubuntu 24.04 LTS",
+      "uptime_seconds": 345600
+    },
+    "warnings": []
+  },
+  "expected": {
+    "anomalies": [
+      {
+        "metric": "network:eth0",
+        "severity": "high",
+        "value": 20,
+        "baseline_mean": 0,
+        "evidence": [
+          "20 errors or drops across 200 packets during a 1s sample.",
+          "Bounded packet-loss ratio 10%.",
+          "RX/TX byte deltas 120000/80000."
+        ],
+        "explanation": "Interface eth0 recorded 20 packet errors or drops during a 1s sample (10% of sampled packets).",
+        "recommendation": "Inspect NIC, driver, MTU, duplex, and upstream switch counters immediately.",
+        "confidence": 0.82,
+        "root_cause_hypothesis": "Interface counters show packet quality loss.",
+        "suggested_next_checks": [
+          "Compare NIC counters with upstream metrics.",
+          "Check MTU and interface resets.",
+          "Correlate with latency."
+        ]
+      }
+    ],
+    "summary": "Found 1 anomaly on golden-network-loss. Most urgent signal: Interface eth0 recorded 20 packet errors or drops during a 1s sample (10% of sampled packets).",
+    "health_score": 80
+  }
+}

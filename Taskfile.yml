@@ -70,6 +70,7 @@ tasks:
       - pnpm run test:integration
       - pnpm run test:coverage
       - pnpm run build
+      - pnpm run check:golden
       - pnpm run test:perf
       - pnpm run test:release-state
       - task: dependency-policy
