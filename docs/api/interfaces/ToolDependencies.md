@@ -274,7 +274,7 @@ Defined in: [server-core.ts:79](https://github.com/oaslananka/infra-lens-mcp/blo
 
 ### saveSnapshot
 
-> **saveSnapshot**: (`snapshot`, `label`) => `void`
+> **saveSnapshot**: (`snapshot`, `label`, `classification`) => `void`
 
 Defined in: [server-core.ts:80](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L80)
 
@@ -287,6 +287,10 @@ Defined in: [server-core.ts:80](https://github.com/oaslananka/infra-lens-mcp/blo
 ##### label?
 
 `string` = `'default'`
+
+##### classification?
+
+[`SnapshotClassification`](../type-aliases/SnapshotClassification.md) = `'observation'`
 
 #### Returns
 

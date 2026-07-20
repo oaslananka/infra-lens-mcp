@@ -6,7 +6,7 @@
 
 # Interface: StoredSnapshotRow
 
-Defined in: [types.ts:351](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L351)
+Defined in: [types.ts:353](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L353)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:351](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **timestamp**: `number`
 
-Defined in: [types.ts:352](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L352)
+Defined in: [types.ts:354](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L354)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [types.ts:352](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **cpu\_percent**: `number`
 
-Defined in: [types.ts:353](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L353)
+Defined in: [types.ts:355](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L355)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [types.ts:353](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **memory\_percent**: `number`
 
-Defined in: [types.ts:354](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L354)
+Defined in: [types.ts:356](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L356)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [types.ts:354](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **load\_1**: `number`
 
-Defined in: [types.ts:355](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L355)
+Defined in: [types.ts:357](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L357)
 
 ***
 
@@ -46,4 +46,20 @@ Defined in: [types.ts:355](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **raw\_json**: `string`
 
-Defined in: [types.ts:356](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L356)
+Defined in: [types.ts:358](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L358)
+
+***
+
+### label
+
+> **label**: `string`
+
+Defined in: [types.ts:359](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L359)
+
+***
+
+### classification
+
+> **classification**: [`SnapshotClassification`](../type-aliases/SnapshotClassification.md)
+
+Defined in: [types.ts:360](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L360)

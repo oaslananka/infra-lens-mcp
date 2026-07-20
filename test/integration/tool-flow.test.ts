@@ -210,7 +210,61 @@ describe('integration tool flow', () => {
     expect(analyzePayload.collection_window_minutes).toBe(5);
     expect(analyzePayload.host).toBe(connection.host);
     expect(collectSampledSnapshot).toHaveBeenCalledTimes(1);
-    expect(defaultHistoryPayload.data_points).toBe(3);
+    expect(defaultHistoryPayload.data_points).toBe(1);
     expect(labeledHistoryPayload.data_points).toBe(2);
+  });
+
+  it('keeps repeated incidents out of the approved healthy baseline', async () => {
+    const now = Date.now();
+    const healthySnapshots = Array.from({ length: 5 }, (_, index) =>
+      makeSnapshot(22 + index, now - (index + 1) * 60_000)
+    );
+    const incidentSnapshot = makeSnapshot(95, now);
+    const collectSnapshot = jest
+      .fn<typeof collectSnapshotType>()
+      .mockImplementation(async () => healthySnapshots.shift() ?? incidentSnapshot);
+    const collectSampledSnapshot = jest
+      .fn<typeof collectSampledSnapshotType>()
+      .mockResolvedValue(incidentSnapshot);
+
+    const definitions = createToolDefinitions({
+      analyzeSnapshot,
+      collectSampledSnapshot,
+      collectSnapshot,
+      getBaseline,
+      getHistory,
+      saveSnapshot
+    });
+
+    for (let index = 0; index < 5; index += 1) {
+      await definitions[2].handler({ connection, label: 'default' });
+    }
+
+    const before = getBaseline(connection.host);
+    const zScores: number[] = [];
+
+    for (let index = 0; index < 3; index += 1) {
+      const result = await definitions[0].handler({
+        connection,
+        duration_minutes: 1,
+        include_processes: true,
+        include_network: true
+      });
+      const payload = parsePayload<{ anomalies: Array<{ metric: string; z_score?: number }> }>(
+        result
+      );
+      const cpuAnomaly = payload.anomalies.find((anomaly) => anomaly.metric === 'cpu');
+      expect(cpuAnomaly).toBeDefined();
+      zScores.push(cpuAnomaly?.z_score ?? 0);
+    }
+
+    const after = getBaseline(connection.host);
+    const observations = getHistory(connection.host, 'cpu', 1);
+
+    expect(before?.sample_count).toBe(5);
+    expect(after).toEqual(before);
+    expect(observations).toHaveLength(3);
+    expect(new Set(zScores).size).toBe(1);
+    expect(zScores[0]).toBeGreaterThan(2);
   });
 });

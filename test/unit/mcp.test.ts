@@ -159,6 +159,38 @@ describe('registerInfraLensTools', () => {
     );
     expect(collectSingle).toHaveBeenCalledTimes(3);
     expect(persistSnapshot).toHaveBeenCalledTimes(3);
+    expect(persistSnapshot.mock.calls).toEqual([
+      [baseSnapshot, 'default', 'observation'],
+      [baseSnapshot, 'default', 'observation'],
+      [baseSnapshot, 'weekday-normal', 'baseline']
+    ]);
+  });
+
+  it('analyzes the current snapshot before persisting it as an observation', async () => {
+    const callOrder: string[] = [];
+    const definitions = createToolDefinitions({
+      analyzeSnapshot: jest.fn(() => {
+        callOrder.push('analyze');
+        return { anomalies: [], summary: 'healthy', health_score: 100 };
+      }),
+      collectSampledSnapshot: jest.fn(async () => baseSnapshot),
+      collectSnapshot: jest.fn(async () => baseSnapshot),
+      getBaseline: jest.fn(() => null),
+      inspectHostCapabilities: jest.fn(async () => ({ capabilities: [], warnings: [] })),
+      getHistory: jest.fn(() => []),
+      saveSnapshot: (_snapshot, _label, classification) => {
+        callOrder.push(`save:${classification}`);
+      }
+    });
+
+    await definitions[0].handler({
+      connection: { host: 'app-01.internal', port: 22, username: 'ops' },
+      duration_minutes: 1,
+      include_processes: true,
+      include_network: true
+    } satisfies AnalyzeInput);
+
+    expect(callOrder).toEqual(['analyze', 'save:observation']);
   });
 
   it('omits optional process and network sections when requested and maps all history metrics', async () => {
@@ -179,7 +211,9 @@ describe('registerInfraLensTools', () => {
           cpu_percent: 10,
           memory_percent: 20,
           load_1: 0.5,
-          raw_json: '{}'
+          raw_json: '{}',
+          label: 'default',
+          classification: 'observation'
         }
       ]),
       saveSnapshot: jest.fn(() => undefined)
@@ -247,7 +281,9 @@ describe('registerInfraLensTools', () => {
           cpu_percent: 10,
           memory_percent: 20,
           load_1: 0.5,
-          raw_json: '{}'
+          raw_json: '{}',
+          label: 'default',
+          classification: 'observation'
         }
       ]),
       saveSnapshot: jest.fn(() => undefined)

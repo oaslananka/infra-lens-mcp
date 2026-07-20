@@ -72,7 +72,7 @@ export const GetHistorySchema = z.object({
   label: z
     .string()
     .optional()
-    .describe('Optional snapshot label filter to isolate baseline sessions or named collections')
+    .describe('Optional label filter; omitted returns observations, set returns matching records')
 });
 
 export const DiskMetricSchema = z.object({
@@ -348,10 +348,14 @@ export interface Anomaly {
   recommendation: string;
 }
 
+export type SnapshotClassification = 'observation' | 'baseline';
+
 export interface StoredSnapshotRow {
   timestamp: number;
   cpu_percent: number;
   memory_percent: number;
   load_1: number;
   raw_json: string;
+  label: string;
+  classification: SnapshotClassification;
 }

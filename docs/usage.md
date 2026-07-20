@@ -69,7 +69,7 @@ For example, `analyze_server` exposes typed fields such as `host`, `timestamp`, 
 }
 ```
 
-Repeat baseline collection during healthy windows. CPU z-score anomaly detection activates after at least five samples and becomes more useful around ten samples.
+Repeat baseline collection during verified healthy windows. Only `record_baseline` creates baseline samples; `snapshot` and `analyze_server` store observations and never change baseline sample counts. CPU z-score anomaly detection activates after at least five approved samples and becomes more useful around ten samples.
 
 ## Compare to baseline
 
@@ -95,7 +95,7 @@ Repeat baseline collection during healthy windows. CPU z-score anomaly detection
 }
 ```
 
-Leave `label` unset to return all snapshots for the host, or set it to isolate a named baseline stream.
+Leave `label` unset to return operational observations for the host. Set `label` to inspect a named record stream, including an explicitly recorded baseline such as `weekday-normal`. Baseline records are excluded from unlabeled operational history and from all baseline calculations unless they were created by `record_baseline`.
 
 ## Expanded Linux diagnosis signals
 

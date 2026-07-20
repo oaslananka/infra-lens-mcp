@@ -28,8 +28,8 @@ src/mcp.ts / src/server-http.ts
 3. `collector.ts` opens an SSH session through `ssh.ts`.
 4. `ssh.ts` verifies the remote host key by pinned SHA256 fingerprint or `known_hosts` before the connection is accepted.
 5. `collector.ts` gathers CPU from `/proc/stat` deltas, memory pressure from available memory, disk usage, optional network metrics, optional process metrics, and OS metadata.
-6. `baseline.ts` persists snapshots in SQLite without SSH credentials.
-7. `analyzer.ts` loads baseline samples and returns anomalies, explanations, and recommendations.
+6. `analyzer.ts` loads only approved baseline samples and evaluates the current snapshot before it is persisted.
+7. `baseline.ts` stores the evaluated snapshot as an `observation`; only `record_baseline` writes `baseline` records. SSH credentials are never persisted.
 8. Tool responses are JSON text payloads returned through MCP.
 
 ## HTTP transport
@@ -52,7 +52,9 @@ OAuth token validation is intentionally left to an external gateway for producti
 CREATE TABLE snapshots (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   host TEXT NOT NULL,
-  label TEXT DEFAULT 'default',
+  label TEXT NOT NULL DEFAULT 'default',
+  classification TEXT NOT NULL DEFAULT 'observation'
+    CHECK (classification IN ('observation', 'baseline')),
   timestamp INTEGER NOT NULL,
   cpu_percent REAL NOT NULL,
   memory_percent REAL NOT NULL,
@@ -60,6 +62,8 @@ CREATE TABLE snapshots (
   raw_json TEXT NOT NULL
 );
 ```
+
+SQLite `PRAGMA user_version` tracks schema version 1. During migration from the legacy schema, ambiguous `default` rows become observations and explicitly named rows become baseline samples. This conservative rule prevents historical incident data from silently becoming an approved healthy baseline.
 
 ## Release architecture
 

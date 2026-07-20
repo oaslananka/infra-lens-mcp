@@ -26,8 +26,8 @@ See the [MCP 2025-11-25 compliance matrix](./docs/compliance/mcp-2025-11-25.md) 
 
 | Tool | Purpose |
 | --- | --- |
-| `analyze_server` | Collect a sampled snapshot, store it, and explain anomalies |
-| `snapshot` | Store a point-in-time snapshot without anomaly analysis |
+| `analyze_server` | Analyze a sampled snapshot against approved baselines, then store it as an observation |
+| `snapshot` | Store a point-in-time observation without anomaly analysis |
 | `record_baseline` | Save a labeled healthy-state sample |
 | `compare_to_baseline` | Compare current state with a named baseline |
 | `get_history` | Return CPU, memory, or load history from SQLite |

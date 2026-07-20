@@ -1,5 +1,10 @@
 import { getDatabase } from './db.js';
-import type { MetricName, MetricSnapshot, StoredSnapshotRow } from './types.js';
+import type {
+  MetricName,
+  MetricSnapshot,
+  SnapshotClassification,
+  StoredSnapshotRow
+} from './types.js';
 
 interface BaselineRow {
   cpu_percent: number;
@@ -7,18 +12,32 @@ interface BaselineRow {
   load_1: number;
 }
 
-export function saveSnapshot(snapshot: MetricSnapshot, label = 'default'): void {
+export function saveSnapshot(
+  snapshot: MetricSnapshot,
+  label = 'default',
+  classification: SnapshotClassification = 'observation'
+): void {
   const database = getDatabase();
   database
     .prepare(
       `
-        INSERT INTO snapshots (host, label, timestamp, cpu_percent, memory_percent, load_1, raw_json)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO snapshots (
+          host,
+          label,
+          classification,
+          timestamp,
+          cpu_percent,
+          memory_percent,
+          load_1,
+          raw_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `
     )
     .run(
       snapshot.host,
       label,
+      classification,
       snapshot.timestamp,
       snapshot.cpu.usage_percent,
       snapshot.memory.usage_percent,
@@ -34,7 +53,7 @@ export function getBaseline(host: string, label = 'default') {
       `
         SELECT cpu_percent, memory_percent, load_1
         FROM snapshots
-        WHERE host = ? AND label = ?
+        WHERE host = ? AND classification = 'baseline' AND label = ?
         ORDER BY timestamp DESC
         LIMIT 100
       `
@@ -64,15 +83,15 @@ export function getHistory(
 
   const query = label
     ? `
-        SELECT timestamp, cpu_percent, memory_percent, load_1, raw_json
+        SELECT timestamp, cpu_percent, memory_percent, load_1, raw_json, label, classification
         FROM snapshots
         WHERE host = ? AND label = ? AND timestamp > ?
         ORDER BY timestamp ASC
       `
     : `
-        SELECT timestamp, cpu_percent, memory_percent, load_1, raw_json
+        SELECT timestamp, cpu_percent, memory_percent, load_1, raw_json, label, classification
         FROM snapshots
-        WHERE host = ? AND timestamp > ?
+        WHERE host = ? AND classification = 'observation' AND timestamp > ?
         ORDER BY timestamp ASC
       `;
 
