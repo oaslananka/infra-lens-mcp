@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "modelVersion": "1.0.0",
+  "reviewedAt": "2026-07-20",
+  "owners": ["maintainers"],
+  "deploymentAssumptions": [
+    "Public HTTP traffic terminates at an HTTPS and OAuth-aware gateway.",
+    "The Node backend is reachable only from the trusted gateway or private network.",
+    "Remote-safe profiles use explicit host, user, and port allowlists plus strict host-key verification.",
+    "Collected output and remote host content are untrusted data and never executable instructions.",
+    "Public connector readiness remains false while tenant identity is not bound to target authorization inside the package."
+  ],
+  "threats": [
+    {
+      "id": "TM-HTTP-ORIGIN",
+      "title": "Cross-origin request abuse",
+      "likelihood": "medium",
+      "impact": "high",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["Streamable HTTP POST /mcp"],
+      "mitigations": [
+        "Exact Origin allowlist",
+        "non-loopback deployment fails closed without allowed origins",
+        "POST-only endpoint"
+      ],
+      "residualRisk": "A compromised explicitly allowed origin can submit requests with the user's authority.",
+      "tests": ["test/unit/http-security.test.ts"]
+    },
+    {
+      "id": "TM-HTTP-HOST",
+      "title": "Host-header abuse, DNS rebinding, and unintended virtual host access",
+      "likelihood": "medium",
+      "impact": "high",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["HTTP Host header", "gateway routing"],
+      "mitigations": [
+        "Exact Host allowlist",
+        "loopback default",
+        "private backend network assumption"
+      ],
+      "residualRisk": "A trusted proxy that rewrites Host incorrectly can weaken the application-layer check.",
+      "tests": ["test/unit/http-security.test.ts"]
+    },
+    {
+      "id": "TM-HTTP-GATEWAY",
+      "title": "Gateway-header spoofing or authentication bypass",
+      "likelihood": "medium",
+      "impact": "critical",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["OAuth gateway header", "Authorization header"],
+      "mitigations": [
+        "constant-time gateway secret comparison",
+        "missing and invalid credentials fail closed",
+        "direct backend access must be blocked"
+      ],
+      "residualRisk": "The package trusts the gateway after shared-secret validation and does not independently validate OAuth claims.",
+      "tests": ["test/unit/http-security.test.ts", "test/unit/mcp.test.ts"]
+    },
+    {
+      "id": "TM-TENANT-TARGET",
+      "title": "Tenant identity is not bound to SSH target authorization",
+      "likelihood": "medium",
+      "impact": "critical",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "accepted-blocker",
+      "entryPoints": ["OAuth gateway identity", "tool connection input"],
+      "mitigations": [
+        "global host, user, and port allowlists",
+        "remote-safe profile",
+        "public connector readiness is false"
+      ],
+      "residualRisk": "An authenticated user may select any target allowed globally because per-tenant claims are not propagated to tool handlers.",
+      "acceptance": {
+        "approvedBy": "maintainers",
+        "reason": "Network-facing use is limited to controlled single-tenant deployments; public or multi-user connector publication remains blocked.",
+        "reviewBy": "2026-09-30"
+      },
+      "tests": ["test/unit/ssh.test.ts", "test/unit/mcp.test.ts", "scripts/check-threat-model.mjs"]
+    },
+    {
+      "id": "TM-SSH-SSRF",
+      "title": "SSRF-style access to unauthorized SSH targets",
+      "likelihood": "high",
+      "impact": "critical",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["connection.host", "connection.port", "connection.username"],
+      "mitigations": [
+        "exact and CIDR host allowlists",
+        "user allowlist",
+        "port allowlist",
+        "policy enforced before connect"
+      ],
+      "residualRisk": "DNS names can change address after policy evaluation; production policy should prefer fixed addresses or controlled DNS.",
+      "tests": ["test/unit/ssh.test.ts"]
+    },
+    {
+      "id": "TM-SSH-IDENTITY",
+      "title": "SSH identity confusion or inline credential leakage",
+      "likelihood": "medium",
+      "impact": "critical",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["SSH agent", "private key path", "inline secret fields"],
+      "mitigations": [
+        "remote-safe profiles reject inline secrets",
+        "external agent or preset identity",
+        "secret redaction"
+      ],
+      "residualRisk": "A compromised agent can offer unintended identities; operators must scope agent credentials to the deployment.",
+      "tests": ["test/unit/ssh.test.ts", "test/unit/logging.test.ts"]
+    },
+    {
+      "id": "TM-SSH-HOSTKEY",
+      "title": "Remote host-key spoofing",
+      "likelihood": "medium",
+      "impact": "critical",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["SSH handshake"],
+      "mitigations": [
+        "SHA256 pin or known_hosts match required",
+        "strict checking default",
+        "unknown hosts rejected"
+      ],
+      "residualRisk": "Operators can explicitly disable strict verification for disposable fixtures and must not use that setting in production.",
+      "tests": ["test/unit/ssh.test.ts", "test/e2e/ssh-fixture.test.ts"]
+    },
+    {
+      "id": "TM-RESOURCE-ABUSE",
+      "title": "Session, concurrency, rate, timeout, or oversized-body exhaustion",
+      "likelihood": "high",
+      "impact": "high",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["HTTP requests", "SSH connection attempts", "tool sampling duration"],
+      "mitigations": [
+        "body limit",
+        "request timeout",
+        "HTTP concurrency and rate limits",
+        "SSH session and attempt limits",
+        "bounded schemas"
+      ],
+      "residualRisk": "In-memory limit maps are process-local and deployments still require proxy and host-level resource limits.",
+      "tests": ["test/unit/http-security.test.ts", "test/unit/ssh.test.ts"]
+    },
+    {
+      "id": "TM-OUTPUT-INJECTION",
+      "title": "Remote output is interpreted as trusted instructions",
+      "likelihood": "medium",
+      "impact": "high",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["process names", "OS metadata", "SSH errors", "model-visible tool output"],
+      "mitigations": [
+        "fixed collector command set",
+        "structured output schemas",
+        "redaction",
+        "no shell command from collected output"
+      ],
+      "residualRisk": "A model or human can still over-trust malicious text returned by a compromised host; clients must treat tool output as untrusted evidence.",
+      "tests": ["test/unit/collector.test.ts", "test/unit/logging.test.ts", "test/unit/mcp.test.ts"]
+    },
+    {
+      "id": "TM-DATA-LEAK",
+      "title": "Secrets or sensitive host data leak through logs, SQLite, or package output",
+      "likelihood": "medium",
+      "impact": "critical",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["stderr logs", "SQLite raw_json", "history/export output", "errors"],
+      "mitigations": [
+        "recursive secret redaction",
+        "sanitized HTTP errors",
+        "credentials are not stored",
+        "process/network collection can be disabled",
+        "operator-controlled database permissions and retention"
+      ],
+      "residualRisk": "Process names, hostnames, topology, and operational metrics remain sensitive even after secret redaction.",
+      "tests": [
+        "test/unit/logging.test.ts",
+        "test/unit/http-security.test.ts",
+        "test/unit/collector.test.ts"
+      ]
+    },
+    {
+      "id": "TM-RELEASE-SUPPLYCHAIN",
+      "title": "Compromised workflow action, downloaded publisher, or manual production path",
+      "likelihood": "low",
+      "impact": "critical",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "accepted",
+      "entryPoints": [
+        "GitHub Actions",
+        "npm Trusted Publishing",
+        "MCP Registry publisher",
+        "manual dispatch"
+      ],
+      "mitigations": [
+        "SHA-pinned actions",
+        "least-privilege permissions",
+        "protected release environments",
+        "immutable tag verification",
+        "npm provenance reconciliation",
+        "security scanners"
+      ],
+      "residualRisk": "The MCP Registry publisher binary download path is not yet independently signature-verified by this repository.",
+      "acceptance": {
+        "approvedBy": "maintainers",
+        "reason": "Publication is limited to protected release tags and reconciled artifacts while publisher verification is tracked as release hardening.",
+        "reviewBy": "2026-08-31"
+      },
+      "tests": ["scripts/check-release-state.mjs", "scripts/check-threat-model.mjs"]
+    }
+  ]
+}

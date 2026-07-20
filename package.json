@@ -41,7 +41,8 @@
     "REUSE.toml",
     "license-policy.json",
     "package-size-policy.json",
-    "!docs/demo.gif"
+    "!docs/demo.gif",
+    "security"
   ],
   "scripts": {
     "build": "node --eval \"require('node:fs').rmSync('dist',{ recursive: true, force: true })\" && tsc -p tsconfig.json",
@@ -59,7 +60,7 @@
     "test:perf": "node scripts/check-performance.mjs",
     "test:release-state": "node scripts/check-release-state.mjs",
     "test:ci": "pnpm run test:coverage",
-    "security": "pnpm run check:audit && pnpm run check:licenses && pnpm run security:semgrep",
+    "security": "pnpm run check:threat-model && pnpm run check:audit && pnpm run check:licenses && pnpm run security:semgrep",
     "check:dead-code": "knip --include files,exports,types",
     "check:package-size": "node scripts/check-package-size.mjs",
     "check:metadata": "node scripts/check-metadata.mjs",
@@ -75,11 +76,13 @@
     "check:renovate": "node scripts/check-renovate-config.mjs",
     "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off",
     "hooks:install": "node scripts/install-git-hooks.mjs",
-    "precommit": "pnpm run format:check && pnpm run lint && pnpm run check:renovate && pnpm run check:overrides && pnpm run security:semgrep",
-    "prepush": "pnpm run lint && pnpm run test:coverage && pnpm run build && pnpm run check:metadata && pnpm run check:renovate && pnpm run check:overrides && pnpm run check:audit && pnpm run security:semgrep",
+    "precommit": "pnpm run format:check && pnpm run lint && pnpm run check:threat-model && pnpm run check:renovate && pnpm run check:overrides && pnpm run security:semgrep",
+    "prepush": "pnpm run lint && pnpm run test:coverage && pnpm run test:abuse && pnpm run build && pnpm run check:metadata && pnpm run check:renovate && pnpm run check:overrides && pnpm run check:audit && pnpm run security:semgrep",
     "check:overrides": "node scripts/check-dependency-overrides.mjs",
     "check:audit": "node scripts/check-audit-policy.mjs",
-    "sonar:secrets": "pre-commit run sonar-secrets --all-files --hook-stage manual"
+    "sonar:secrets": "pre-commit run sonar-secrets --all-files --hook-stage manual",
+    "check:threat-model": "node scripts/check-threat-model.mjs",
+    "test:abuse": "pnpm run check:threat-model && node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --runTestsByPath test/unit/http-security.test.ts test/unit/ssh.test.ts test/unit/logging.test.ts test/unit/mcp.test.ts"
   },
   "engines": {
     "node": ">=22"

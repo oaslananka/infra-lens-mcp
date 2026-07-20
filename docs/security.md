@@ -1,5 +1,7 @@
 # Security Notes
 
+The versioned system threat model, accepted risks, trust boundaries, and executable abuse-case mapping are maintained in [Security threat model](./security-threat-model.md). Run `pnpm run test:abuse` before changing HTTP, authentication, SSH, redaction, persistence, or publication boundaries.
+
 ## SSH
 
 SSH host key verification is strict by default. A connection is accepted only when one of these checks succeeds:
