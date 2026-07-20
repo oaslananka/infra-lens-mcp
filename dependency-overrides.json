@@ -27,6 +27,13 @@
       "reason": "Runtime security floor for the Hono version reached through @modelcontextprotocol/sdk and @hono/node-server.",
       "upstream": "https://github.com/honojs/hono/releases/tag/v4.12.25",
       "reviewBy": "2026-08-31"
+    },
+    "@babel/core": {
+      "version": "7.29.7",
+      "owner": "oaslananka",
+      "reason": "Development-only security floor for the Jest and Istanbul transform chain affected by GHSA-4x5r-pxfx-6jf8.",
+      "upstream": "https://github.com/advisories/GHSA-4x5r-pxfx-6jf8",
+      "reviewBy": "2026-08-31"
     }
   },
   "releaseAgeExceptions": {}

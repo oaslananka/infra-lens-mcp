@@ -1,12 +1,3 @@
 {
-  "acceptedAdvisories": {
-    "GHSA-4x5r-pxfx-6jf8": {
-      "module": "@babel/core",
-      "severity": "low",
-      "owner": "oaslananka",
-      "reason": "Development-only Jest/Babel toolchain finding. The advisory declares >=7.29.1 as fixed, but that release is not published; a forced Babel 8 major override is not considered compatible. Remove this acceptance as soon as Jest resolves a patched compatible release.",
-      "upstream": "https://github.com/advisories/GHSA-4x5r-pxfx-6jf8",
-      "reviewBy": "2026-08-15"
-    }
-  }
+  "acceptedAdvisories": {}
 }
