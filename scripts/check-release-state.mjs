@@ -2,11 +2,13 @@
 import assert from 'node:assert/strict';
 
 import { evaluateReleaseState } from './release-state-core.mjs';
+import { integritySha512Hex, parseNpmProvenance } from './npm-provenance.mjs';
 
 function base(overrides = {}) {
   const version = overrides.version ?? '1.1.0';
   return {
     packageName: 'infra-lens-mcp',
+    repository: 'oaslananka/infra-lens-mcp',
     serverName: 'io.github.oaslananka/infra-lens-mcp',
     version,
     metadata: {
@@ -18,7 +20,15 @@ function base(overrides = {}) {
     },
     tag: { exists: false, name: `infra-lens-mcp-v${version}`, commit: null },
     githubRelease: { exists: false, tagName: null },
-    npm: { exists: false, version: null, gitHead: null, integrity: null },
+    npm: {
+      exists: false,
+      version: null,
+      gitHead: null,
+      integrity: null,
+      integritySha512: null,
+      trustedPublisher: { id: null, name: null },
+      provenance: { exists: false }
+    },
     mcpRegistry: {
       exists: false,
       name: null,
@@ -73,6 +83,137 @@ const complete = evaluateReleaseState(
 assert.equal(complete.state, 'complete');
 assert.equal(complete.coherent, true);
 assert.equal(complete.safe_to_publish, false);
+
+const integrity = `sha512-${Buffer.from('trusted-publisher-artifact').toString('base64')}`;
+const integrityHex = integritySha512Hex(integrity);
+const provenanceStatement = {
+  _type: 'https://in-toto.io/Statement/v1',
+  subject: [
+    {
+      name: 'pkg:npm/infra-lens-mcp@1.1.0',
+      digest: { sha512: integrityHex }
+    }
+  ],
+  predicateType: 'https://slsa.dev/provenance/v1',
+  predicate: {
+    buildDefinition: {
+      externalParameters: {
+        workflow: {
+          ref: 'refs/heads/main',
+          repository: 'https://github.com/oaslananka/infra-lens-mcp',
+          path: '.github/workflows/publish-npm.yml'
+        }
+      },
+      internalParameters: { github: { event_name: 'repository_dispatch' } },
+      resolvedDependencies: [
+        {
+          uri: 'git+https://github.com/oaslananka/infra-lens-mcp@refs/heads/main',
+          digest: { gitCommit: commit }
+        }
+      ]
+    },
+    runDetails: { metadata: { invocationId: 'https://github.com/example/actions/runs/1' } }
+  }
+};
+const provenance = parseNpmProvenance(
+  {
+    attestations: [
+      {
+        predicateType: 'https://slsa.dev/provenance/v1',
+        bundle: {
+          dsseEnvelope: {
+            payload: Buffer.from(JSON.stringify(provenanceStatement)).toString('base64')
+          }
+        }
+      }
+    ]
+  },
+  'infra-lens-mcp',
+  '1.1.0'
+);
+
+const trustedPublisherComplete = evaluateReleaseState(
+  base({
+    tag: { exists: true, name: 'infra-lens-mcp-v1.1.0', commit },
+    githubRelease: {
+      exists: true,
+      tagName: 'infra-lens-mcp-v1.1.0',
+      isDraft: false,
+      isPrerelease: false,
+      publishedAt: '2026-07-20T00:00:00Z'
+    },
+    npm: {
+      exists: true,
+      version: '1.1.0',
+      gitHead: null,
+      integrity,
+      integritySha512: integrityHex,
+      trustedPublisher: { id: 'github', name: 'GitHub Actions' },
+      provenance
+    },
+    mcpRegistry: {
+      exists: true,
+      name: 'io.github.oaslananka/infra-lens-mcp',
+      version: '1.1.0',
+      packageIdentifier: 'infra-lens-mcp',
+      packageVersion: '1.1.0',
+      status: 'active'
+    },
+    ghcr: { exists: true, version: '1.1.0' }
+  })
+);
+assert.equal(trustedPublisherComplete.state, 'complete');
+assert.equal(trustedPublisherComplete.coherent, true);
+
+const mismatchedProvenance = evaluateReleaseState(
+  base({
+    tag: { exists: true, name: 'infra-lens-mcp-v1.1.0', commit },
+    githubRelease: {
+      exists: true,
+      tagName: 'infra-lens-mcp-v1.1.0',
+      isDraft: false,
+      isPrerelease: false,
+      publishedAt: '2026-07-20T00:00:00Z'
+    },
+    npm: {
+      exists: true,
+      version: '1.1.0',
+      gitHead: null,
+      integrity,
+      integritySha512: integrityHex,
+      trustedPublisher: { id: 'github', name: 'GitHub Actions' },
+      provenance: { ...provenance, commit: 'ffffffffffffffffffffffffffffffffffffffff' }
+    },
+    mcpRegistry: {
+      exists: true,
+      name: 'io.github.oaslananka/infra-lens-mcp',
+      version: '1.1.0',
+      packageIdentifier: 'infra-lens-mcp',
+      packageVersion: '1.1.0',
+      status: 'active'
+    },
+    ghcr: { exists: true, version: '1.1.0' }
+  })
+);
+assert.equal(mismatchedProvenance.coherent, false);
+assert.match(mismatchedProvenance.blockers.join('\n'), /provenance commit/);
+
+const missingLineage = evaluateReleaseState(
+  base({
+    tag: { exists: true, name: 'infra-lens-mcp-v1.1.0', commit },
+    npm: {
+      exists: true,
+      version: '1.1.0',
+      gitHead: null,
+      integrity,
+      integritySha512: integrityHex,
+      trustedPublisher: { id: null, name: null },
+      provenance: { exists: false }
+    }
+  })
+);
+assert.equal(missingLineage.coherent, false);
+assert.match(missingLineage.blockers.join('\n'), /neither gitHead nor SLSA provenance/);
 
 const partial = evaluateReleaseState(
   base({

@@ -75,7 +75,55 @@ export function evaluateReleaseState(input) {
 
   const legacy = LEGACY_PUBLICATIONS[version];
   if (!legacy && input.npm.exists && !input.npm.gitHead) {
-    errors.push(`npm package ${input.packageName}@${version} does not expose gitHead`);
+    const provenance = input.npm.provenance ?? { exists: false };
+    const expectedRepository = `https://github.com/${input.repository}`;
+    const expectedSubject = `pkg:npm/${input.packageName}@${version}`;
+
+    if (input.npm.trustedPublisher?.id !== 'github') {
+      errors.push(
+        `npm package ${input.packageName}@${version} is not attributed to GitHub Trusted Publishing`
+      );
+    }
+    if (!provenance.exists) {
+      errors.push(
+        `npm package ${input.packageName}@${version} exposes neither gitHead nor SLSA provenance`
+      );
+    } else {
+      if (provenance.predicateType !== 'https://slsa.dev/provenance/v1') {
+        errors.push(
+          `npm provenance predicate is ${provenance.predicateType}; expected SLSA provenance v1`
+        );
+      }
+      if (provenance.repository !== expectedRepository) {
+        errors.push(
+          `npm provenance repository ${provenance.repository}; expected ${expectedRepository}`
+        );
+      }
+      if (input.tag.commit && provenance.commit !== input.tag.commit) {
+        errors.push(
+          `npm provenance commit ${provenance.commit} does not match tag commit ${input.tag.commit}`
+        );
+      }
+      if (provenance.workflowPath !== '.github/workflows/publish-npm.yml') {
+        errors.push(
+          `npm provenance workflow ${provenance.workflowPath}; expected .github/workflows/publish-npm.yml`
+        );
+      }
+      if (provenance.ref !== 'refs/heads/main') {
+        errors.push(`npm provenance ref ${provenance.ref}; expected refs/heads/main`);
+      }
+      if (provenance.eventName !== 'repository_dispatch') {
+        errors.push(`npm provenance event ${provenance.eventName}; expected repository_dispatch`);
+      }
+      if (provenance.subjectName !== expectedSubject) {
+        errors.push(
+          `npm provenance subject ${provenance.subjectName}; expected ${expectedSubject}`
+        );
+      }
+      if (!input.npm.integritySha512 || provenance.subjectSha512 !== input.npm.integritySha512) {
+        errors.push('npm provenance subject digest does not match dist integrity');
+      }
+    }
   }
   if (legacy) {
     if (!input.npm.exists) {
