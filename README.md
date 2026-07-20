@@ -79,9 +79,10 @@ node dist/mcp.js
 
 ## Configuration
 
+Transport is selected by the executable entry point, not by an environment variable: `npx -y infra-lens-mcp` or `node dist/mcp.js` starts stdio, while `node dist/server-http.js` starts Streamable HTTP.
+
 | Variable | Default | Description |
 | --- | --- | --- |
-| `MCP_TRANSPORT` | `stdio` | Intended transport mode: `stdio` or `http` |
 | `INFRA_LENS_DB` | `~/.infra-lens-mcp/metrics.db` | SQLite database path |
 | `MCP_HTTP_HOST` | `127.0.0.1` | HTTP bind host. `HOST` remains a deprecated alias |
 | `MCP_HTTP_PORT` | `3000` | HTTP bind port. `PORT` remains a deprecated alias |
@@ -125,7 +126,7 @@ Process command arguments are not collected by the default process command. Secr
 Run the Streamable HTTP transport locally. The canonical MCP endpoint is `http://127.0.0.1:3000/mcp` unless `MCP_HTTP_ENDPOINT_PATH` is changed. HTTP mode is stateless today: the server does not issue or accept `MCP-Session-Id`, and only POST JSON-RPC calls are supported on the MCP endpoint.
 
 ```bash
-MCP_TRANSPORT=http MCP_HTTP_HOST=127.0.0.1 MCP_HTTP_PORT=3000 node dist/server-http.js
+MCP_HTTP_HOST=127.0.0.1 MCP_HTTP_PORT=3000 node dist/server-http.js
 ```
 
 Loopback HTTP can run without auth for local development. Any non-loopback bind, such as `0.0.0.0`, fails fast unless all of these are configured:
@@ -152,7 +153,6 @@ For local HTTP testing, override the command and keep the bind host on loopback 
 
 ```bash
 docker run --rm -p 127.0.0.1:3000:3000 \
-  -e MCP_TRANSPORT=http \
   -e MCP_HTTP_HOST=0.0.0.0 \
   -e MCP_HTTP_ALLOWED_ORIGINS=http://localhost:3000 \
   -e MCP_HTTP_ALLOWED_HOSTS=localhost:3000 \

@@ -49,7 +49,6 @@ USER appuser
 
 # Data directory for SQLite.
 ENV INFRA_LENS_DB=/home/appuser/.infra-lens-mcp/metrics.db
-ENV MCP_TRANSPORT=stdio
 RUN mkdir -p /home/appuser/.infra-lens-mcp
 
 CMD ["node", "dist/mcp.js"]

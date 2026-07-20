@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it, jest } from '@jest/globals';
 import type { z } from 'zod';
 
@@ -73,6 +75,32 @@ describe('registerInfraLensTools', () => {
         definition.name === 'get_history' ? false : true
       );
     }
+  });
+
+  it('marks persistence tools as mutating and read-only tools accurately', () => {
+    const definitions = createToolDefinitions();
+    const readOnlyByName = Object.fromEntries(
+      definitions.map((definition) => [definition.name, definition.config.annotations.readOnlyHint])
+    );
+
+    expect(readOnlyByName).toEqual({
+      analyze_server: false,
+      snapshot: false,
+      record_baseline: false,
+      compare_to_baseline: true,
+      get_history: true,
+      inspect_host_capabilities: true
+    });
+  });
+
+  it('keeps published MCP tool metadata identical to runtime registrations', () => {
+    const manifest = JSON.parse(
+      readFileSync(new URL('../../mcp.json', import.meta.url), 'utf8')
+    ) as { tools?: Array<{ name?: string }> };
+
+    expect(manifest.tools?.map((tool) => tool.name)).toEqual(
+      createToolDefinitions().map((definition) => definition.name)
+    );
   });
 
   it.each(['remote-safe', 'chatgpt', 'claude'] as const)(

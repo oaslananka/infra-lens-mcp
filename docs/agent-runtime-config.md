@@ -23,9 +23,19 @@ Copy `opencode.example.jsonc` to `opencode.json`, or merge the `mcp` block into 
 
 ## Generic MCP clients
 
+Use the stdio package entry point:
+
 ```bash
-npx infra-lens-mcp
+npx -y infra-lens-mcp
 ```
+
+For guarded Streamable HTTP, invoke the HTTP entry point explicitly:
+
+```bash
+node dist/server-http.js
+```
+
+No transport environment variable is supported; the selected executable is the transport contract.
 
 ## Safety
 
