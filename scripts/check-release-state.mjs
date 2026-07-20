@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import { evaluateReleaseState } from './release-state-core.mjs';
 import { integritySha512Hex, parseNpmProvenance } from './npm-provenance.mjs';
@@ -276,5 +277,12 @@ const legacy = evaluateReleaseState(
 assert.equal(legacy.state, 'legacy-manual');
 assert.equal(legacy.coherent, true);
 assert.equal(legacy.safe_to_publish, false);
+
+const releaseWorkflow = readFileSync('.github/workflows/release.yml', 'utf8');
+assert.match(
+  releaseWorkflow,
+  /token:\s*\$\{\{ secrets\.RELEASE_PLEASE_TOKEN \}\}/,
+  'Release Please must use the repository PAT so release PR updates trigger protected checks.'
+);
 
 console.log('Release state evaluator tests passed.');

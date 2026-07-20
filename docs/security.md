@@ -59,6 +59,7 @@ Workflows explicitly set workflow-level `permissions` to `contents: read`. Jobs 
 
 - CodeQL declares `security-events: write` on the analysis job so SARIF upload can succeed without granting that write permission to the whole workflow.
 - `release-please` declares `contents: write`, `pull-requests: write`, and `issues: write` because it creates release commits, tags, release pull requests, and related issue updates.
+  Its action input uses the repository `RELEASE_PLEASE_TOKEN` secret rather than the default workflow token so bot-authored release pull requests receive the same protected checks as maintainer pull requests.
 - The npm publish job declares `contents: write`, `id-token: write`, and `attestations: write` because it uploads release assets, requests npm trusted-publishing identity, and creates artifact attestations.
 
 Do not add workflow-level write permissions. If a future release job needs additional write access, document the API call or action input that requires it in this section and keep the permission scoped to that job.
