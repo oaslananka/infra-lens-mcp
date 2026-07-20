@@ -14,7 +14,7 @@ The canonical production sequence is:
 
 1. A change is merged to `main`.
 2. Release Please opens or updates the release pull request.
-3. Required CI and security checks pass on the release pull request.
+3. Required CI and security checks pass on the release pull request. Release Please authenticates with the repository `RELEASE_PLEASE_TOKEN` secret so its pull-request updates emit normal workflow events; using the default GitHub Actions token would leave protected checks absent.
 4. The release pull request is merged.
 5. Release Please creates the immutable Git tag and published GitHub Release.
 6. `release.yml` sends one `infra-lens-release` repository-dispatch event containing the tag and version.
