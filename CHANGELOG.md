@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.1.1...infra-lens-mcp-v1.2.0) (2026-07-21)
+
+
+### Features
+
+* **container:** publish signed multi-arch images ([#109](https://github.com/oaslananka/infra-lens-mcp/issues/109)) ([43f7632](https://github.com/oaslananka/infra-lens-mcp/commit/43f7632c4163197abff7f85f4642647e4bbc53aa)), closes [#61](https://github.com/oaslananka/infra-lens-mcp/issues/61)
+* **storage:** add lifecycle pagination and export ([#101](https://github.com/oaslananka/infra-lens-mcp/issues/101)) ([5b4b789](https://github.com/oaslananka/infra-lens-mcp/commit/5b4b78905d484ccbdc58622c87240b9550d0f62b))
+
+
+### Bug Fixes
+
+* **analyzer:** bound network and kernel signals ([#100](https://github.com/oaslananka/infra-lens-mcp/issues/100)) ([f4a189a](https://github.com/oaslananka/infra-lens-mcp/commit/f4a189a3c06d5e2eca1ca916e9c2d88ac3eb813e))
+* **mcp:** align runtime and published contracts ([#97](https://github.com/oaslananka/infra-lens-mcp/issues/97)) ([b160439](https://github.com/oaslananka/infra-lens-mcp/commit/b160439c30cbae085db971da7724036c9e5a4d76))
+
 ## [1.1.1](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.1.0...infra-lens-mcp-v1.1.1) (2026-07-20)
 
 
