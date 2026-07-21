@@ -8,7 +8,7 @@
 
 > **renderOpenMetrics**(`points`): `string`
 
-Defined in: [observability-metrics.ts:315](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/observability-metrics.ts#L315)
+Defined in: [observability-metrics.ts:325](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/observability-metrics.ts#L325)
 
 ## Parameters
 

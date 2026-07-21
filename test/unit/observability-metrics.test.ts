@@ -143,6 +143,6 @@ describe('observability metric contract', () => {
     expect(output).toContain('mountpoint="/data\\"x"');
     expect(output).not.toMatch(/infra_lens_cpu_usage_percent\{[^\n]+\}\s+42\.5\s+\d{10,}/);
     expect(output.endsWith('# EOF\n')).toBe(true);
-    expect((output.match(/# HELP infra_lens_cpu_load/g) ?? []).length).toBe(1);
+    expect(output.match(/# HELP infra_lens_cpu_load/g) ?? []).toHaveLength(1);
   });
 });

@@ -8,7 +8,7 @@
 
 > **buildLatestMetricPoints**(`snapshots`, `options?`): [`MetricPoint`](../interfaces/MetricPoint.md)[]
 
-Defined in: [observability-metrics.ts:268](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/observability-metrics.ts#L268)
+Defined in: [observability-metrics.ts:266](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/observability-metrics.ts#L266)
 
 ## Parameters
 

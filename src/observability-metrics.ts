@@ -29,16 +29,18 @@ function point(
   points.push({ name, help, value, labels, timestampMs });
 }
 
-function directionPoints(
-  points: MetricPoint[],
-  name: string,
-  help: string,
-  receive: number | undefined,
-  transmit: number | undefined,
-  host: string,
-  interfaceName: string,
-  timestampMs: number
-): void {
+interface DirectionPointsOptions {
+  name: string;
+  help: string;
+  receive: number | undefined;
+  transmit: number | undefined;
+  host: string;
+  interfaceName: string;
+  timestampMs: number;
+}
+
+function directionPoints(points: MetricPoint[], options: DirectionPointsOptions): void {
+  const { name, help, receive, transmit, host, interfaceName, timestampMs } = options;
   point(
     points,
     name,
@@ -195,46 +197,42 @@ function addSnapshotPoints(
   }
 
   for (const network of snapshot.network) {
-    directionPoints(
-      points,
-      'infra_lens_network_bytes',
-      'Network bytes observed during the collector sample window.',
-      network.rx_bytes,
-      network.tx_bytes,
+    directionPoints(points, {
+      name: 'infra_lens_network_bytes',
+      help: 'Network bytes observed during the collector sample window.',
+      receive: network.rx_bytes,
+      transmit: network.tx_bytes,
       host,
-      network.interface,
+      interfaceName: network.interface,
       timestampMs
-    );
-    directionPoints(
-      points,
-      'infra_lens_network_packets',
-      'Network packets observed during the collector sample window.',
-      network.rx_packets,
-      network.tx_packets,
+    });
+    directionPoints(points, {
+      name: 'infra_lens_network_packets',
+      help: 'Network packets observed during the collector sample window.',
+      receive: network.rx_packets,
+      transmit: network.tx_packets,
       host,
-      network.interface,
+      interfaceName: network.interface,
       timestampMs
-    );
-    directionPoints(
-      points,
-      'infra_lens_network_errors',
-      'Network errors observed during the collector sample window.',
-      network.rx_errors,
-      network.tx_errors,
+    });
+    directionPoints(points, {
+      name: 'infra_lens_network_errors',
+      help: 'Network errors observed during the collector sample window.',
+      receive: network.rx_errors,
+      transmit: network.tx_errors,
       host,
-      network.interface,
+      interfaceName: network.interface,
       timestampMs
-    );
-    directionPoints(
-      points,
-      'infra_lens_network_dropped',
-      'Dropped network packets observed during the collector sample window.',
-      network.rx_dropped,
-      network.tx_dropped,
+    });
+    directionPoints(points, {
+      name: 'infra_lens_network_dropped',
+      help: 'Dropped network packets observed during the collector sample window.',
+      receive: network.rx_dropped,
+      transmit: network.tx_dropped,
       host,
-      network.interface,
+      interfaceName: network.interface,
       timestampMs
-    );
+    });
   }
 
   point(
@@ -298,18 +296,30 @@ export function buildLatestMetricPoints(
   });
 }
 
+const BACKSLASH = String.fromCodePoint(92);
+const ESCAPED_BACKSLASH = String.raw`\\`;
+const ESCAPED_NEWLINE = String.raw`\n`;
+const ESCAPED_QUOTE = String.raw`\"`;
+
 function escapeHelp(value: string): string {
-  return value.replaceAll('\\', '\\\\').replaceAll('\n', '\\n');
+  return value.replaceAll(BACKSLASH, ESCAPED_BACKSLASH).replaceAll('\n', ESCAPED_NEWLINE);
 }
 
 function escapeLabel(value: string): string {
-  return value.replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('"', '\\"');
+  return value
+    .replaceAll(BACKSLASH, ESCAPED_BACKSLASH)
+    .replaceAll('\n', ESCAPED_NEWLINE)
+    .replaceAll('"', ESCAPED_QUOTE);
+}
+
+function renderLabel([key, value]: [string, string]): string {
+  return key + '="' + escapeLabel(value) + '"';
 }
 
 function renderLabels(labels: Record<string, string>): string {
   const entries = Object.entries(labels).sort(([left], [right]) => left.localeCompare(right));
   if (entries.length === 0) return '';
-  return `{${entries.map(([key, value]) => `${key}="${escapeLabel(value)}"`).join(',')}}`;
+  return '{' + entries.map(renderLabel).join(',') + '}';
 }
 
 export function renderOpenMetrics(points: MetricPoint[]): string {
@@ -317,8 +327,7 @@ export function renderOpenMetrics(points: MetricPoint[]): string {
   let previousName: string | undefined;
   for (const metric of points) {
     if (metric.name !== previousName) {
-      lines.push(`# HELP ${metric.name} ${escapeHelp(metric.help)}`);
-      lines.push(`# TYPE ${metric.name} gauge`);
+      lines.push(`# HELP ${metric.name} ${escapeHelp(metric.help)}`, `# TYPE ${metric.name} gauge`);
       previousName = metric.name;
     }
     lines.push(`${metric.name}${renderLabels(metric.labels)} ${String(metric.value)}`);
