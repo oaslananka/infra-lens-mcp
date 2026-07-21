@@ -172,6 +172,17 @@ docker run --rm -p 127.0.0.1:3000:3000 \
   infra-lens-mcp node dist/server-http.js
 ```
 
+
+## Observability exports
+
+Observability is a separate, disabled-by-default process that reads the latest persisted observations without initiating SSH collection:
+
+```bash
+INFRA_LENS_OBSERVABILITY_ENABLED=true infra-lens-observe
+```
+
+The default OpenMetrics endpoint is `http://127.0.0.1:9464/metrics`. Optional OTLP/HTTP JSON export uses standard `OTEL_EXPORTER_OTLP_*` variables. See [Observability exports](./docs/observability.md) for Prometheus, OpenTelemetry, privacy, and remote-access guidance.
+
 ## Development
 
 ```bash

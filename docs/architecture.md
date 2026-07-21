@@ -18,6 +18,9 @@ src/mcp.ts / src/server-http.ts
   +-- src/db.ts             SQLite connection and schema setup
   +-- src/ssh.ts            SSH sessions and strict host verification
   +-- src/logging.ts        Structured stderr logging and redaction
+  +-- src/observe.ts        Standalone OpenMetrics and OTLP runtime
+  +-- src/observability-*   Read-only metric conversion and scrape policy
+  +-- src/otlp-metrics.ts   OTLP/HTTP JSON encoding and export
   +-- src/types.ts          Zod schemas and shared TypeScript types
 ```
 
@@ -31,6 +34,12 @@ src/mcp.ts / src/server-http.ts
 6. `analyzer.ts` loads only approved baseline samples and evaluates the current snapshot before it is persisted.
 7. `baseline.ts` stores the evaluated snapshot as an `observation`; only `record_baseline` writes `baseline` records. SSH credentials are never persisted.
 8. Tool responses are JSON text payloads returned through MCP.
+
+## Observability export flow
+
+`infra-lens-observe` is separate from the MCP HTTP transport. It reads one latest `observation` row per host, validates the stored JSON, converts bounded numeric fields to a shared metric model, and either renders OpenMetrics or sends OTLP/HTTP JSON. Scrapes never trigger SSH collection and baseline rows are excluded.
+
+The listener is disabled by default, binds to loopback by default, and requires explicit remote opt-in. See [Observability exports](./observability.md).
 
 ## HTTP transport
 

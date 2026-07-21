@@ -51,6 +51,15 @@ Errors are returned as sanitized JSON without stack traces and include `X-Conten
 
 When deploying behind a reverse proxy or OAuth gateway, keep the Node process on a private network path, forward only the canonical MCP endpoint, and treat proxy-side limits as an outer layer rather than a replacement for the in-process timeout, concurrency, body-size, origin, and host checks.
 
+
+## Observability exports
+
+The standalone metrics process is disabled by default and does not share the MCP HTTP authentication surface. It reads only persisted latest observations and never opens SSH sessions during a scrape.
+
+The OpenMetrics endpoint can reveal hostnames, mountpoints, interface names, utilization, service failures, and bounded kernel-event counts. Process commands, warning strings, OS kernel/distribution strings, credentials, and OTLP headers are excluded. Keep the listener on loopback or a private network; non-loopback bind requires explicit opt-in but still needs an authenticated TLS reverse proxy.
+
+OTLP endpoints must use HTTP(S), embedded URL credentials are rejected, request timeouts are bounded, and failures are logged without response content or configured headers. Use HTTPS outside a protected local network and inject collector credentials through secret management. See [Observability exports](./observability.md).
+
 ## MCP connector readiness
 
 HTTP is available for local and controlled deployments, but public connector publication is not marked ready because this package does not implement production OAuth token validation. Public deployments should terminate OAuth and HTTPS in a gateway or reverse proxy before forwarding to this server.

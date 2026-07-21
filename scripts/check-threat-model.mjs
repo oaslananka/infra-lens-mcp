@@ -17,7 +17,9 @@ const requiredThreats = new Set([
   'TM-RESOURCE-ABUSE',
   'TM-OUTPUT-INJECTION',
   'TM-DATA-LEAK',
-  'TM-RELEASE-SUPPLYCHAIN'
+  'TM-RELEASE-SUPPLYCHAIN',
+  'TM-METRICS-EXPOSURE',
+  'TM-OTLP-EGRESS'
 ]);
 
 function fail(message) {

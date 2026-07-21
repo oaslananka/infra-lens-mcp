@@ -84,6 +84,13 @@ pnpm run check:golden
 
 Do not update golden output merely to make a failing test pass; the pull request must explain the behavior change and why each changed recommendation, severity, health score, or evidence field is correct.
 
+
+## Observability export contract
+
+`pnpm run test:observability` verifies latest-row selection, bounded metric conversion, OpenMetrics escaping/content, secure listener defaults, OTLP JSON encoding, timeout/error behavior, and runtime lifecycle. The integration entrypoint suite seeds a temporary SQLite database, starts `infra-lens-observe`, scrapes the real TCP endpoint, and verifies SIGTERM shutdown.
+
+The focused suite runs in Quick Gates and the network/egress cases are also mapped into `test:abuse` and the executable threat model.
+
 ## Docker-backed SSH e2e target
 
 Bring up the disposable SSH fixture:

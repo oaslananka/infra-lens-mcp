@@ -1,14 +1,15 @@
 {
   "schemaVersion": 1,
-  "modelVersion": "1.0.0",
-  "reviewedAt": "2026-07-20",
+  "modelVersion": "1.1.0",
+  "reviewedAt": "2026-07-21",
   "owners": ["maintainers"],
   "deploymentAssumptions": [
     "Public HTTP traffic terminates at an HTTPS and OAuth-aware gateway.",
     "The Node backend is reachable only from the trusted gateway or private network.",
     "Remote-safe profiles use explicit host, user, and port allowlists plus strict host-key verification.",
     "Collected output and remote host content are untrusted data and never executable instructions.",
-    "Public connector readiness remains false while tenant identity is not bound to target authorization inside the package."
+    "Public connector readiness remains false while tenant identity is not bound to target authorization inside the package.",
+    "Observability listeners remain disabled by default and remote access is protected by an authenticated TLS proxy or private network."
   ],
   "threats": [
     {
@@ -225,6 +226,54 @@
         "reviewBy": "2026-08-31"
       },
       "tests": ["scripts/check-release-state.mjs", "scripts/check-threat-model.mjs"]
+    },
+    {
+      "id": "TM-METRICS-EXPOSURE",
+      "title": "Metrics endpoint exposes sensitive infrastructure topology or becomes an unintended public service",
+      "likelihood": "medium",
+      "impact": "high",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["OpenMetrics GET /metrics", "metrics listener bind address"],
+      "mitigations": [
+        "exports disabled by default",
+        "loopback default",
+        "explicit remote-bind opt-in",
+        "no process commands, warning text, kernel, distro, or credentials",
+        "bounded latest-snapshot labels",
+        "authenticated TLS proxy or private-network deployment guidance"
+      ],
+      "residualRisk": "Hostnames, mountpoints, interface names, and operational measurements remain sensitive to any authorized scraper.",
+      "tests": [
+        "test/unit/observability-metrics.test.ts",
+        "test/unit/observability-server.test.ts",
+        "test/unit/observability-runtime.test.ts"
+      ]
+    },
+    {
+      "id": "TM-OTLP-EGRESS",
+      "title": "OTLP endpoint or credential configuration leaks secrets or sends telemetry over an unsafe path",
+      "likelihood": "medium",
+      "impact": "high",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": ["OTEL_EXPORTER_OTLP_* environment variables", "outbound OTLP/HTTP request"],
+      "mitigations": [
+        "HTTP(S)-only endpoint validation",
+        "embedded URL credentials rejected",
+        "standard percent-decoded header configuration",
+        "generic error logging without response bodies or headers",
+        "bounded timeout and interval",
+        "HTTPS and scoped-secret deployment guidance"
+      ],
+      "residualRisk": "Operators can explicitly configure plain HTTP or an untrusted collector; network and secret management remain deployment responsibilities.",
+      "tests": [
+        "test/unit/observability-server.test.ts",
+        "test/unit/otlp-metrics.test.ts",
+        "test/unit/logging.test.ts"
+      ]
     }
   ]
 }
