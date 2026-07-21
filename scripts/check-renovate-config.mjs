@@ -49,16 +49,22 @@ if (
     (rule) =>
       rule.matchManagers?.includes('mise') &&
       rule.matchPackageNames?.includes('pre-commit') &&
-      rule.matchPackageNames?.includes('sonarqube-cli')
+      rule.matchPackageNames?.includes('sonarqube-cli') &&
+      rule.matchPackageNames?.includes('actionlint')
   )
 ) {
-  fail('mise-managed pre-commit and SonarQube CLI updates must be governed by Renovate');
+  fail(
+    'mise-managed pre-commit, actionlint, and SonarQube CLI updates must be governed by Renovate'
+  );
 }
 if (!/pre-commit\s*=\s*"4\.6\.0"/.test(miseConfig)) {
   fail('mise must pin pre-commit');
 }
 if (!/sonarqube-cli\s*=\s*"1\.4\.0\.3748"/.test(miseConfig)) {
   fail('mise must pin SonarQube CLI');
+}
+if (!/actionlint\s*=\s*"1\.7\.12"/.test(miseConfig)) {
+  fail('mise must pin actionlint');
 }
 if (!managers.some((manager) => manager.depNameTemplate === 'pnpm')) {
   fail('workflow pnpm pins must be managed by a custom manager');

@@ -22,19 +22,18 @@ Use Node.js 24 LTS for local development when possible. The package keeps `engin
 3. Run the relevant checks before pushing.
 4. Open a pull request with a clear technical description and no secret values.
 
-`main` is protected. Pull requests must be current with `main`, use linear history, resolve review conversations, and pass these required checks before merge:
+`main` is protected. Pull requests must be current with `main`, use linear history, resolve review conversations, and pass the active ruleset checks before merge:
 
 - `Quick Gates`
-- `Full Gates Node 22`
 - `Full Gates Node 24`
-- `Docker Build Smoke`
 - `Static Security`
-- `Container Security`
-- `OSSF Scorecard`
-- `Analyze JavaScript and TypeScript`
-- `Review Thread Gate`
+- `Docker Build Smoke`
+- `Host Compatibility (windows-2025)`
+- `dependency-review`
 - `Semgrep`
 - `SonarCloud Code Analysis`
+
+Other platform and security jobs still provide evidence and must be reviewed when they report findings, even when they are not protected-branch requirements. The category ownership and blocking/advisory split are documented in [`.github/TOOLING.md`](./.github/TOOLING.md).
 
 Approvals are not required while this repository has a single active maintainer; enable at least one required approval when another maintainer can review without blocking releases.
 
@@ -60,6 +59,7 @@ pnpm run check:renovate
 pnpm run check:overrides
 pnpm run check:audit
 pnpm run security:semgrep
+pnpm run workflow:check
 pnpm run package:dry-run
 pnpm run release:dry-run
 ```
