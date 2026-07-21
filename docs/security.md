@@ -55,6 +55,25 @@ When deploying behind a reverse proxy or OAuth gateway, keep the Node process on
 
 HTTP is available for local and controlled deployments, but public connector publication is not marked ready because this package does not implement production OAuth token validation. Public deployments should terminate OAuth and HTTPS in a gateway or reverse proxy before forwarding to this server.
 
+## Container runtime hardening
+
+The published image runs as UID 1001 and keeps SQLite state under `/home/appuser/.infra-lens-mcp`. Production and local container deployments should mount only that directory as writable and keep the rest of the filesystem read-only:
+
+```bash
+docker volume create infra-lens-data
+docker run --rm -i \
+  --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges:true \
+  --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+  --mount type=volume,src=infra-lens-data,dst=/home/appuser/.infra-lens-mcp \
+  ghcr.io/oaslananka/infra-lens-mcp:<version>
+```
+
+Do not mount the Docker socket, host root filesystem, SSH private-key directories, or broad home-directory paths. For HTTP mode, publish only a loopback or private-network port and retain the remote-safe authentication, origin, host, timeout, body-size, rate, and concurrency controls.
+
+Release images are multi-architecture (`linux/amd64` and `linux/arm64`), carry OCI metadata, BuildKit SBOM/provenance attestations, a GitHub artifact attestation, and a keyless Cosign signature. Consumers should deploy the immutable digest rather than a mutable tag and verify both the Cosign certificate identity and GitHub attestation as documented in [Release automation](./release.md#ghcr).
+
 ## GitHub Actions token permissions
 
 Workflows explicitly set workflow-level `permissions` to `contents: read`. Jobs that need write access declare it at job scope only:
@@ -63,6 +82,7 @@ Workflows explicitly set workflow-level `permissions` to `contents: read`. Jobs 
 - `release-please` declares `contents: write`, `pull-requests: write`, and `issues: write` because it creates release commits, tags, release pull requests, and related issue updates.
   Its action input uses the repository `RELEASE_PLEASE_TOKEN` secret rather than the default workflow token so bot-authored release pull requests receive the same protected checks as maintainer pull requests.
 - The npm publish job declares `contents: write`, `id-token: write`, and `attestations: write` because it uploads release assets, requests npm trusted-publishing identity, and creates artifact attestations.
+- The GHCR publish job declares `packages: write`, `id-token: write`, and `attestations: write` because it pushes the multi-architecture image, requests a keyless Cosign identity, and attaches GitHub provenance to the image digest. Its manual validation job remains read-only and cannot log in or push.
 
 Do not add workflow-level write permissions. If a future release job needs additional write access, document the API call or action input that requires it in this section and keep the permission scoped to that job.
 

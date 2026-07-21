@@ -78,8 +78,8 @@
     "check:renovate": "node scripts/check-renovate-config.mjs",
     "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off",
     "hooks:install": "node scripts/install-git-hooks.mjs",
-    "precommit": "pnpm run format:check && pnpm run lint && pnpm run check:threat-model && pnpm run check:renovate && pnpm run check:codecov && pnpm run check:overrides && pnpm run security:semgrep",
-    "prepush": "pnpm run lint && pnpm run test:coverage && pnpm run test:abuse && pnpm run build && pnpm run check:golden && pnpm run check:metadata && pnpm run check:renovate && pnpm run check:codecov && pnpm run check:overrides && pnpm run check:audit && pnpm run security:semgrep",
+    "precommit": "pnpm run format:check && pnpm run lint && pnpm run check:threat-model && pnpm run check:renovate && pnpm run check:codecov && pnpm run check:container-release && pnpm run check:overrides && pnpm run security:semgrep",
+    "prepush": "pnpm run lint && pnpm run test:coverage && pnpm run test:abuse && pnpm run build && pnpm run check:golden && pnpm run check:metadata && pnpm run check:renovate && pnpm run check:codecov && pnpm run check:container-release && pnpm run check:overrides && pnpm run check:audit && pnpm run security:semgrep",
     "check:overrides": "node scripts/check-dependency-overrides.mjs",
     "check:audit": "node scripts/check-audit-policy.mjs",
     "sonar:secrets": "pre-commit run sonar-secrets --all-files --hook-stage manual",
@@ -90,7 +90,8 @@
     "check:codecov": "node scripts/check-codecov-config.mjs",
     "workflow:lint": "pre-commit run actionlint-system --all-files --hook-stage manual",
     "workflow:security": "pre-commit run zizmor --all-files --hook-stage manual",
-    "workflow:check": "pnpm run workflow:lint && pnpm run workflow:security"
+    "workflow:check": "pnpm run workflow:lint && pnpm run workflow:security",
+    "check:container-release": "node scripts/check-container-release.mjs"
   },
   "engines": {
     "node": ">=22"

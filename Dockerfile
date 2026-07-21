@@ -20,6 +20,12 @@ FROM node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e4
 WORKDIR /app
 ENV NODE_ENV=production
 
+LABEL org.opencontainers.image.title="infra-lens-mcp" \
+      org.opencontainers.image.description="Infrastructure visibility and diagnostics MCP server" \
+      org.opencontainers.image.source="https://github.com/oaslananka/infra-lens-mcp" \
+      org.opencontainers.image.url="https://github.com/oaslananka/infra-lens-mcp" \
+      org.opencontainers.image.licenses="MIT"
+
 RUN apt-get update \
     && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*

@@ -145,8 +145,13 @@ The Docker image defaults to stdio mode:
 
 ```bash
 docker build -t infra-lens-mcp .
-docker run --rm -it \
-  -v "$HOME/.infra-lens-mcp:/home/appuser/.infra-lens-mcp" \
+docker volume create infra-lens-data
+docker run --rm -i \
+  --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges:true \
+  --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+  --mount type=volume,src=infra-lens-data,dst=/home/appuser/.infra-lens-mcp \
   infra-lens-mcp
 ```
 
@@ -154,6 +159,11 @@ For local HTTP testing, override the command and keep the bind host on loopback 
 
 ```bash
 docker run --rm -p 127.0.0.1:3000:3000 \
+  --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges:true \
+  --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+  --mount type=volume,src=infra-lens-data,dst=/home/appuser/.infra-lens-mcp \
   -e MCP_HTTP_HOST=0.0.0.0 \
   -e MCP_HTTP_ALLOWED_ORIGINS=http://localhost:3000 \
   -e MCP_HTTP_ALLOWED_HOSTS=localhost:3000 \
