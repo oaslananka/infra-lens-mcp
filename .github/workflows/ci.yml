@@ -72,6 +72,7 @@ jobs:
         run: |
           pnpm run check:renovate
           pnpm run check:codecov
+          pnpm run check:osv
           pnpm run check:container-release
           pnpm run check:overrides
 

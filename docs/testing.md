@@ -155,10 +155,23 @@ Run the deterministic security checks directly with:
 ```bash
 pnpm run security:semgrep
 pnpm run check:renovate
+pnpm run check:osv
 pnpm run check:overrides
 pre-commit run --all-files
 ```
 
+
+## OSV dependency vulnerability gates
+
+`OSV-Scanner PR Scan` compares the pull-request `pnpm-lock.yaml` with the target branch and blocks only newly introduced known vulnerabilities. `OSV-Scanner Full Scan` runs after `main` pushes, every Monday, and on manual dispatch; it scans the complete lockfile, fails on any finding, and uploads SARIF to GitHub code scanning.
+
+The official OSV reusable workflows are pinned to the immutable v2.3.8 commit. Repository policy validation ensures both scans remain fail-closed, SARIF-enabled, and restricted to the lockfile without guided remediation:
+
+```bash
+pnpm run check:osv
+```
+
+Dependency Review still owns pull-request dependency graph and license changes. Trivy still owns filesystem and container vulnerability scans, so OSV does not duplicate those jobs.
 
 ## Codecov observability
 

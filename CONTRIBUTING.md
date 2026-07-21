@@ -56,6 +56,7 @@ pnpm run build
 pnpm run docs:api:check
 pnpm run check:metadata
 pnpm run check:renovate
+pnpm run check:osv
 pnpm run check:overrides
 pnpm run check:audit
 pnpm run security:semgrep

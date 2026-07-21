@@ -7,7 +7,8 @@ depth without making every scanner a duplicate blocking gate.
 | Area | Primary control | Supporting signal | Merge policy |
 | --- | --- | --- | --- |
 | Dependency updates | Renovate | GitHub Dependabot alerts and OSV data | Renovate opens version/security PRs; Dependabot version PRs stay disabled |
-| SAST / custom policy | Semgrep repository rules | CodeQL, Snyk, Aikido, DeepScan | Semgrep blocks custom forbidden patterns; other scanners feed review/security dashboards |
+| Dependency vulnerabilities | OSV-Scanner PR delta | GitHub Dependency Review, Dependabot alerts, Trivy filesystem scan | New lockfile vulnerabilities block PRs; full main/weekly scans publish SARIF |
+| SAST / custom policy | Semgrep repository rules | CodeQL, Aikido, DeepScan | Semgrep blocks custom forbidden patterns; other scanners feed review/security dashboards |
 | Secrets | GitHub secret scanning and push protection | Gitleaks in `Static Security`; manual Sonar secrets scan | Push protection is preventive; repository scan is defense in depth |
 | Container / filesystem | Trivy | Docker build smoke and dependency review | Medium/high/critical fixed findings block |
 | Coverage | Jest thresholds | Codecov trends, patch coverage, annotations, and Test Analytics | Jest is the blocking gate; Codecov starts informational |
@@ -21,8 +22,8 @@ depth without making every scanner a duplicate blocking gate.
 
 The active `main` ruleset requires the focused checks that protect build, runtime,
 security, compatibility, dependency review, custom SAST, and maintainability.
-CodeQL and commercial AppSec integrations remain visible but are not all required
-at once. Codecov is not a second blocking coverage gate while Jest and Sonar
+CodeQL and external AppSec integrations remain visible but are not all required
+at once. OSV-Scanner is required specifically for new dependency vulnerabilities rather than source-code findings. Codecov is not a second blocking coverage gate while Jest and Sonar
 already enforce local/new-code quality.
 
 ## Local hooks
