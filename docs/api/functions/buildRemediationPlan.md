@@ -8,7 +8,7 @@
 
 > **buildRemediationPlan**(`snapshot`, `analysis`, `now?`): [`RemediationPlan`](../interfaces/RemediationPlan.md)
 
-Defined in: [incidents.ts:119](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L119)
+Defined in: [incidents.ts:129](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L129)
 
 ## Parameters
 

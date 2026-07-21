@@ -8,7 +8,7 @@
 
 > **buildIncidentReportDraft**(`options`): [`IncidentReportDraft`](../interfaces/IncidentReportDraft.md)
 
-Defined in: [incidents.ts:271](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L271)
+Defined in: [incidents.ts:296](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L296)
 
 ## Parameters
 

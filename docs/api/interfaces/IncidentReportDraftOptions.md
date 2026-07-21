@@ -6,7 +6,7 @@
 
 # Interface: IncidentReportDraftOptions
 
-Defined in: [incidents.ts:261](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L261)
+Defined in: [incidents.ts:286](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L286)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [incidents.ts:261](https://github.com/oaslananka/infra-lens-mcp/blob
 
 > **snapshots**: [`MetricSnapshot`](MetricSnapshot.md)[]
 
-Defined in: [incidents.ts:262](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L262)
+Defined in: [incidents.ts:287](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L287)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [incidents.ts:262](https://github.com/oaslananka/infra-lens-mcp/blob
 
 > **invalidRows**: `number`
 
-Defined in: [incidents.ts:263](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L263)
+Defined in: [incidents.ts:288](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L288)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [incidents.ts:263](https://github.com/oaslananka/infra-lens-mcp/blob
 
 > **analysis**: [`SnapshotAnalysis`](SnapshotAnalysis.md) \| `null`
 
-Defined in: [incidents.ts:264](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L264)
+Defined in: [incidents.ts:289](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L289)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [incidents.ts:264](https://github.com/oaslananka/infra-lens-mcp/blob
 
 > `optional` **now?**: `number`
 
-Defined in: [incidents.ts:265](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L265)
+Defined in: [incidents.ts:290](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L290)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [incidents.ts:265](https://github.com/oaslananka/infra-lens-mcp/blob
 
 > **windowFrom**: `number`
 
-Defined in: [incidents.ts:266](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L266)
+Defined in: [incidents.ts:291](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L291)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [incidents.ts:266](https://github.com/oaslananka/infra-lens-mcp/blob
 
 > **windowTo**: `number`
 
-Defined in: [incidents.ts:267](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L267)
+Defined in: [incidents.ts:292](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L292)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [incidents.ts:267](https://github.com/oaslananka/infra-lens-mcp/blob
 
 > `optional` **host?**: `string`
 
-Defined in: [incidents.ts:268](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L268)
+Defined in: [incidents.ts:293](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L293)

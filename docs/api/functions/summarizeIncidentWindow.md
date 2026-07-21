@@ -8,7 +8,7 @@
 
 > **summarizeIncidentWindow**(`snapshots`): [`IncidentWindowSummary`](../interfaces/IncidentWindowSummary.md)
 
-Defined in: [incidents.ts:159](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L159)
+Defined in: [incidents.ts:166](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/incidents.ts#L166)
 
 ## Parameters
 
