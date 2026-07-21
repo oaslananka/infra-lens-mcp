@@ -70,7 +70,8 @@ describe('OTLP metrics export', () => {
     expect(new Headers(init?.headers).get('content-type')).toBe('application/json');
     expect(new Headers(init?.headers).get('authorization')).toBe('Bearer token');
     expect(new Headers(init?.headers).get('user-agent')).toMatch(/^infra-lens-mcp\//);
-    expect(JSON.parse(String(init?.body))).toMatchObject({ resourceMetrics: expect.any(Array) });
+    if (typeof init?.body !== 'string') throw new Error('Expected string OTLP body.');
+    expect(JSON.parse(init.body)).toMatchObject({ resourceMetrics: expect.any(Array) });
   });
 
   it('fails closed on non-success responses without including response content', async () => {
@@ -89,7 +90,16 @@ describe('OTLP metrics export', () => {
   it('aborts exports at the configured timeout', async () => {
     const fetchImpl: typeof fetch = (_url, init) =>
       new Promise((_resolve, reject) => {
-        init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });
+        init?.signal?.addEventListener(
+          'abort',
+          () =>
+            reject(
+              init.signal?.reason instanceof Error
+                ? init.signal.reason
+                : new Error('OTLP request aborted.')
+            ),
+          { once: true }
+        );
       });
 
     await expect(

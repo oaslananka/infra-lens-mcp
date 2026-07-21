@@ -53,6 +53,9 @@ jobs:
       - name: Threat-model abuse cases
         run: pnpm run test:abuse
 
+      - name: Observability export contract
+        run: pnpm run test:observability
+
       - name: Build
         run: pnpm run build
 

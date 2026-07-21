@@ -63,3 +63,14 @@ Do not change branch protection or rulesets from routine code changes. Document 
 ## HTTP deployment
 
 Bind to loopback for local use. For shared environments, put an authenticated HTTPS reverse proxy or OAuth-aware gateway in front of the HTTP transport and configure allowed origins and hosts.
+
+
+## Observability process
+
+Run the exporter independently from MCP:
+
+```bash
+INFRA_LENS_OBSERVABILITY_ENABLED=true INFRA_LENS_DB="$HOME/.infra-lens-mcp/metrics.db" infra-lens-observe
+```
+
+Keep the default loopback bind. For shared environments, place an authenticated TLS proxy in front of `/metrics`; remote bind additionally requires `INFRA_LENS_METRICS_ALLOW_REMOTE=true`. OTLP push is optional and uses the standard variables documented in [Observability exports](./observability.md).

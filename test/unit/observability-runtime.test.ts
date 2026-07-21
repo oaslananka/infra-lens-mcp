@@ -4,7 +4,7 @@ import {
   createObservabilityShutdownHandler,
   startObservabilityRuntime
 } from '../../src/observe.js';
-import type { HttpServer } from '../../src/observe.js';
+import type { HttpServer, IntervalHandle } from '../../src/observe.js';
 
 function fakeHttpServer() {
   const server = {
@@ -37,7 +37,7 @@ describe('observability runtime', () => {
       }
     };
     const exit = jest.fn<(code: number) => void>();
-    const clearInterval = jest.fn<(timer: NodeJS.Timeout) => void>();
+    const clearInterval = jest.fn<(timer: IntervalHandle) => void>();
 
     const runtime = await startObservabilityRuntime({
       env: { INFRA_LENS_OBSERVABILITY_ENABLED: 'true', INFRA_LENS_METRICS_PORT: '9555' },
@@ -62,7 +62,7 @@ describe('observability runtime', () => {
     const server = fakeHttpServer();
     const unref = jest.fn();
     let scheduled: (() => void) | undefined;
-    const timer = { unref } as unknown as NodeJS.Timeout;
+    const timer = { unref } as unknown as IntervalHandle;
     const setInterval = jest.fn((callback: () => void, _intervalMs: number) => {
       scheduled = callback;
       return timer;

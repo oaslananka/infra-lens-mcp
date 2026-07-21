@@ -1,4 +1,5 @@
 import { createServer, type RequestListener, type Server } from 'node:http';
+import { clearInterval as nodeClearInterval, setInterval as nodeSetInterval } from 'node:timers';
 
 import { getLatestObservationSnapshots, type LatestObservationSnapshots } from './baseline.js';
 import { isMainModule } from './entrypoint.js';
@@ -15,6 +16,7 @@ import { exportOtlpMetrics, type ExportOtlpMetricsOptions } from './otlp-metrics
 const logger = createLogger('observe');
 
 export type HttpServer = Server;
+export type IntervalHandle = ReturnType<typeof nodeSetInterval>;
 
 interface SignalRegistrar {
   once(signal: 'SIGTERM' | 'SIGINT', listener: () => void): unknown;
@@ -26,8 +28,8 @@ export interface ObservabilityRuntimeDependencies {
   readLatest?: () => LatestObservationSnapshots;
   exportMetrics?: (options: ExportOtlpMetricsOptions) => Promise<void>;
   now?: () => number;
-  setInterval?: (callback: () => void, intervalMs: number) => NodeJS.Timeout;
-  clearInterval?: (timer: NodeJS.Timeout) => void;
+  setInterval?: (callback: () => void, intervalMs: number) => IntervalHandle;
+  clearInterval?: (timer: IntervalHandle) => void;
   signals?: SignalRegistrar;
   exit?: (code: number) => void;
   logListening?: (message: string) => void;
@@ -37,13 +39,13 @@ export interface ObservabilityRuntimeDependencies {
 export interface ObservabilityRuntime {
   config: ObservabilityConfig;
   httpServer: HttpServer;
-  interval: NodeJS.Timeout | null;
+  interval: IntervalHandle | null;
 }
 
 export function createObservabilityShutdownHandler(
   httpServer: HttpServer,
-  interval: NodeJS.Timeout | null,
-  clearTimer: (timer: NodeJS.Timeout) => void = clearInterval,
+  interval: IntervalHandle | null,
+  clearTimer: (timer: IntervalHandle) => void = nodeClearInterval,
   exit: (code: number) => void = (code) => process.exit(code),
   timeoutMs = 10_000
 ): (signal: string) => void {
@@ -108,10 +110,10 @@ export async function startObservabilityRuntime(
     }
   };
 
-  let interval: NodeJS.Timeout | null = null;
+  let interval: IntervalHandle | null = null;
   if (config.otlp) {
     void runOtlpExport();
-    interval = (dependencies.setInterval ?? setInterval)(
+    interval = (dependencies.setInterval ?? nodeSetInterval)(
       () => void runOtlpExport(),
       config.otlp.intervalMs
     );
