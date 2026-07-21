@@ -21,6 +21,7 @@ Required checks are:
 - `Docker Build Smoke`
 - `Host Compatibility (windows-2025)`
 - `dependency-review`
+- `OSV Dependency Delta / osv-scan`
 - `Semgrep`
 - `SonarCloud Code Analysis`
 

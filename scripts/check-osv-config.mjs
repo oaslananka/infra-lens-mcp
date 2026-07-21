@@ -85,6 +85,11 @@ for (const [path, content] of [
     fail(`${path} must not retain Snyk as an active repository signal.`);
   }
   requireFragment(content, 'OSV-Scanner', `${path} must document OSV-Scanner.`);
+  requireFragment(
+    content,
+    'OSV Dependency Delta / osv-scan',
+    `${path} must document the protected OSV check context.`
+  );
 }
 
 if (failures.length > 0) {

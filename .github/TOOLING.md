@@ -20,6 +20,10 @@ depth without making every scanner a duplicate blocking gate.
 
 ## Blocking checks
 
+The protected dependency-vulnerability context is `OSV Dependency Delta / osv-scan`.
+
+The protected dependency-vulnerability context is .
+
 The active `main` ruleset requires the focused checks that protect build, runtime,
 security, compatibility, dependency review, custom SAST, and maintainability.
 CodeQL and external AppSec integrations remain visible but are not all required
