@@ -22,12 +22,17 @@
     "./http": {
       "import": "./dist/server-http.js",
       "types": "./dist/server-http.d.ts"
+    },
+    "./observability": {
+      "import": "./dist/observe.js",
+      "types": "./dist/observe.d.ts"
     }
   },
   "bin": {
     "infra-lens-mcp": "dist/mcp.js",
     "mcp-infra-lens": "dist/mcp.js",
-    "infra-lens-export": "dist/export-history.js"
+    "infra-lens-export": "dist/export-history.js",
+    "infra-lens-observe": "dist/observe.js"
   },
   "files": [
     "dist",
@@ -50,6 +55,7 @@
     "build": "node --eval \"require('node:fs').rmSync('dist',{ recursive: true, force: true })\" && tsc -p tsconfig.json",
     "start": "node dist/mcp.js",
     "start:http": "node dist/server-http.js",
+    "start:observe": "node dist/observe.js",
     "dev": "node --loader ts-node/esm src/mcp.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"scripts/**/*.mjs\"",
