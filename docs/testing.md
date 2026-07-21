@@ -151,3 +151,34 @@ pnpm run check:renovate
 pnpm run check:overrides
 pre-commit run --all-files
 ```
+
+
+## Codecov observability
+
+The Node 24 coverage job uploads `coverage/lcov.info` and
+`coverage/cobertura-coverage.xml` to Codecov with GitHub OIDC. Jest also emits
+`reports/junit/jest.xml`, which is uploaded to Codecov Test Analytics even when
+the test command fails, so failed-test evidence remains visible.
+
+Repository-local Jest thresholds remain the authoritative blocking coverage
+gate. Codecov project and patch statuses start as informational with an
+automatic base target and a 1% tolerance while the main-branch baseline is
+established. After a stable baseline exists, repository maintainers may make a
+single Codecov status required; duplicate Codecov and Sonar coverage gates
+should not both block merges.
+
+The Codecov GitHub App must be enabled for this repository so PR comments and
+checks can be published. Upload authentication uses OIDC; no long-lived
+`CODECOV_TOKEN` secret is required.
+
+Codecov JavaScript Bundle Analysis is intentionally not enabled. This package
+is a Node.js MCP server compiled directly with TypeScript and does not produce a
+Rollup, Vite, or Webpack browser bundle. Published artifact growth is already
+guarded by `package-size-policy.json`, package dry-runs, and resource budgets.
+Revisit bundle analysis only if the repository adds a supported bundler.
+
+Validate repository configuration after edits with:
+
+```bash
+curl --fail --silent --show-error --data-binary @codecov.yml https://codecov.io/validate
+```
