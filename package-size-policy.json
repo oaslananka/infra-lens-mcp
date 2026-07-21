@@ -1,12 +1,13 @@
 {
   "maxPackageSizeBytes": 350000,
   "maxUnpackedSizeBytes": 800000,
-  "maxFileCount": 220,
+  "maxFileCount": 250,
   "notes": [
     "Budgets are based on the npm tarball generated from version 1.0.6 plus headroom for docs and generated API references.",
     "Run pnpm run build before pnpm run check:package-size so dist reflects the current source.",
     "Repository-only demo media is excluded from the npm artifact so runtime and operational files retain budget headroom.",
     "The storage lifecycle release adds public pagination/export APIs, generated TypeDoc pages, and operational backup documentation; the file-count budget increases to 170 while byte budgets remain unchanged.",
-    "The observability release adds a public runtime, OpenMetrics/OTLP modules, generated API references, and operator documentation. Internal superpowers design/plan files are excluded; the measured artifact contains 213 files, so the budget is 220 while compressed and unpacked byte budgets remain unchanged."
+    "The observability release adds a public runtime, OpenMetrics/OTLP modules, generated API references, and operator documentation. Internal superpowers design/plan files are excluded; the measured artifact contains 213 files, so the budget is 220 while compressed and unpacked byte budgets remain unchanged.",
+    "The incident workflow release adds three MCP tools, bounded observation-window APIs, review-first artifact types, and generated TypeDoc references. The measured artifact contains 243 files, so the file-count budget is 250 while byte budgets remain unchanged."
   ]
 }
