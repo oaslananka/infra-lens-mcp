@@ -47,6 +47,7 @@
     "license-policy.json",
     "package-size-policy.json",
     "!docs/demo.gif",
+    "!docs/superpowers",
     "security",
     "performance-budget.json",
     "examples"

@@ -39,7 +39,7 @@ function parseInteger(
   return value;
 }
 
-export function parseKeyValueList(name: string, raw: string | undefined): Record<string, string> {
+function parseKeyValueList(name: string, raw: string | undefined): Record<string, string> {
   if (!raw?.trim()) return {};
   const result: Record<string, string> = {};
   for (const item of raw.split(',')) {
