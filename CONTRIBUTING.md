@@ -30,6 +30,7 @@ Use Node.js 24 LTS for local development when possible. The package keeps `engin
 - `Docker Build Smoke`
 - `Host Compatibility (windows-2025)`
 - `dependency-review`
+- `OSV Dependency Delta / osv-scan`
 - `Semgrep`
 - `SonarCloud Code Analysis`
 
@@ -56,6 +57,7 @@ pnpm run build
 pnpm run docs:api:check
 pnpm run check:metadata
 pnpm run check:renovate
+pnpm run check:osv
 pnpm run check:overrides
 pnpm run check:audit
 pnpm run security:semgrep

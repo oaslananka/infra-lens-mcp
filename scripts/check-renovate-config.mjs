@@ -87,5 +87,16 @@ if (
 if (!managers.some((manager) => manager.depNameTemplate === 'sigstore/cosign')) {
   fail('the Cosign binary pin must be managed by Renovate');
 }
+if (
+  !rules.some(
+    (rule) =>
+      rule.matchPackageNames?.includes('google/osv-scanner-action') &&
+      rule.automerge === false &&
+      rule.addLabels?.includes('security') &&
+      rule.addLabels?.includes('requires-review')
+  )
+) {
+  fail('OSV-Scanner reusable workflow updates must require security review');
+}
 
 console.log('Renovate repository policy check passed.');

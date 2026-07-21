@@ -1,6 +1,6 @@
 # Repository control baseline
 
-Checked against the live repository on 2026-07-20.
+Checked against the live repository on 2026-07-21.
 
 ## Main branch ruleset
 
@@ -21,6 +21,7 @@ Required checks are:
 - `Docker Build Smoke`
 - `Host Compatibility (windows-2025)`
 - `dependency-review`
+- `OSV Dependency Delta / osv-scan`
 - `Semgrep`
 - `SonarCloud Code Analysis`
 
@@ -38,7 +39,9 @@ The repository currently has one maintainer, so the ruleset requires zero approv
 
 ## External analysis gates
 
-Maintainers inspect actionable comments and review threads from SonarQube Cloud, Snyk, Aikido, DeepScan, Socket, CodeQL, Semgrep, dependency review, and Scorecard before merge. A green status does not override a concrete inline finding.
+OSV-Scanner PR delta scans compare `pnpm-lock.yaml` against the target branch and fail only when a pull request introduces a new known vulnerability. Full scans run on `main`, weekly, and by manual dispatch; they fail on any known lockfile vulnerability and upload SARIF to code scanning. Dependency Review remains responsible for dependency-graph and license changes, while Trivy remains responsible for filesystem and container findings.
+
+Maintainers inspect actionable comments and review threads from SonarQube Cloud, OSV-Scanner, Aikido, DeepScan, Socket, CodeQL, Semgrep, dependency review, and Scorecard before merge. A green status does not override a concrete inline finding.
 
 ## Repeatable verification
 

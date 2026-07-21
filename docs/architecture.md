@@ -80,6 +80,8 @@ GitHub Actions is the release automation surface:
 
 - `ci.yml` runs format, lint, typecheck, tests, metadata checks, package dry-run, and Docker smoke.
 - `security.yml` runs workflow lint, workflow security lint, secret scan, dependency audit, Trivy, and Scorecard.
+- `osv-scanner-pr.yml` blocks pull requests that introduce a new `pnpm-lock.yaml` vulnerability.
+- `osv-scanner-full.yml` performs fail-closed full lockfile scans on `main`, weekly, and by manual dispatch with SARIF upload.
 - `codeql.yml` runs CodeQL for JavaScript and TypeScript.
 - `release.yml` runs release-please manifest mode and publishes only when release-please creates a release.
 - `review-thread-gate.yml` blocks actionable unresolved PR review threads.

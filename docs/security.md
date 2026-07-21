@@ -99,6 +99,8 @@ Do not add workflow-level write permissions. If a future release job needs addit
 
 Renovate is the canonical dependency-update automation for this repository. Its repository-local policy is defined in `renovate.json`, validated by `pnpm run check:renovate`, and surfaced through the Renovate Dependency Dashboard. GitHub-native Dependabot version and security-update automation remain disabled to avoid duplicate pull requests; secret scanning, push protection, dependency review, and GitHub advisory visibility remain enabled independently.
 
+OSV-Scanner is the blocking dependency-vulnerability control for pull requests. The PR workflow compares the target and head lockfiles and fails only on newly introduced vulnerabilities. Separate full scans run after `main` updates, every Monday, and on manual dispatch; they fail on any known vulnerability and upload SARIF. Both workflows scan only `pnpm-lock.yaml`, use the official v2.3.8 reusable workflows pinned to an immutable commit, and never run guided remediation or package-manager scripts.
+
 Renovate manages npm and pnpm dependencies, Node runtime files, Docker images, GitHub Actions, pre-commit hook revisions, mise tool pins, workflow pnpm pins, and pinned security tools. The policy applies a three-day release-age guard, weekly lock-file maintenance, explicit approval for major/runtime-sensitive updates, digest automerge only after protected checks, and manual review for MCP SDK, schema/runtime, security scanner, and release-tool changes.
 
 Dependency Dashboard triage occurs at least weekly:
