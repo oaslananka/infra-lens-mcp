@@ -6,7 +6,7 @@
 
 # Interface: HistoryPageOptions
 
-Defined in: [types.ts:371](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L371)
+Defined in: [types.ts:475](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L475)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:371](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **host**: `string`
 
-Defined in: [types.ts:372](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L372)
+Defined in: [types.ts:476](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L476)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [types.ts:372](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **metric**: `"cpu"` \| `"memory"` \| `"load"`
 
-Defined in: [types.ts:373](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L373)
+Defined in: [types.ts:477](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L477)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [types.ts:373](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **hours**: `number`
 
-Defined in: [types.ts:374](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L374)
+Defined in: [types.ts:478](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L478)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [types.ts:374](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **label?**: `string`
 
-Defined in: [types.ts:375](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L375)
+Defined in: [types.ts:479](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L479)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [types.ts:375](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **limit?**: `number`
 
-Defined in: [types.ts:376](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L376)
+Defined in: [types.ts:480](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L480)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [types.ts:376](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **cursor?**: `string`
 
-Defined in: [types.ts:377](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L377)
+Defined in: [types.ts:481](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L481)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [types.ts:377](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **now?**: `number`
 
-Defined in: [types.ts:378](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L378)
+Defined in: [types.ts:482](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L482)

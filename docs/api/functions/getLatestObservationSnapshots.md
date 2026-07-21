@@ -8,7 +8,7 @@
 
 > **getLatestObservationSnapshots**(): [`LatestObservationSnapshots`](../interfaces/LatestObservationSnapshots.md)
 
-Defined in: [baseline.ts:181](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/baseline.ts#L181)
+Defined in: [baseline.ts:254](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/baseline.ts#L254)
 
 ## Returns
 

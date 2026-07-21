@@ -6,7 +6,7 @@
 
 # Interface: ProcessMetric
 
-Defined in: [types.ts:306](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L306)
+Defined in: [types.ts:410](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L410)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:306](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **pid**: `number`
 
-Defined in: [types.ts:307](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L307)
+Defined in: [types.ts:411](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L411)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [types.ts:307](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **name**: `string`
 
-Defined in: [types.ts:308](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L308)
+Defined in: [types.ts:412](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L412)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [types.ts:308](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **cpu\_percent**: `number`
 
-Defined in: [types.ts:309](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L309)
+Defined in: [types.ts:413](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L413)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [types.ts:309](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **mem\_percent**: `number`
 
-Defined in: [types.ts:310](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L310)
+Defined in: [types.ts:414](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L414)
 
 ***
 
@@ -46,4 +46,4 @@ Defined in: [types.ts:310](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **command**: `string`
 
-Defined in: [types.ts:311](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L311)
+Defined in: [types.ts:415](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L415)

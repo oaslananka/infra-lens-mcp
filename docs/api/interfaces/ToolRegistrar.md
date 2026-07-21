@@ -6,7 +6,7 @@
 
 # Interface: ToolRegistrar
 
-Defined in: [server-core.ts:69](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L69)
+Defined in: [server-core.ts:93](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L93)
 
 ## Methods
 
@@ -14,7 +14,7 @@ Defined in: [server-core.ts:69](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > **registerTool**\<`Input`\>(`name`, `config`, `handler`): `void`
 
-Defined in: [server-core.ts:70](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L70)
+Defined in: [server-core.ts:94](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L94)
 
 #### Type Parameters
 

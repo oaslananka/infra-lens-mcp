@@ -8,7 +8,7 @@
 
 > **ToolConfig** = `object`
 
-Defined in: [server-core.ts:40](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L40)
+Defined in: [server-core.ts:61](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L61)
 
 MCP tool registration metadata and input schema.
 
@@ -18,7 +18,7 @@ MCP tool registration metadata and input schema.
 
 > **title**: `string`
 
-Defined in: [server-core.ts:41](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L41)
+Defined in: [server-core.ts:62](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L62)
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: [server-core.ts:41](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > **description**: `string`
 
-Defined in: [server-core.ts:42](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L42)
+Defined in: [server-core.ts:63](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L63)
 
 ***
 
@@ -34,7 +34,7 @@ Defined in: [server-core.ts:42](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > **inputSchema**: `AnySchema`
 
-Defined in: [server-core.ts:43](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L43)
+Defined in: [server-core.ts:64](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L64)
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: [server-core.ts:43](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > **outputSchema**: `AnySchema`
 
-Defined in: [server-core.ts:44](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L44)
+Defined in: [server-core.ts:65](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L65)
 
 ***
 
@@ -50,7 +50,7 @@ Defined in: [server-core.ts:44](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > **annotations**: `object`
 
-Defined in: [server-core.ts:45](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L45)
+Defined in: [server-core.ts:66](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L66)
 
 #### readOnlyHint
 

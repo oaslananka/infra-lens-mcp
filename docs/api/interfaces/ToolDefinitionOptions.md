@@ -6,7 +6,7 @@
 
 # Interface: ToolDefinitionOptions
 
-Defined in: [server-core.ts:84](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L84)
+Defined in: [server-core.ts:113](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L113)
 
 ## Properties
 
@@ -14,4 +14,4 @@ Defined in: [server-core.ts:84](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > `optional` **profile?**: [`RuntimeProfile`](../type-aliases/RuntimeProfile.md)
 
-Defined in: [server-core.ts:85](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L85)
+Defined in: [server-core.ts:114](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L114)

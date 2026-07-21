@@ -6,7 +6,7 @@
 
 # Interface: ToolDefinition\<Input\>
 
-Defined in: [server-core.ts:53](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L53)
+Defined in: [server-core.ts:74](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L74)
 
 Complete MCP tool definition before registration with a server.
 
@@ -22,7 +22,7 @@ Complete MCP tool definition before registration with a server.
 
 > **name**: `string`
 
-Defined in: [server-core.ts:54](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L54)
+Defined in: [server-core.ts:75](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L75)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [server-core.ts:54](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > **config**: [`ToolConfig`](../type-aliases/ToolConfig.md)
 
-Defined in: [server-core.ts:55](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L55)
+Defined in: [server-core.ts:76](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L76)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [server-core.ts:55](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > **handler**: [`ToolHandler`](../type-aliases/ToolHandler.md)\<`Input`\>
 
-Defined in: [server-core.ts:56](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L56)
+Defined in: [server-core.ts:77](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L77)

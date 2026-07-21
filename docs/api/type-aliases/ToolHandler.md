@@ -8,7 +8,7 @@
 
 > **ToolHandler**\<`Input`\> = (`input`) => `Promise`\<[`ToolContent`](ToolContent.md)\>
 
-Defined in: [server-core.ts:37](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L37)
+Defined in: [server-core.ts:58](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L58)
 
 Async handler invoked for a registered MCP tool.
 

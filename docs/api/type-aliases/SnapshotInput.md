@@ -8,4 +8,4 @@
 
 > **SnapshotInput** = `z.infer`\<*typeof* [`SnapshotSchema`](../variables/SnapshotSchema.md)\>
 
-Defined in: [types.ts:236](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L236)
+Defined in: [types.ts:337](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L337)

@@ -8,4 +8,4 @@
 
 > **SnapshotClassification** = `"observation"` \| `"baseline"`
 
-Defined in: [types.ts:369](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L369)
+Defined in: [types.ts:473](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L473)
