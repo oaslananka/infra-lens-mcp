@@ -47,6 +47,23 @@ export {
   OPENMETRICS_CONTENT_TYPE
 } from './observability-server.js';
 export type { ObservabilityRequestHandlerDependencies } from './observability-server.js';
+export {
+  buildIncidentReportDraft,
+  buildRemediationPlan,
+  compareIncidentWindows,
+  summarizeIncidentWindow
+} from './incidents.js';
+export type {
+  IncidentReportDraft,
+  IncidentReportDraftOptions,
+  IncidentTimelineEntry,
+  IncidentWindowComparison,
+  IncidentWindowSummary,
+  RemediationPlan,
+  RemediationStep,
+  SnapshotAnalysis,
+  WindowMetricComparison
+} from './incidents.js';
 export { buildOtlpMetricsRequest, exportOtlpMetrics } from './otlp-metrics.js';
 export type {
   ExportOtlpMetricsOptions,
