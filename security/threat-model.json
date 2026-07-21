@@ -274,6 +274,34 @@
         "test/unit/otlp-metrics.test.ts",
         "test/unit/logging.test.ts"
       ]
+    },
+    {
+      "id": "TM-REMEDIATION-TRUST",
+      "title": "Proposed remediation is mistaken for approved or completed action",
+      "likelihood": "medium",
+      "impact": "critical",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": [
+        "plan_remediation output",
+        "incident report draft",
+        "agent or human follow-up"
+      ],
+      "mitigations": [
+        "read-only and non-destructive MCP annotations",
+        "review_required true on every artifact",
+        "execution_performed false on remediation plans",
+        "requires_approval true on every step",
+        "evidence, confidence, verification, and rollback fields",
+        "no command execution path in incident tools"
+      ],
+      "residualRisk": "A client or operator can still choose to apply a poor recommendation without sufficient review; operational authorization remains outside this package.",
+      "tests": [
+        "test/unit/incidents.test.ts",
+        "test/unit/mcp.test.ts",
+        "test/integration/tool-flow.test.ts"
+      ]
     }
   ]
 }
