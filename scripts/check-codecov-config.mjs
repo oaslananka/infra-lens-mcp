@@ -22,12 +22,21 @@ for (const fragment of requiredConfigFragments) {
 const requiredWorkflowFragments = [
   'id-token: write',
   'codecov/codecov-action@e53489f4d376d79066609109e7a95a29eb3740b1',
-  'codecov/test-results-action@6ba3fdeec616fb91fd6a389b788a2366835a0fa2',
   'use_oidc: true',
   'coverage/lcov.info,coverage/cobertura-coverage.xml',
   'reports/junit/jest.xml',
+  'report_type: test_results',
   '!cancelled() && matrix.node-version == 24'
 ];
+const codecovActionOccurrences = workflow.match(
+  /codecov\/codecov-action@e53489f4d376d79066609109e7a95a29eb3740b1/g
+)?.length;
+if (codecovActionOccurrences !== 2) {
+  throw new Error(
+    'CI must use the pinned Codecov action exactly twice: coverage and test results.'
+  );
+}
+
 for (const fragment of requiredWorkflowFragments) {
   if (!workflow.includes(fragment)) {
     throw new Error(`CI workflow is missing required Codecov fragment: ${fragment}`);

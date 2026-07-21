@@ -157,7 +157,7 @@ pre-commit run --all-files
 
 The Node 24 coverage job uploads `coverage/lcov.info` and
 `coverage/cobertura-coverage.xml` to Codecov with GitHub OIDC. Jest also emits
-`reports/junit/jest.xml`, which is uploaded to Codecov Test Analytics even when
+`reports/junit/jest.xml`, which is uploaded through the same pinned Codecov action with `report_type: test_results` even when
 the test command fails, so failed-test evidence remains visible.
 
 Repository-local Jest thresholds remain the authoritative blocking coverage

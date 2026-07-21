@@ -135,11 +135,14 @@ jobs:
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() && matrix.node-version == 24 }}
-        uses: codecov/test-results-action@6ba3fdeec616fb91fd6a389b788a2366835a0fa2 # v1.2.1
+        uses: codecov/codecov-action@e53489f4d376d79066609109e7a95a29eb3740b1 # v7.0.0
         with:
           use_oidc: true
-          file: reports/junit/jest.xml
+          files: reports/junit/jest.xml
+          disable_search: true
+          report_type: test_results
           flags: tests
+          name: node-24-tests
           fail_ci_if_error: false
           verbose: true
 
