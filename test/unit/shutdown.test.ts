@@ -78,6 +78,103 @@ describe('shutdown handlers', () => {
     expect(exit).toHaveBeenCalledWith(1);
   });
 
+  it('ignores duplicate stdio shutdown signals while close is in flight', async () => {
+    let resolveClose: (() => void) | undefined;
+    const close = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveClose = resolve;
+        })
+    );
+    const exit = jest.fn<(code: number) => void>();
+    const shutdown = createStdioShutdownHandler({ close }, exit);
+
+    shutdown('SIGINT');
+    shutdown('SIGTERM');
+    resolveClose?.();
+    await Promise.resolve();
+
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(exit).toHaveBeenCalledTimes(1);
+    expect(exit).toHaveBeenCalledWith(0);
+  });
+
+  it('does not exit twice when an HTTP close callback arrives after timeout', async () => {
+    jest.useFakeTimers();
+    let closeCallback: (() => void) | undefined;
+    const exit = jest.fn<(code: number) => void>();
+    const httpServer = {
+      close(callback: () => void) {
+        closeCallback = callback;
+        return this;
+      }
+    };
+    const transportClose = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
+    const shutdown = createHttpShutdownHandler(
+      httpServer as never,
+      { close: transportClose },
+      exit,
+      50
+    );
+
+    shutdown('SIGTERM');
+    jest.advanceTimersByTime(50);
+    closeCallback?.();
+    await Promise.resolve();
+
+    expect(exit).toHaveBeenCalledTimes(1);
+    expect(exit).toHaveBeenCalledWith(1);
+    expect(transportClose).not.toHaveBeenCalled();
+  });
+
+  it('ignores duplicate HTTP shutdown signals while close is in flight', async () => {
+    let closeCallback: (() => void) | undefined;
+    const exit = jest.fn<(code: number) => void>();
+    const httpServer = {
+      close(callback: () => void) {
+        closeCallback = callback;
+        return this;
+      }
+    };
+    const transportClose = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
+    const shutdown = createHttpShutdownHandler(
+      httpServer as never,
+      { close: transportClose },
+      exit,
+      10_000
+    );
+
+    shutdown('SIGTERM');
+    shutdown('SIGINT');
+    closeCallback?.();
+    await Promise.resolve();
+
+    expect(transportClose).toHaveBeenCalledTimes(1);
+    expect(exit).toHaveBeenCalledTimes(1);
+    expect(exit).toHaveBeenCalledWith(0);
+  });
+
+  it('supports default process exit handlers and an optional HTTP transport close', async () => {
+    const processExit = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+    const stdioShutdown = createStdioShutdownHandler({ close: () => undefined });
+    const httpServer = {
+      close(callback: () => void) {
+        callback();
+        return this;
+      }
+    };
+    const httpShutdown = createHttpShutdownHandler(httpServer as never, {});
+
+    stdioShutdown('SIGTERM');
+    httpShutdown('SIGTERM');
+    await Promise.resolve();
+
+    expect(processExit).toHaveBeenCalledTimes(2);
+    expect(processExit).toHaveBeenNthCalledWith(1, 0);
+    expect(processExit).toHaveBeenNthCalledWith(2, 0);
+    processExit.mockRestore();
+  });
+
   it('forces an HTTP shutdown timeout when the server does not close', () => {
     jest.useFakeTimers();
 

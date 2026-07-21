@@ -8,12 +8,12 @@ module.exports = {
     '^(\\.{1,2}/.*)\\.js$': '$1'
   },
   reporters: ['default'],
-  collectCoverageFrom: ['src/**/*.ts', '!src/mcp.ts', '!src/server-http.ts'],
+  collectCoverageFrom: ['src/**/*.ts'],
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text', 'lcov', 'html', 'cobertura'],
   coverageThreshold: {
     global: {
-      branches: 70,
+      branches: 80,
       functions: 75,
       lines: 75,
       statements: 75
@@ -25,7 +25,17 @@ module.exports = {
       lines: 80
     },
     './src/collector.ts': {
-      lines: 75
+      lines: 75,
+      branches: 75
+    },
+    './src/http-security.ts': {
+      branches: 80
+    },
+    './src/ssh.ts': {
+      branches: 80
+    },
+    './src/shutdown.ts': {
+      branches: 70
     }
   },
   transform: {

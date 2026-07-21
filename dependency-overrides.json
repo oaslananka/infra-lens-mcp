@@ -28,6 +28,13 @@
       "upstream": "https://github.com/honojs/hono/releases/tag/v4.12.25",
       "reviewBy": "2026-08-31"
     },
+    "body-parser": {
+      "version": "2.3.0",
+      "owner": "oaslananka",
+      "reason": "Runtime denial-of-service security floor for the Express dependency reached through @modelcontextprotocol/sdk, affected by GHSA-v422-hmwv-36x6.",
+      "upstream": "https://github.com/advisories/GHSA-v422-hmwv-36x6",
+      "reviewBy": "2026-08-31"
+    },
     "@babel/core": {
       "version": "7.29.7",
       "owner": "oaslananka",

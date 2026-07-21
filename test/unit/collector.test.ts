@@ -2,6 +2,8 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import {
   buildCollectionCommandPlan,
+  collectRawMetricsFromSession,
+  inspectCapabilitiesFromSession,
   collectSampledSnapshot,
   collectSnapshot,
   inspectHostCapabilities
@@ -13,7 +15,159 @@ const connection = {
   username: 'ops'
 };
 
+describe('SSH collector execution', () => {
+  const result = (stdout = '', code = 0, stderr = '') => ({ stdout, code, stderr });
+
+  it('executes the full plan and preserves optional output', async () => {
+    const plan = buildCollectionCommandPlan({ includeProcesses: true, includeNetwork: true });
+    const outputs = new Map(plan.map((item) => [item.command, result(`${item.key}-output`)]));
+    const exec = jest.fn(async (command: string) => outputs.get(command) ?? result('', 1));
+
+    const raw = await collectRawMetricsFromSession(
+      { exec, close: jest.fn() },
+      { includeProcesses: true, includeNetwork: true }
+    );
+
+    expect(exec).toHaveBeenCalledTimes(8);
+    expect(raw).toMatchObject({
+      cpu: 'cpu-output',
+      memory: 'memory-output',
+      disk: 'disk-output',
+      diskInodes: 'diskInodes-output',
+      network: 'network-output',
+      system: 'system-output',
+      processes: 'processes-output',
+      os: 'os-output',
+      warnings: []
+    });
+  });
+
+  it('fails closed for required command failures and redacts details', async () => {
+    const plan = buildCollectionCommandPlan({ includeProcesses: false, includeNetwork: false });
+    const cpuCommand = plan.find((item) => item.key === 'cpu')?.command;
+    const exec = jest.fn(async (command: string) =>
+      command === cpuCommand ? result('', 2, 'token=secret-value') : result('ok')
+    );
+
+    await expect(
+      collectRawMetricsFromSession(
+        { exec, close: jest.fn() },
+        { includeProcesses: false, includeNetwork: false }
+      )
+    ).rejects.toThrow('SSH cpu collection failed: token=[REDACTED]');
+  });
+
+  it('rejects required stderr even when the command exits successfully', async () => {
+    const plan = buildCollectionCommandPlan({ includeProcesses: false, includeNetwork: false });
+    const memoryCommand = plan.find((item) => item.key === 'memory')?.command;
+    const exec = jest.fn(async (command: string) =>
+      command === memoryCommand
+        ? { stdout: 'ignored', code: 0, stderr: 'warning from required command' }
+        : { stdout: 'ok', code: 0, stderr: '' }
+    );
+
+    await expect(
+      collectRawMetricsFromSession(
+        { exec, close: jest.fn() },
+        { includeProcesses: false, includeNetwork: false }
+      )
+    ).rejects.toThrow('SSH memory collection failed: warning from required command');
+  });
+
+  it('turns optional stderr with exit zero into a warning', async () => {
+    const plan = buildCollectionCommandPlan({ includeProcesses: false, includeNetwork: false });
+    const systemCommand = plan.find((item) => item.key === 'system')?.command;
+    const exec = jest.fn(async (command: string) =>
+      command === systemCommand
+        ? { stdout: 'partial', code: 0, stderr: 'permission warning' }
+        : { stdout: 'ok', code: 0, stderr: '' }
+    );
+
+    const raw = await collectRawMetricsFromSession(
+      { exec, close: jest.fn() },
+      { includeProcesses: false, includeNetwork: false }
+    );
+
+    expect(raw.system).toBe('');
+    expect(raw.warnings).toContain('SSH system collection skipped: permission warning');
+  });
+
+  it('turns optional failures into warnings and omits disabled sections', async () => {
+    const plan = buildCollectionCommandPlan({ includeProcesses: false, includeNetwork: false });
+    const inodeCommand = plan.find((item) => item.key === 'diskInodes')?.command;
+    const exec = jest.fn(async (command: string) =>
+      command === inodeCommand ? result('', 1, '') : result('ok')
+    );
+
+    const raw = await collectRawMetricsFromSession(
+      { exec, close: jest.fn() },
+      { includeProcesses: false, includeNetwork: false }
+    );
+
+    expect(exec).toHaveBeenCalledTimes(6);
+    expect(raw.network).toBe('');
+    expect(raw.processes).toBe('');
+    expect(raw.diskInodes).toBe('');
+    expect(raw.warnings).toContain('SSH disk inode collection skipped: exit code 1');
+  });
+
+  it('maps capability success and failure with redacted details', async () => {
+    let index = 0;
+    const exec = jest.fn(async () => {
+      index += 1;
+      return index === 2 ? result('', 1, 'password=hunter2') : result('', 0);
+    });
+
+    const capabilities = await inspectCapabilitiesFromSession({ exec, close: jest.fn() });
+
+    expect(capabilities).toHaveLength(11);
+    expect(capabilities[0]).toMatchObject({ available: true, name: 'proc_stat' });
+    expect(capabilities[1]).toMatchObject({
+      available: false,
+      name: 'proc_loadavg',
+      detail: 'password=[REDACTED]'
+    });
+  });
+});
+
+it('uses exit codes when a failed capability has no stderr', async () => {
+  const exec = jest.fn(async () => ({ stdout: '', code: 7, stderr: '' }));
+
+  const capabilities = await inspectCapabilitiesFromSession({ exec, close: jest.fn() });
+
+  expect(capabilities[0]).toMatchObject({
+    available: false,
+    detail: 'exit code 7'
+  });
+});
+
 describe('collectSnapshot', () => {
+  it('reports capability inspection as unsupported when the runner omits it', async () => {
+    const inspection = await inspectHostCapabilities(connection, {
+      run: async () => ({ cpu: '', memory: '', disk: '', network: '', processes: '', os: '' })
+    });
+
+    expect(inspection).toEqual({
+      capabilities: [],
+      warnings: ['Collector runner does not support capability inspection.']
+    });
+  });
+
+  it('returns zero CPU usage when proc counters do not advance', async () => {
+    const snapshot = await collectSnapshot(connection, {
+      run: async () => ({
+        cpu: 'cpu  100 0 100 800 0 0 0 0 0 0\ncpu  100 0 100 800 0 0 0 0 0 0\n0 0 0 0/0 0\n4',
+        memory: '1024 0 1024\n0 0',
+        disk: '',
+        network: '',
+        processes: '',
+        os: 'kernel\nhost\ndistro\n1'
+      })
+    });
+
+    expect(snapshot.cpu.usage_percent).toBe(0);
+  });
+
   it('keeps full and minimal SSH command plans within explicit budgets', () => {
     const full = buildCollectionCommandPlan({ includeProcesses: true, includeNetwork: true });
     const minimal = buildCollectionCommandPlan({
@@ -106,6 +260,27 @@ describe('collectSnapshot', () => {
     expect(snapshot.os.hostname).toBe('server.example.com');
   });
 
+  it('maps malformed fallback process rows to safe zero values', async () => {
+    const snapshot = await collectSnapshot(connection, {
+      run: async () => ({
+        cpu: '0\n0 0 0 0/0 0\n1',
+        memory: '1000 0 1000\n0 0',
+        disk: '',
+        network: '',
+        processes: 'malformed row',
+        os: 'kernel\nhost\ndistro\n1'
+      })
+    });
+
+    expect(snapshot.processes[0]).toEqual({
+      pid: 0,
+      name: '',
+      cpu_percent: 0,
+      mem_percent: 0,
+      command: ''
+    });
+  });
+
   it('parses tab-delimited process output from the collector command', async () => {
     const snapshot = await collectSnapshot(connection, {
       run: async () => ({
@@ -181,6 +356,31 @@ describe('collectSnapshot', () => {
 
     expect(snapshot.network).toEqual([]);
     expect(snapshot.warnings).toEqual(['network skipped']);
+  });
+
+  it('formats unavailable capability warnings without optional details', async () => {
+    const inspection = await inspectHostCapabilities(connection, {
+      run: async () => ({ cpu: '', memory: '', disk: '', network: '', processes: '', os: '' }),
+      inspectCapabilities: async () => [{ name: 'df', available: false, source: 'df' }]
+    });
+
+    expect(inspection.warnings).toEqual(['df is unavailable']);
+  });
+
+  it('falls back to the second memory field when MemAvailable is absent', async () => {
+    const snapshot = await collectSnapshot(connection, {
+      run: async () => ({
+        cpu: '0\n0 0 0 0/0 0\n1',
+        memory: '1000 400\n0 0',
+        disk: '',
+        network: '',
+        processes: '',
+        os: 'kernel\nhost\ndistro\n1'
+      })
+    });
+
+    expect(snapshot.memory.free_mb).toBe(400);
+    expect(snapshot.memory.used_mb).toBe(600);
   });
 
   it('returns host support checks and warnings', async () => {

@@ -1,4 +1,4 @@
-import { withSshSession } from './ssh.js';
+import { withSshSession, type SshSession } from './ssh.js';
 import { redactSecrets } from './logging.js';
 import type {
   CollectionOptions,
@@ -110,64 +110,69 @@ export function buildCollectionCommandPlan(
   ];
 }
 
+export async function collectRawMetricsFromSession(
+  session: SshSession,
+  options: CollectionOptions
+): Promise<RawMetricOutput> {
+  const warnings: string[] = [];
+  const plan = buildCollectionCommandPlan(options);
+  const executed = await Promise.all(
+    plan.map(async (item) => [item, await session.exec(item.command)] as const)
+  );
+  const results = new Map(executed.map(([item, result]) => [item.key, { item, result }]));
+
+  for (const { item, result } of results.values()) {
+    if (item.required) {
+      assertCommandSucceeded(item.name, result);
+    }
+  }
+
+  const requiredOutput = (key: CollectionCommandKey): string => {
+    return results.get(key)!.result.stdout;
+  };
+  const optionalOutput = (key: CollectionCommandKey): string => {
+    const entry = results.get(key);
+    return entry ? commandOutputOrWarning(entry.item.name, entry.result, warnings) : '';
+  };
+
+  return {
+    cpu: requiredOutput('cpu'),
+    memory: requiredOutput('memory'),
+    disk: requiredOutput('disk'),
+    diskInodes: optionalOutput('diskInodes'),
+    network: optionalOutput('network'),
+    system: optionalOutput('system'),
+    processes: optionalOutput('processes'),
+    os: requiredOutput('os'),
+    warnings
+  };
+}
+
+export async function inspectCapabilitiesFromSession(
+  session: SshSession
+): Promise<HostCapability[]> {
+  return Promise.all(
+    CAPABILITY_CHECKS.map(async (check) => {
+      const result = await session.exec(check.command);
+      return {
+        name: check.name,
+        available: result.code === 0,
+        source: check.source,
+        ...(result.code === 0
+          ? {}
+          : { detail: redactSecrets(result.stderr || `exit code ${result.code}`) })
+      };
+    })
+  );
+}
+
 class SshCollectorRunner implements CollectorRunner {
   async run(connection: ConnectionInput, options: CollectionOptions): Promise<RawMetricOutput> {
-    return withSshSession(connection, async (session) => {
-      const warnings: string[] = [];
-      const plan = buildCollectionCommandPlan(options);
-      const executed = await Promise.all(
-        plan.map(async (item) => [item, await session.exec(item.command)] as const)
-      );
-      const results = new Map(executed.map(([item, result]) => [item.key, { item, result }]));
-
-      for (const { item, result } of results.values()) {
-        if (item.required) {
-          assertCommandSucceeded(item.name, result);
-        }
-      }
-
-      const requiredOutput = (key: CollectionCommandKey): string => {
-        const entry = results.get(key);
-        if (!entry) {
-          throw new Error(`Collector command plan omitted required output ${key}.`);
-        }
-        return entry.result.stdout;
-      };
-      const optionalOutput = (key: CollectionCommandKey): string => {
-        const entry = results.get(key);
-        return entry ? commandOutputOrWarning(entry.item.name, entry.result, warnings) : '';
-      };
-
-      return {
-        cpu: requiredOutput('cpu'),
-        memory: requiredOutput('memory'),
-        disk: requiredOutput('disk'),
-        diskInodes: optionalOutput('diskInodes'),
-        network: optionalOutput('network'),
-        system: optionalOutput('system'),
-        processes: optionalOutput('processes'),
-        os: requiredOutput('os'),
-        warnings
-      };
-    });
+    return withSshSession(connection, (session) => collectRawMetricsFromSession(session, options));
   }
 
   async inspectCapabilities(connection: ConnectionInput): Promise<HostCapability[]> {
-    return withSshSession(connection, async (session) =>
-      Promise.all(
-        CAPABILITY_CHECKS.map(async (check) => {
-          const result = await session.exec(check.command);
-          return {
-            name: check.name,
-            available: result.code === 0,
-            source: check.source,
-            ...(result.code === 0
-              ? {}
-              : { detail: redactSecrets(result.stderr || `exit code ${result.code}`) })
-          };
-        })
-      )
-    );
+    return withSshSession(connection, inspectCapabilitiesFromSession);
   }
 }
 
@@ -188,13 +193,9 @@ function assertCommandSucceeded(
 
 function commandOutputOrWarning(
   name: string,
-  result: { code: number; stderr: string; stdout: string } | null,
+  result: { code: number; stderr: string; stdout: string },
   warnings: string[]
 ): string {
-  if (!result) {
-    return '';
-  }
-
   if (result.code === 0 && result.stderr.length === 0) {
     return result.stdout;
   }
@@ -483,10 +484,7 @@ export async function collectSampledSnapshot(
     }
   }
 
-  const lastSnapshot = snapshots[snapshots.length - 1];
-  if (!lastSnapshot) {
-    throw new Error('No metric snapshots were collected.');
-  }
+  const lastSnapshot = snapshots.at(-1)!;
 
   return {
     ...lastSnapshot,
