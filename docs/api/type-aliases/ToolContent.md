@@ -8,7 +8,7 @@
 
 > **ToolContent** = `object`
 
-Defined in: [server-core.ts:31](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L31)
+Defined in: [server-core.ts:52](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L52)
 
 Content returned from an MCP tool handler.
 
@@ -18,7 +18,7 @@ Content returned from an MCP tool handler.
 
 > **content**: `object`[]
 
-Defined in: [server-core.ts:32](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L32)
+Defined in: [server-core.ts:53](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L53)
 
 #### type
 
@@ -34,4 +34,4 @@ Defined in: [server-core.ts:32](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > `optional` **structuredContent?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [server-core.ts:33](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L33)
+Defined in: [server-core.ts:54](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L54)

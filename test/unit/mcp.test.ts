@@ -12,9 +12,12 @@ import {
 import type {
   AnalyzeInput,
   BaselineInput,
+  CompareIncidentWindowsInput,
   CompareInput,
   GetHistoryInput,
+  IncidentReportInput,
   MetricSnapshot,
+  RemediationPlanInput,
   SnapshotInput
 } from '../../src/types.js';
 
@@ -66,13 +69,20 @@ describe('registerInfraLensTools', () => {
       'record_baseline',
       'compare_to_baseline',
       'get_history',
-      'inspect_host_capabilities'
+      'inspect_host_capabilities',
+      'plan_remediation',
+      'draft_incident_report',
+      'compare_incident_windows'
     ]);
 
     for (const definition of toolDefinitions) {
       expect(definition.config.annotations).toBeDefined();
       expect(definition.config.annotations?.openWorldHint).toBe(
-        definition.name === 'get_history' ? false : true
+        ['get_history', 'draft_incident_report', 'compare_incident_windows'].includes(
+          definition.name
+        )
+          ? false
+          : true
       );
     }
   });
@@ -89,7 +99,10 @@ describe('registerInfraLensTools', () => {
       record_baseline: false,
       compare_to_baseline: true,
       get_history: true,
-      inspect_host_capabilities: true
+      inspect_host_capabilities: true,
+      plan_remediation: true,
+      draft_incident_report: true,
+      compare_incident_windows: true
     });
   });
 
@@ -372,6 +385,11 @@ describe('registerInfraLensTools', () => {
           classification: 'observation'
         }
       ]),
+      getObservationWindow: jest.fn(() => ({
+        snapshots: [baseSnapshot],
+        invalidRows: 0,
+        truncated: false
+      })),
       saveSnapshot: jest.fn(() => undefined)
     });
 
@@ -401,6 +419,19 @@ describe('registerInfraLensTools', () => {
     const capabilitiesResult = await definitions[5].handler({
       connection: { host: 'app-01.internal', port: 22, username: 'ops' }
     });
+    const remediationResult = await definitions[6].handler({
+      connection: { host: 'app-01.internal', port: 22, username: 'ops' }
+    } satisfies RemediationPlanInput);
+    const reportResult = await definitions[7].handler({
+      host: 'app-01.internal',
+      hours: 24,
+      limit: 20
+    } satisfies IncidentReportInput);
+    const windowComparisonResult = await definitions[8].handler({
+      host: 'app-01.internal',
+      recent_hours: 1,
+      limit: 20
+    } satisfies CompareIncidentWindowsInput);
 
     const results = [
       analyzeResult,
@@ -408,7 +439,10 @@ describe('registerInfraLensTools', () => {
       baselineResult,
       compareResult,
       historyResult,
-      capabilitiesResult
+      capabilitiesResult,
+      remediationResult,
+      reportResult,
+      windowComparisonResult
     ];
 
     definitions.forEach((definition, index) => {
@@ -445,7 +479,7 @@ describe('registerInfraLensTools', () => {
       saveSnapshot: jest.fn(() => undefined)
     });
 
-    expect(server.registered).toHaveLength(6);
+    expect(server.registered).toHaveLength(9);
 
     await server.registered[0]!.handler({
       connection: { host: 'app-01.internal', port: 22, username: 'ops' },

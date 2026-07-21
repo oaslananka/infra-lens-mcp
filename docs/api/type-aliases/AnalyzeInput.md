@@ -8,4 +8,4 @@
 
 > **AnalyzeInput** = `z.infer`\<*typeof* [`AnalyzeSchema`](../variables/AnalyzeSchema.md)\>
 
-Defined in: [types.ts:235](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L235)
+Defined in: [types.ts:336](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L336)

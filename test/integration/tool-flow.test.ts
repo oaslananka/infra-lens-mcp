@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { analyzeSnapshot } from '../../src/analyzer.js';
-import { getBaseline, getHistory, saveSnapshot } from '../../src/baseline.js';
+import { getBaseline, getHistory, getObservationWindow, saveSnapshot } from '../../src/baseline.js';
 import type {
   collectSampledSnapshot as collectSampledSnapshotType,
   collectSnapshot as collectSnapshotType
@@ -67,6 +67,7 @@ function makeSnapshot(
       }
     ],
     network: [{ interface: 'eth0', rx_bytes: 1024, tx_bytes: 2048 }],
+    system: { failed_units: 0, kernel_error_events: 0 },
     processes: [
       {
         pid: 4200,
@@ -82,6 +83,7 @@ function makeSnapshot(
       kernel: '6.8.0',
       distro: 'Ubuntu 24.04'
     },
+    warnings: [],
     ...overrides
   };
 }
@@ -266,5 +268,68 @@ describe('integration tool flow', () => {
     expect(observations).toHaveLength(3);
     expect(new Set(zScores).size).toBe(1);
     expect(zScores[0]).toBeGreaterThan(2);
+  });
+
+  it('produces review-first remediation, report, and window comparison artifacts', async () => {
+    const now = Date.now();
+    const oldWindow = [makeSnapshot(25, now - 110 * 60_000), makeSnapshot(30, now - 70 * 60_000)];
+    const recentWindow = [makeSnapshot(88, now - 50 * 60_000), makeSnapshot(94, now - 10 * 60_000)];
+    for (const snapshot of [...oldWindow, ...recentWindow]) {
+      saveSnapshot(snapshot, 'default', 'observation');
+    }
+    const liveSnapshot = makeSnapshot(96, now, {
+      processes: [
+        { pid: 9001, name: 'node', cpu_percent: 91, mem_percent: 15, command: 'node api.js' }
+      ]
+    });
+    const definitions = createToolDefinitions({
+      analyzeSnapshot,
+      collectSampledSnapshot: jest
+        .fn<typeof collectSampledSnapshotType>()
+        .mockResolvedValue(liveSnapshot),
+      collectSnapshot: jest.fn<typeof collectSnapshotType>().mockResolvedValue(liveSnapshot),
+      getBaseline,
+      getHistory,
+      getObservationWindow,
+      saveSnapshot
+    });
+    const observationsBefore = getHistory(connection.host, 'cpu', 3).length;
+
+    const remediation = parsePayload<{
+      review_required: boolean;
+      execution_performed: boolean;
+      steps: Array<{ requires_approval: boolean }>;
+    }>(await definitions[6].handler({ connection }));
+    const report = parsePayload<{
+      status: string;
+      sample_count: number;
+      remediation: { execution_performed: boolean };
+    }>(await definitions[7].handler({ host: connection.host, hours: 3, limit: 20 }));
+    const comparison = parsePayload<{
+      metrics: Array<{ metric: string; direction: string }>;
+      left: { sample_count: number };
+      right: { sample_count: number };
+    }>(
+      await definitions[8].handler({
+        host: connection.host,
+        recent_hours: 1,
+        end_timestamp: now + 1,
+        limit: 20
+      })
+    );
+
+    expect(remediation.review_required).toBe(true);
+    expect(remediation.execution_performed).toBe(false);
+    expect(remediation.steps.length).toBeGreaterThan(0);
+    expect(remediation.steps.every((step) => step.requires_approval)).toBe(true);
+    expect(getHistory(connection.host, 'cpu', 3)).toHaveLength(observationsBefore);
+    expect(report.status).toBe('draft');
+    expect(report.sample_count).toBe(4);
+    expect(report.remediation.execution_performed).toBe(false);
+    expect(comparison.left.sample_count).toBe(2);
+    expect(comparison.right.sample_count).toBe(2);
+    expect(comparison.metrics.find((metric) => metric.metric === 'cpu_percent')?.direction).toBe(
+      'increased'
+    );
   });
 });

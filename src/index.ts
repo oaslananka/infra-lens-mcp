@@ -2,13 +2,20 @@ export {
   AnalyzeSchema,
   BaselineSchema,
   CapabilitySchema,
+  CompareIncidentWindowsSchema,
   CompareSchema,
   ConnectionSchema,
   DEFAULT_THRESHOLDS,
   GetHistorySchema,
   HostCapabilitySchema,
+  IncidentReportOutputSchema,
+  IncidentReportSchema,
+  IncidentWindowComparisonOutputSchema,
   InspectCapabilitiesOutputSchema,
   MetricNameSchema,
+  RemediationPlanOutputSchema,
+  RemediationPlanSchema,
+  RemediationStepSchema,
   SafeConnectionSchema,
   SnapshotSchema,
   SystemMetricSchema
@@ -26,10 +33,15 @@ export {
   getHistory,
   getHistoryPage,
   getLatestObservationSnapshots,
+  getObservationWindow,
   pruneSnapshots,
   saveSnapshot
 } from './baseline.js';
-export type { LatestObservationSnapshots } from './baseline.js';
+export type {
+  LatestObservationSnapshots,
+  ObservationWindow,
+  ObservationWindowOptions
+} from './baseline.js';
 export { closeAllDatabases, getDatabase, resolveDatabasePath, resolveRetentionDays } from './db.js';
 export { createConnectConfig, withSshSession } from './ssh.js';
 export { collectHistoryExport, formatHistoryExport } from './history-export.js';
@@ -42,6 +54,23 @@ export {
   OPENMETRICS_CONTENT_TYPE
 } from './observability-server.js';
 export type { ObservabilityRequestHandlerDependencies } from './observability-server.js';
+export {
+  buildIncidentReportDraft,
+  buildRemediationPlan,
+  compareIncidentWindows,
+  summarizeIncidentWindow
+} from './incidents.js';
+export type {
+  IncidentReportDraft,
+  IncidentReportDraftOptions,
+  IncidentTimelineEntry,
+  IncidentWindowComparison,
+  IncidentWindowSummary,
+  RemediationPlan,
+  RemediationStep,
+  SnapshotAnalysis,
+  WindowMetricComparison
+} from './incidents.js';
 export { buildOtlpMetricsRequest, exportOtlpMetrics } from './otlp-metrics.js';
 export type {
   ExportOtlpMetricsOptions,
@@ -85,10 +114,12 @@ export type {
   BaselineInput,
   CapabilityInput,
   CollectionOptions,
+  CompareIncidentWindowsInput,
   CompareInput,
   ConnectionInput,
   DiskMetric,
   GetHistoryInput,
+  IncidentReportInput,
   HistoryPage,
   HistoryPageOptions,
   HostCapability,
@@ -96,6 +127,7 @@ export type {
   MetricName,
   NetworkMetric,
   ProcessMetric,
+  RemediationPlanInput,
   RuntimeProfile,
   SnapshotClassification,
   SystemMetric,

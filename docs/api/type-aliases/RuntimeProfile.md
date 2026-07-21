@@ -8,4 +8,4 @@
 
 > **RuntimeProfile** = `"full"` \| `"remote-safe"` \| `"chatgpt"` \| `"claude"`
 
-Defined in: [types.ts:243](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L243)
+Defined in: [types.ts:347](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L347)

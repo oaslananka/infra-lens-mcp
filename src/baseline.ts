@@ -178,6 +178,79 @@ export interface LatestObservationSnapshots {
   invalidRows: number;
 }
 
+export interface ObservationWindowOptions {
+  host: string;
+  from: number;
+  to: number;
+  limit?: number;
+}
+
+export interface ObservationWindow {
+  snapshots: MetricSnapshot[];
+  invalidRows: number;
+  truncated: boolean;
+}
+
+function parseSnapshotRow(row: { host: string; raw_json: string }): MetricSnapshot | null {
+  try {
+    const parsed: unknown = JSON.parse(row.raw_json);
+    return isMetricSnapshot(parsed) && parsed.host === row.host ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getObservationWindow(options: ObservationWindowOptions): ObservationWindow {
+  const limit = options.limit ?? 200;
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > 500) {
+    throw new TypeError('Observation window limit must be an integer between 1 and 500.');
+  }
+  if (
+    !Number.isFinite(options.from) ||
+    !Number.isFinite(options.to) ||
+    options.from >= options.to
+  ) {
+    throw new TypeError('Observation window from must be before to.');
+  }
+
+  const scanLimit = Math.min(2000, Math.max(limit + 1, limit * 4));
+  const rows = getDatabase()
+    .prepare(
+      `
+        SELECT host, raw_json
+        FROM snapshots
+        WHERE host = ?
+          AND classification = 'observation'
+          AND timestamp >= ?
+          AND timestamp < ?
+        ORDER BY timestamp ASC, id ASC
+        LIMIT ?
+      `
+    )
+    .all(options.host, options.from, options.to, scanLimit) as Array<{
+    host: string;
+    raw_json: string;
+  }>;
+
+  const snapshots: MetricSnapshot[] = [];
+  let invalidRows = 0;
+  for (const row of rows) {
+    const snapshot = parseSnapshotRow(row);
+    if (!snapshot) {
+      invalidRows += 1;
+      continue;
+    }
+    if (snapshots.length < limit) snapshots.push(snapshot);
+  }
+
+  const validRows = rows.length - invalidRows;
+  return {
+    snapshots,
+    invalidRows,
+    truncated: rows.length === scanLimit || validRows > limit
+  };
+}
+
 export function getLatestObservationSnapshots(): LatestObservationSnapshots {
   const rows = getDatabase()
     .prepare(
@@ -199,16 +272,12 @@ export function getLatestObservationSnapshots(): LatestObservationSnapshots {
   const snapshots: MetricSnapshot[] = [];
   let invalidRows = 0;
   for (const row of rows) {
-    try {
-      const parsed: unknown = JSON.parse(row.raw_json);
-      if (!isMetricSnapshot(parsed) || parsed.host !== row.host) {
-        invalidRows += 1;
-        continue;
-      }
-      snapshots.push(parsed);
-    } catch {
+    const snapshot = parseSnapshotRow(row);
+    if (!snapshot) {
       invalidRows += 1;
+      continue;
     }
+    snapshots.push(snapshot);
   }
   return { snapshots, invalidRows };
 }

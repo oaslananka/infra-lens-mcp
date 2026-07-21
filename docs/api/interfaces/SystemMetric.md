@@ -6,7 +6,7 @@
 
 # Interface: SystemMetric
 
-Defined in: [types.ts:299](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L299)
+Defined in: [types.ts:403](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L403)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:299](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **failed\_units**: `number`
 
-Defined in: [types.ts:300](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L300)
+Defined in: [types.ts:404](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L404)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [types.ts:300](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **kernel\_error\_events**: `number`
 
-Defined in: [types.ts:301](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L301)
+Defined in: [types.ts:405](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L405)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [types.ts:301](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **kernel\_signal\_available?**: `boolean`
 
-Defined in: [types.ts:302](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L302)
+Defined in: [types.ts:406](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L406)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [types.ts:302](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **kernel\_window\_minutes?**: `number`
 
-Defined in: [types.ts:303](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L303)
+Defined in: [types.ts:407](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L407)

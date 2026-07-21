@@ -8,4 +8,4 @@
 
 > **CapabilityInput** = `z.infer`\<*typeof* [`CapabilitySchema`](../variables/CapabilitySchema.md)\>
 
-Defined in: [types.ts:237](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L237)
+Defined in: [types.ts:338](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L338)

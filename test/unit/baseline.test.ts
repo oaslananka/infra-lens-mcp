@@ -9,6 +9,7 @@ import {
   getHistory,
   getHistoryPage,
   getLatestObservationSnapshots,
+  getObservationWindow,
   pruneSnapshots,
   saveSnapshot
 } from '../../src/baseline.js';
@@ -256,6 +257,47 @@ describe('baseline persistence', () => {
     expect(latest.snapshots.map((snapshot) => snapshot.host)).toEqual(['alpha-host', 'beta-host']);
     expect(latest.snapshots[0]?.timestamp).toBe(now - 1000);
     expect(latest.snapshots[0]?.cpu.usage_percent).toBe(30);
+  });
+
+  it('reads a bounded observation window in deterministic order and counts invalid rows', () => {
+    const now = Date.now();
+    saveSnapshot(makeSnapshot(now - 5000, 'window-host', 10));
+    saveSnapshot(makeSnapshot(now - 4000, 'window-host', 20), 'healthy', 'baseline');
+    saveSnapshot(makeSnapshot(now - 3000, 'window-host', 30));
+    saveSnapshot(makeSnapshot(now - 2000, 'window-host', 40));
+    saveSnapshot(makeSnapshot(now - 1000, 'other-host', 99));
+    getDatabase()
+      .prepare(
+        `
+        INSERT INTO snapshots (
+          host, label, classification, timestamp,
+          cpu_percent, memory_percent, load_1, raw_json
+        ) VALUES (?, 'default', 'observation', ?, 0, 0, 0, ?)
+      `
+      )
+      .run('window-host', now - 2500, '{bad-json');
+
+    const window = getObservationWindow({
+      host: 'window-host',
+      from: now - 3500,
+      to: now - 1500,
+      limit: 2
+    });
+
+    expect(window.invalidRows).toBe(1);
+    expect(window.truncated).toBe(false);
+    expect(window.snapshots.map((snapshot) => snapshot.cpu.usage_percent)).toEqual([30, 40]);
+    expect(window.snapshots.map((snapshot) => snapshot.timestamp)).toEqual([
+      now - 3000,
+      now - 2000
+    ]);
+  });
+
+  it('validates observation window bounds', () => {
+    expect(() => getObservationWindow({ host: 'x', from: 2, to: 1 })).toThrow('before');
+    expect(() => getObservationWindow({ host: 'x', from: 0, to: 1, limit: 0 })).toThrow(
+      'between 1 and 500'
+    );
   });
 
   it('keeps :memory: databases stable across calls', () => {
