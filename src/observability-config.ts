@@ -58,33 +58,48 @@ export function parseKeyValueList(name: string, raw: string | undefined): Record
   return result;
 }
 
-function parseOtlpConfig(env: Record<string, string | undefined>): OtlpMetricsConfig | null {
-  const rawEndpoint = env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT?.trim();
+function resolveOtlpEndpoint(env: Record<string, string | undefined>): string | null {
+  const signalEndpoint = env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT?.trim();
+  const genericEndpoint = env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim();
+  const rawEndpoint = signalEndpoint || genericEndpoint;
   if (!rawEndpoint) return null;
 
   let endpoint: URL;
   try {
     endpoint = new URL(rawEndpoint);
   } catch (error) {
-    throw new TypeError('OTEL_EXPORTER_OTLP_METRICS_ENDPOINT must be a valid URL.', {
-      cause: error
-    });
+    throw new TypeError('OTLP metrics endpoint must be a valid URL.', { cause: error });
   }
   if (!['http:', 'https:'].includes(endpoint.protocol) || endpoint.username || endpoint.password) {
-    throw new TypeError(
-      'OTEL_EXPORTER_OTLP_METRICS_ENDPOINT must use HTTP(S) without embedded credentials.'
-    );
+    throw new TypeError('OTLP metrics endpoint must use HTTP(S) without embedded credentials.');
+  }
+  if (!signalEndpoint) {
+    endpoint.pathname = `${endpoint.pathname.replace(/\/$/, '')}/v1/metrics`;
+  }
+  return endpoint.toString();
+}
+
+function parseOtlpConfig(env: Record<string, string | undefined>): OtlpMetricsConfig | null {
+  const endpoint = resolveOtlpEndpoint(env);
+  if (!endpoint) return null;
+
+  const protocol =
+    env.OTEL_EXPORTER_OTLP_METRICS_PROTOCOL?.trim() ||
+    env.OTEL_EXPORTER_OTLP_PROTOCOL?.trim() ||
+    'http/json';
+  if (protocol !== 'http/json') {
+    throw new TypeError('OTLP metrics protocol must be http/json.');
   }
 
   return {
-    endpoint: endpoint.toString(),
+    endpoint,
     headers: parseKeyValueList(
       'OTEL_EXPORTER_OTLP_METRICS_HEADERS',
-      env.OTEL_EXPORTER_OTLP_METRICS_HEADERS
+      env.OTEL_EXPORTER_OTLP_METRICS_HEADERS ?? env.OTEL_EXPORTER_OTLP_HEADERS
     ),
     timeoutMs: parseInteger(
       'OTEL_EXPORTER_OTLP_METRICS_TIMEOUT',
-      env.OTEL_EXPORTER_OTLP_METRICS_TIMEOUT,
+      env.OTEL_EXPORTER_OTLP_METRICS_TIMEOUT ?? env.OTEL_EXPORTER_OTLP_TIMEOUT,
       10_000,
       1,
       120_000

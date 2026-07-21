@@ -80,6 +80,27 @@ describe('observability configuration', () => {
     );
   });
 
+  it('supports global OTLP fallbacks and requires the implemented HTTP JSON protocol', () => {
+    const config = parseObservabilityConfig({
+      OTEL_EXPORTER_OTLP_ENDPOINT: 'http://collector.internal:4318/base',
+      OTEL_EXPORTER_OTLP_HEADERS: 'x-api-key=encoded%20value',
+      OTEL_EXPORTER_OTLP_TIMEOUT: '9000',
+      OTEL_EXPORTER_OTLP_PROTOCOL: 'http/json'
+    });
+
+    expect(config.otlp).toMatchObject({
+      endpoint: 'http://collector.internal:4318/base/v1/metrics',
+      headers: { 'x-api-key': 'encoded value' },
+      timeoutMs: 9000
+    });
+    expect(() =>
+      parseObservabilityConfig({
+        OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: 'http://localhost:4318/v1/metrics',
+        OTEL_EXPORTER_OTLP_METRICS_PROTOCOL: 'grpc'
+      })
+    ).toThrow('http/json');
+  });
+
   it('parses optional standard OTLP settings without enabling them implicitly', () => {
     const config = parseObservabilityConfig({
       OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: 'https://collector.example/v1/metrics',
