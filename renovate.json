@@ -161,7 +161,8 @@
         "gitleaks/gitleaks",
         "renovate/renovate",
         "sonarqube-cli",
-        "sigstore/cosign"
+        "sigstore/cosign",
+        "google/osv-scanner-action"
       ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
