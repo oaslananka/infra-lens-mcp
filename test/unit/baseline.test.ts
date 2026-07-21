@@ -8,6 +8,7 @@ import {
   getBaseline,
   getHistory,
   getHistoryPage,
+  getLatestObservationSnapshots,
   pruneSnapshots,
   saveSnapshot
 } from '../../src/baseline.js';
@@ -229,6 +230,32 @@ describe('baseline persistence', () => {
         now: timestamp + 1000
       })
     ).toThrow('does not match');
+  });
+
+  it('returns one latest valid observation per host and counts invalid rows', () => {
+    const now = Date.now();
+    saveSnapshot(makeSnapshot(now - 3000, 'beta-host', 10));
+    saveSnapshot(makeSnapshot(now - 2000, 'alpha-host', 20));
+    saveSnapshot(makeSnapshot(now - 1000, 'alpha-host', 30));
+    saveSnapshot(makeSnapshot(now + 1000, 'alpha-host', 99), 'newer-baseline', 'baseline');
+
+    getDatabase()
+      .prepare(
+        `
+        INSERT INTO snapshots (
+          host, label, classification, timestamp,
+          cpu_percent, memory_percent, load_1, raw_json
+        ) VALUES (?, 'default', 'observation', ?, 0, 0, 0, ?)
+      `
+      )
+      .run('broken-host', now, '{not-json');
+
+    const latest = getLatestObservationSnapshots();
+
+    expect(latest.invalidRows).toBe(1);
+    expect(latest.snapshots.map((snapshot) => snapshot.host)).toEqual(['alpha-host', 'beta-host']);
+    expect(latest.snapshots[0]?.timestamp).toBe(now - 1000);
+    expect(latest.snapshots[0]?.cpu.usage_percent).toBe(30);
   });
 
   it('keeps :memory: databases stable across calls', () => {

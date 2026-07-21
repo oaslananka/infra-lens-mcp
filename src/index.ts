@@ -25,6 +25,7 @@ export {
   getBaseline,
   getHistory,
   getHistoryPage,
+  getLatestObservationSnapshots,
   pruneSnapshots,
   saveSnapshot
 } from './baseline.js';

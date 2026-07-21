@@ -119,6 +119,100 @@ export function saveSnapshot(
   })();
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function hasFiniteNumbers(record: Record<string, unknown>, keys: string[]): boolean {
+  return keys.every((key) => typeof record[key] === 'number' && Number.isFinite(record[key]));
+}
+
+function isMetricSnapshot(value: unknown): value is MetricSnapshot {
+  if (!isRecord(value) || typeof value.host !== 'string' || !Number.isFinite(value.timestamp)) {
+    return false;
+  }
+  if (
+    !isRecord(value.cpu) ||
+    !hasFiniteNumbers(value.cpu, ['usage_percent', 'load_1', 'load_5', 'load_15', 'core_count'])
+  ) {
+    return false;
+  }
+  if (
+    !isRecord(value.memory) ||
+    !hasFiniteNumbers(value.memory, [
+      'total_mb',
+      'used_mb',
+      'free_mb',
+      'usage_percent',
+      'swap_used_mb',
+      'swap_total_mb'
+    ])
+  ) {
+    return false;
+  }
+  if (
+    !Array.isArray(value.disk) ||
+    !Array.isArray(value.network) ||
+    !Array.isArray(value.processes)
+  ) {
+    return false;
+  }
+  if (
+    !isRecord(value.system) ||
+    !hasFiniteNumbers(value.system, ['failed_units', 'kernel_error_events'])
+  ) {
+    return false;
+  }
+  if (
+    !isRecord(value.os) ||
+    typeof value.os.hostname !== 'string' ||
+    !Number.isFinite(value.os.uptime_seconds)
+  ) {
+    return false;
+  }
+  return Array.isArray(value.warnings);
+}
+
+export interface LatestObservationSnapshots {
+  snapshots: MetricSnapshot[];
+  invalidRows: number;
+}
+
+export function getLatestObservationSnapshots(): LatestObservationSnapshots {
+  const rows = getDatabase()
+    .prepare(
+      `
+      WITH ranked AS (
+        SELECT host, raw_json,
+          ROW_NUMBER() OVER (PARTITION BY host ORDER BY timestamp DESC, id DESC) AS rank
+        FROM snapshots
+        WHERE classification = 'observation'
+      )
+      SELECT host, raw_json
+      FROM ranked
+      WHERE rank = 1
+      ORDER BY host ASC
+    `
+    )
+    .all() as Array<{ host: string; raw_json: string }>;
+
+  const snapshots: MetricSnapshot[] = [];
+  let invalidRows = 0;
+  for (const row of rows) {
+    try {
+      const parsed: unknown = JSON.parse(row.raw_json);
+      if (!isMetricSnapshot(parsed) || parsed.host !== row.host) {
+        invalidRows += 1;
+        continue;
+      }
+      snapshots.push(parsed);
+    } catch {
+      invalidRows += 1;
+    }
+  }
+  return { snapshots, invalidRows };
+}
+
 export function getBaseline(host: string, label = 'default') {
   const rows = getDatabase()
     .prepare(
