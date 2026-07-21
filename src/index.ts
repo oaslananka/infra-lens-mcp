@@ -26,10 +26,15 @@ export {
   getHistory,
   getHistoryPage,
   getLatestObservationSnapshots,
+  getObservationWindow,
   pruneSnapshots,
   saveSnapshot
 } from './baseline.js';
-export type { LatestObservationSnapshots } from './baseline.js';
+export type {
+  LatestObservationSnapshots,
+  ObservationWindow,
+  ObservationWindowOptions
+} from './baseline.js';
 export { closeAllDatabases, getDatabase, resolveDatabasePath, resolveRetentionDays } from './db.js';
 export { createConnectConfig, withSshSession } from './ssh.js';
 export { collectHistoryExport, formatHistoryExport } from './history-export.js';
