@@ -201,6 +201,14 @@ describe('incident artifact builders', () => {
             recommendation: 'Review memory pressure.'
           },
           {
+            metric: 'disk:/var',
+            severity: 'high',
+            value: 91,
+            baseline_mean: 60,
+            explanation: 'Disk pressure is high.',
+            recommendation: 'Review retention and capacity.'
+          },
+          {
             metric: 'load',
             severity: 'medium',
             value: 4,
@@ -221,13 +229,13 @@ describe('incident artifact builders', () => {
       2000
     );
 
-    expect(plan.steps.map((step) => step.confidence)).toEqual([0.9, 0.7, 0.6]);
+    expect(plan.steps.map((step) => step.confidence)).toEqual([0.9, 0.8, 0.7, 0.6]);
     expect(plan.steps[0]).toMatchObject({
       rationale: 'Memory is critical.',
       evidence: ['Memory is critical.'],
       verification: ['Collect another snapshot and confirm recovery.']
     });
-    expect(plan.summary).toContain('3 review-first remediation steps');
+    expect(plan.summary).toContain('4 review-first remediation steps');
   });
 
   it('summarizes empty windows and distinguishes stable from decreased signals', () => {
@@ -279,6 +287,20 @@ describe('incident artifact builders', () => {
     expect(partial.completeness).toBe('partial');
     expect(partial.remediation.execution_performed).toBe(false);
     expect(partial.executive_summary).toContain('No valid persisted observations');
+  });
+
+  it('uses singular remediation wording for one proposed step', () => {
+    const plan = buildRemediationPlan(
+      snapshot(1000, 'app-01', 92),
+      {
+        health_score: 80,
+        summary: 'One anomaly.',
+        anomalies: [analysis.anomalies[0]!]
+      },
+      2000
+    );
+
+    expect(plan.summary).toBe('1 review-first remediation step proposed. No action was executed.');
   });
 
   it('returns an explicitly incomplete empty-window draft', () => {

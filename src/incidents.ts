@@ -104,16 +104,26 @@ function mean(values: number[]): number {
 }
 
 function confidenceFor(anomaly: Anomaly): number {
-  return (
-    anomaly.confidence ??
-    (anomaly.severity === 'critical'
-      ? 0.9
-      : anomaly.severity === 'high'
-        ? 0.8
-        : anomaly.severity === 'medium'
-          ? 0.7
-          : 0.6)
-  );
+  if (anomaly.confidence !== undefined) return anomaly.confidence;
+
+  switch (anomaly.severity) {
+    case 'critical':
+      return 0.9;
+    case 'high':
+      return 0.8;
+    case 'medium':
+      return 0.7;
+    case 'low':
+      return 0.6;
+  }
+}
+
+function remediationSummary(stepCount: number): string {
+  if (stepCount === 0) {
+    return 'No remediation is proposed because the latest analysis found no anomalies.';
+  }
+  const noun = stepCount === 1 ? 'step' : 'steps';
+  return `${stepCount} review-first remediation ${noun} proposed. No action was executed.`;
 }
 
 export function buildRemediationPlan(
@@ -145,10 +155,7 @@ export function buildRemediationPlan(
     host: snapshot.host,
     generated_at: new Date(now).toISOString(),
     health_score: analysis.health_score,
-    summary:
-      steps.length === 0
-        ? 'No remediation is proposed because the latest analysis found no anomalies.'
-        : `${steps.length} review-first remediation step${steps.length === 1 ? '' : 's'} proposed. No action was executed.`,
+    summary: remediationSummary(steps.length),
     confidence,
     review_required: true,
     execution_performed: false,
@@ -172,19 +179,18 @@ export function summarizeIncidentWindow(snapshots: MetricSnapshot[]): IncidentWi
   };
 }
 
+function directionForDelta(delta: number): WindowMetricComparison['direction'] {
+  if (Math.abs(delta) < 0.1) return 'stable';
+  return delta > 0 ? 'increased' : 'decreased';
+}
+
 function compareMetric(
   metric: WindowMetricComparison['metric'],
   left: number,
   right: number
 ): WindowMetricComparison {
   const delta = round(right - left);
-  return {
-    metric,
-    left,
-    right,
-    delta,
-    direction: Math.abs(delta) < 0.1 ? 'stable' : delta > 0 ? 'increased' : 'decreased'
-  };
+  return { metric, left, right, delta, direction: directionForDelta(delta) };
 }
 
 export function compareIncidentWindows(
@@ -258,6 +264,25 @@ function buildTimeline(snapshots: MetricSnapshot[]): IncidentTimelineEntry[] {
   );
 }
 
+function reportCompleteness(
+  sampleCount: number,
+  invalidRows: number,
+  analysis: SnapshotAnalysis | null
+): IncidentReportDraft['completeness'] {
+  if (sampleCount === 0) return 'incomplete';
+  if (invalidRows > 0 || !analysis) return 'partial';
+  return 'complete';
+}
+
+function persistedObservationSummary(sampleCount: number): string {
+  if (sampleCount === 0) {
+    return 'The report explicitly records the absence of persisted evidence.';
+  }
+  const noun = sampleCount === 1 ? 'observation' : 'observations';
+  const verb = sampleCount === 1 ? 'was' : 'were';
+  return `${sampleCount} persisted ${noun} ${verb} available for review.`;
+}
+
 export interface IncidentReportDraftOptions {
   snapshots: MetricSnapshot[];
   invalidRows: number;
@@ -304,12 +329,7 @@ export function buildIncidentReportDraft(options: IncidentReportDraftOptions): I
     window: { from: options.windowFrom, to: options.windowTo },
     sample_count: sorted.length,
     invalid_rows: options.invalidRows,
-    completeness:
-      sorted.length === 0
-        ? 'incomplete'
-        : options.invalidRows > 0 || !analysis
-          ? 'partial'
-          : 'complete',
+    completeness: reportCompleteness(sorted.length, options.invalidRows, analysis),
     executive_summary:
       analysis?.summary ??
       `No valid persisted observations were available for ${host || 'the host'}.`,
@@ -319,11 +339,7 @@ export function buildIncidentReportDraft(options: IncidentReportDraftOptions): I
     remediation,
     postmortem: {
       contributing_factors: contributingFactors,
-      what_went_well: [
-        sorted.length > 0
-          ? `${sorted.length} persisted observation${sorted.length === 1 ? '' : 's'} ${sorted.length === 1 ? 'was' : 'were'} available for review.`
-          : 'The report explicitly records the absence of persisted evidence.'
-      ],
+      what_went_well: [persistedObservationSummary(sorted.length)],
       improvement_actions: remediation.steps.map((step) => step.proposed_action),
       open_questions: openQuestions
     }
