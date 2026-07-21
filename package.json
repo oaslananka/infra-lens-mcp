@@ -78,15 +78,16 @@
     "check:renovate": "node scripts/check-renovate-config.mjs",
     "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off",
     "hooks:install": "node scripts/install-git-hooks.mjs",
-    "precommit": "pnpm run format:check && pnpm run lint && pnpm run check:threat-model && pnpm run check:renovate && pnpm run check:overrides && pnpm run security:semgrep",
-    "prepush": "pnpm run lint && pnpm run test:coverage && pnpm run test:abuse && pnpm run build && pnpm run check:golden && pnpm run check:metadata && pnpm run check:renovate && pnpm run check:overrides && pnpm run check:audit && pnpm run security:semgrep",
+    "precommit": "pnpm run format:check && pnpm run lint && pnpm run check:threat-model && pnpm run check:renovate && pnpm run check:codecov && pnpm run check:overrides && pnpm run security:semgrep",
+    "prepush": "pnpm run lint && pnpm run test:coverage && pnpm run test:abuse && pnpm run build && pnpm run check:golden && pnpm run check:metadata && pnpm run check:renovate && pnpm run check:codecov && pnpm run check:overrides && pnpm run check:audit && pnpm run security:semgrep",
     "check:overrides": "node scripts/check-dependency-overrides.mjs",
     "check:audit": "node scripts/check-audit-policy.mjs",
     "sonar:secrets": "pre-commit run sonar-secrets --all-files --hook-stage manual",
     "check:threat-model": "node scripts/check-threat-model.mjs",
     "test:abuse": "pnpm run check:threat-model && node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --runTestsByPath test/unit/http-security.test.ts test/unit/ssh.test.ts test/unit/logging.test.ts test/unit/mcp.test.ts",
     "golden:update": "pnpm run build && node scripts/update-golden-incidents.mjs",
-    "check:golden": "pnpm run build && node scripts/check-golden-incidents.mjs"
+    "check:golden": "pnpm run build && node scripts/check-golden-incidents.mjs",
+    "check:codecov": "node scripts/check-codecov-config.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -132,6 +133,7 @@
     "eslint": "10.4.0",
     "globals": "17.6.0",
     "jest": "30.4.2",
+    "jest-junit": "17.0.0",
     "knip": "6.14.2",
     "prettier": "3.8.3",
     "ts-jest": "29.4.11",

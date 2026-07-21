@@ -40,7 +40,7 @@ repos:
         name: Prettier staged files
         entry: pnpm exec prettier --check
         language: system
-        files: ^(src|scripts|test|docs|\.github/workflows)/.*\.(ts|mjs|md|ya?ml)$|^(package|renovate|dependency-overrides|audit-policy)\.json$|^\.(pre-commit-config|semgrep)\.ya?ml$
+        files: ^(src|scripts|test|docs|\.github/workflows)/.*\.(ts|mjs|md|ya?ml)$|^(package|renovate|dependency-overrides|audit-policy)\.json$|^(codecov|\.pre-commit-config|\.semgrep)\.ya?ml$
         exclude: ^docs/api/|^\.github/workflows/agent-runtime-config\.yml$
       - id: eslint-staged
         name: ESLint staged source files

@@ -65,9 +65,10 @@ jobs:
       - name: Release state evaluator tests
         run: pnpm run test:release-state
 
-      - name: Dependency automation policy
+      - name: Dependency and coverage automation policy
         run: |
           pnpm run check:renovate
+          pnpm run check:codecov
           pnpm run check:overrides
 
       - name: API docs drift check
@@ -88,6 +89,9 @@ jobs:
     name: Full Gates Node ${{ matrix.node-version }}
     runs-on: ubuntu-24.04
     timeout-minutes: 35
+    permissions:
+      contents: read
+      id-token: write
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     strategy:
       fail-fast: false
@@ -116,6 +120,31 @@ jobs:
 
       - name: Coverage tests
         run: pnpm run test:coverage
+
+      - name: Upload coverage to Codecov
+        if: ${{ !cancelled() && matrix.node-version == 24 }}
+        uses: codecov/codecov-action@e53489f4d376d79066609109e7a95a29eb3740b1 # v7.0.0
+        with:
+          use_oidc: true
+          files: coverage/lcov.info,coverage/cobertura-coverage.xml
+          disable_search: true
+          flags: tests
+          name: node-24
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() && matrix.node-version == 24 }}
+        uses: codecov/codecov-action@e53489f4d376d79066609109e7a95a29eb3740b1 # v7.0.0
+        with:
+          use_oidc: true
+          files: reports/junit/jest.xml
+          disable_search: true
+          report_type: test_results
+          flags: tests
+          name: node-24-tests
+          fail_ci_if_error: false
+          verbose: true
 
       - name: Build
         run: pnpm run build
