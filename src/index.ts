@@ -32,6 +32,8 @@ export {
 export { closeAllDatabases, getDatabase, resolveDatabasePath, resolveRetentionDays } from './db.js';
 export { createConnectConfig, withSshSession } from './ssh.js';
 export { collectHistoryExport, formatHistoryExport } from './history-export.js';
+export { buildLatestMetricPoints, renderOpenMetrics } from './observability-metrics.js';
+export type { LatestMetricOptions, MetricPoint } from './observability-metrics.js';
 export type { HistoryExportFormat, HistoryExportRecord } from './history-export.js';
 export { getPackageVersion } from './version.js';
 export type { CollectorRunner, RawMetricOutput } from './collector.js';
