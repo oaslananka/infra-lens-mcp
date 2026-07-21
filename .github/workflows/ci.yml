@@ -69,6 +69,7 @@ jobs:
         run: |
           pnpm run check:renovate
           pnpm run check:codecov
+          pnpm run check:container-release
           pnpm run check:overrides
 
       - name: API docs drift check
@@ -254,6 +255,22 @@ jobs:
 
       - name: CLI smoke
         run: docker run --rm --entrypoint node infra-lens-mcp:ci -e "import('better-sqlite3').then(() => console.log('runtime ok'))"
+
+      - name: Hardened read-only runtime smoke
+        run: |
+          set -euo pipefail
+          volume="infra-lens-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          docker volume create "${volume}" >/dev/null
+          trap 'docker volume rm --force "${volume}" >/dev/null' EXIT
+          docker run --rm \
+            --read-only \
+            --cap-drop=ALL \
+            --security-opt=no-new-privileges:true \
+            --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+            --mount type=volume,src="${volume}",dst=/home/appuser/.infra-lens-mcp \
+            --entrypoint node \
+            infra-lens-mcp:ci \
+            -e "import('./dist/db.js').then(({ getDatabase, closeAllDatabases }) => { getDatabase(); closeAllDatabases(); console.log('hardened runtime ok'); }).catch((error) => { console.error(error); process.exitCode = 1; })"
 
   ssh-e2e:
     name: SSH E2E

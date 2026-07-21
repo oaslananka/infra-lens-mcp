@@ -75,5 +75,17 @@ if (!managers.some((manager) => manager.datasourceTemplate === 'pypi')) {
 if (!managers.some((manager) => manager.depNameTemplate === 'renovate/renovate')) {
   fail('the pinned Renovate validator must manage itself');
 }
+if (
+  !managers.some(
+    (manager) =>
+      manager.datasourceTemplate === 'docker' &&
+      manager.matchStrings?.some((pattern) => pattern.includes('tonistiigi/binfmt'))
+  )
+) {
+  fail('the digest-pinned QEMU binfmt image must be managed by Renovate');
+}
+if (!managers.some((manager) => manager.depNameTemplate === 'sigstore/cosign')) {
+  fail('the Cosign binary pin must be managed by Renovate');
+}
 
 console.log('Renovate repository policy check passed.');

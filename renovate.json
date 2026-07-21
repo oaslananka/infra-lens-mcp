@@ -160,7 +160,8 @@
         "rhysd/actionlint",
         "gitleaks/gitleaks",
         "renovate/renovate",
-        "sonarqube-cli"
+        "sonarqube-cli",
+        "sigstore/cosign"
       ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
@@ -220,6 +221,24 @@
       "depNameTemplate": "renovate/renovate",
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the digest-pinned QEMU binfmt image used by multi-arch release builds.",
+      "managerFilePatterns": ["/^\\.github\\/workflows\\/publish-ghcr\\.yml$/"],
+      "matchStrings": [
+        "docker\\.io/(?<depName>tonistiigi/binfmt):(?<currentValue>qemu-v\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the Cosign binary pinned inside the installer action.",
+      "managerFilePatterns": ["/^\\.github\\/workflows\\/publish-ghcr\\.yml$/"],
+      "matchStrings": ["cosign-release: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "sigstore/cosign",
+      "datasourceTemplate": "github-releases"
     }
   ],
   "pre-commit": {

@@ -52,7 +52,25 @@ A privileged maintainer can send the same event through the GitHub API as an aud
 
 ### GHCR
 
-`.github/workflows/publish-ghcr.yml` pushes images only on the canonical repository-dispatch event. UI/manual dispatches build the selected ref without logging in or pushing. Release images include the SemVer version, release tag, and `latest`, plus provenance and an SBOM.
+`.github/workflows/publish-ghcr.yml` pushes images only on the canonical repository-dispatch event. UI/manual dispatches build the selected ref without logging in or pushing. Validation and publication both build `linux/amd64` and `linux/arm64` with QEMU and Buildx.
+
+Release images include the SemVer version, release tag, and `latest`; OCI labels and index annotations; BuildKit `mode=max` provenance; and an attached SBOM. The workflow binds a GitHub artifact attestation to the pushed multi-architecture digest, signs that digest keylessly with Cosign through GitHub OIDC, and immediately verifies the certificate identity and issuer.
+
+Use the immutable digest printed in the workflow summary when verifying a release:
+
+```bash
+IMAGE=ghcr.io/oaslananka/infra-lens-mcp
+DIGEST=sha256:<digest-from-release-workflow>
+
+docker buildx imagetools inspect "${IMAGE}@${DIGEST}"
+cosign verify \
+  --certificate-identity "https://github.com/oaslananka/infra-lens-mcp/.github/workflows/publish-ghcr.yml@refs/heads/main" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+  "${IMAGE}@${DIGEST}"
+gh attestation verify "oci://${IMAGE}@${DIGEST}" --repo oaslananka/infra-lens-mcp
+```
+
+`docker buildx imagetools inspect` must list both `linux/amd64` and `linux/arm64`. BuildKit stores the SBOM and provenance as OCI attestations associated with the same immutable digest; the GitHub attestation and Cosign signature provide independent identity evidence.
 
 ### MCP Registry
 
