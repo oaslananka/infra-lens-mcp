@@ -22,6 +22,11 @@ release-please-config.json @oaslananka
 .release-please-manifest.json @oaslananka
 scripts/             @oaslananka
 Taskfile.yml         @oaslananka
+.pre-commit-config.yaml @oaslananka
+.mise.toml           @oaslananka
+renovate.json        @oaslananka
+codecov.yml          @oaslananka
+.github/TOOLING.md   @oaslananka
 
 # Package and MCP metadata
 package.json         @oaslananka

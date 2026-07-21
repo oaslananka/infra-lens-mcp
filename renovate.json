@@ -142,7 +142,7 @@
     {
       "description": "Group repository-local mise security tooling updates.",
       "matchManagers": ["mise"],
-      "matchPackageNames": ["pre-commit", "sonarqube-cli"],
+      "matchPackageNames": ["pre-commit", "sonarqube-cli", "actionlint"],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
       "internalChecksFilter": "strict",

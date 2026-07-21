@@ -11,6 +11,8 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=no]
       - id: detect-private-key
       - id: check-yaml
       - id: end-of-file-fixer
@@ -26,6 +28,21 @@ repos:
         name: Semgrep repository security rules
         args: [--config=.semgrep.yml, --error, --metrics=off]
         files: ^(src|scripts|test)/.*\.(ts|mjs)$
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint-system
+        name: actionlint workflow validation (manual)
+        stages: [manual]
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.27.0
+    hooks:
+      - id: zizmor
+        name: zizmor workflow security audit (manual)
+        args: [--offline, --min-severity, medium]
+        stages: [manual]
 
   - repo: local
     hooks:
