@@ -6,9 +6,23 @@
 
 ## Interfaces
 
+- [LatestObservationSnapshots](interfaces/LatestObservationSnapshots.md)
 - [RawMetricOutput](interfaces/RawMetricOutput.md)
 - [CollectorRunner](interfaces/CollectorRunner.md)
 - [HistoryExportRecord](interfaces/HistoryExportRecord.md)
+- [OtlpMetricsConfig](interfaces/OtlpMetricsConfig.md)
+- [ObservabilityConfig](interfaces/ObservabilityConfig.md)
+- [MetricPoint](interfaces/MetricPoint.md)
+- [LatestMetricOptions](interfaces/LatestMetricOptions.md)
+- [ObservabilityRequestHandlerDependencies](interfaces/ObservabilityRequestHandlerDependencies.md)
+- [SignalRegistrar](interfaces/SignalRegistrar.md)
+- [ObservabilityRuntimeDependencies](interfaces/ObservabilityRuntimeDependencies.md)
+- [ObservabilityRuntime](interfaces/ObservabilityRuntime.md)
+- [OtlpKeyValue](interfaces/OtlpKeyValue.md)
+- [OtlpNumberDataPoint](interfaces/OtlpNumberDataPoint.md)
+- [OtlpMetric](interfaces/OtlpMetric.md)
+- [OtlpMetricsRequest](interfaces/OtlpMetricsRequest.md)
+- [ExportOtlpMetricsOptions](interfaces/ExportOtlpMetricsOptions.md)
 - [ToolDefinition](interfaces/ToolDefinition.md)
 - [ToolRegistrar](interfaces/ToolRegistrar.md)
 - [ToolDependencies](interfaces/ToolDependencies.md)
@@ -34,6 +48,8 @@
 ## Type Aliases
 
 - [HistoryExportFormat](type-aliases/HistoryExportFormat.md)
+- [HttpServer](type-aliases/HttpServer.md)
+- [IntervalHandle](type-aliases/IntervalHandle.md)
 - [ToolContent](type-aliases/ToolContent.md)
 - [ToolHandler](type-aliases/ToolHandler.md)
 - [ToolConfig](type-aliases/ToolConfig.md)
@@ -51,6 +67,7 @@
 
 ## Variables
 
+- [OPENMETRICS\_CONTENT\_TYPE](variables/OPENMETRICS_CONTENT_TYPE.md)
 - [toolDefinitions](variables/toolDefinitions.md)
 - [ConnectionSchema](variables/ConnectionSchema.md)
 - [SafeConnectionSchema](variables/SafeConnectionSchema.md)
@@ -71,6 +88,7 @@
 - [analyzeSnapshot](functions/analyzeSnapshot.md)
 - [pruneSnapshots](functions/pruneSnapshots.md)
 - [saveSnapshot](functions/saveSnapshot.md)
+- [getLatestObservationSnapshots](functions/getLatestObservationSnapshots.md)
 - [getBaseline](functions/getBaseline.md)
 - [getHistoryPage](functions/getHistoryPage.md)
 - [getHistory](functions/getHistory.md)
@@ -83,6 +101,15 @@
 - [closeAllDatabases](functions/closeAllDatabases.md)
 - [collectHistoryExport](functions/collectHistoryExport.md)
 - [formatHistoryExport](functions/formatHistoryExport.md)
+- [parseObservabilityConfig](functions/parseObservabilityConfig.md)
+- [validateObservabilityConfig](functions/validateObservabilityConfig.md)
+- [buildLatestMetricPoints](functions/buildLatestMetricPoints.md)
+- [renderOpenMetrics](functions/renderOpenMetrics.md)
+- [createObservabilityRequestHandler](functions/createObservabilityRequestHandler.md)
+- [createObservabilityShutdownHandler](functions/createObservabilityShutdownHandler.md)
+- [startObservabilityRuntime](functions/startObservabilityRuntime.md)
+- [buildOtlpMetricsRequest](functions/buildOtlpMetricsRequest.md)
+- [exportOtlpMetrics](functions/exportOtlpMetrics.md)
 - [createToolDefinitions](functions/createToolDefinitions.md)
 - [registerInfraLensTools](functions/registerInfraLensTools.md)
 - [registerToolsOnServer](functions/registerToolsOnServer.md)

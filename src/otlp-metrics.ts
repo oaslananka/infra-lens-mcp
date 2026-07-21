@@ -2,18 +2,18 @@ import type { OtlpMetricsConfig } from './observability-config.js';
 import type { MetricPoint } from './observability-metrics.js';
 import { getPackageVersion } from './version.js';
 
-interface OtlpKeyValue {
+export interface OtlpKeyValue {
   key: string;
   value: { stringValue: string };
 }
 
-interface OtlpNumberDataPoint {
+export interface OtlpNumberDataPoint {
   attributes: OtlpKeyValue[];
   timeUnixNano: string;
   asDouble: number;
 }
 
-interface OtlpMetric {
+export interface OtlpMetric {
   name: string;
   description: string;
   unit: string;

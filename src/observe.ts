@@ -18,7 +18,7 @@ const logger = createLogger('observe');
 export type HttpServer = Server;
 export type IntervalHandle = ReturnType<typeof nodeSetInterval>;
 
-interface SignalRegistrar {
+export interface SignalRegistrar {
   once(signal: 'SIGTERM' | 'SIGINT', listener: () => void): unknown;
 }
 
