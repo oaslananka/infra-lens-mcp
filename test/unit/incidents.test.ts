@@ -185,6 +185,102 @@ describe('incident artifact builders', () => {
     expect(report.remediation.steps.every((step) => step.requires_approval)).toBe(true);
   });
 
+  it('uses conservative fallback evidence and confidence for sparse anomalies', () => {
+    const plan = buildRemediationPlan(
+      snapshot(1000, 'app-01', 92),
+      {
+        health_score: 40,
+        summary: 'Sparse anomaly metadata.',
+        anomalies: [
+          {
+            metric: 'memory',
+            severity: 'critical',
+            value: 97,
+            baseline_mean: 50,
+            explanation: 'Memory is critical.',
+            recommendation: 'Review memory pressure.'
+          },
+          {
+            metric: 'load',
+            severity: 'medium',
+            value: 4,
+            baseline_mean: 1,
+            explanation: 'Load increased.',
+            recommendation: 'Review queue pressure.'
+          },
+          {
+            metric: 'network:eth0',
+            severity: 'low',
+            value: 1,
+            baseline_mean: 0,
+            explanation: 'One packet was dropped.',
+            recommendation: 'Repeat the bounded sample.'
+          }
+        ]
+      },
+      2000
+    );
+
+    expect(plan.steps.map((step) => step.confidence)).toEqual([0.9, 0.7, 0.6]);
+    expect(plan.steps[0]).toMatchObject({
+      rationale: 'Memory is critical.',
+      evidence: ['Memory is critical.'],
+      verification: ['Collect another snapshot and confirm recovery.']
+    });
+    expect(plan.summary).toContain('3 review-first remediation steps');
+  });
+
+  it('summarizes empty windows and distinguishes stable from decreased signals', () => {
+    const empty = summarizeIncidentWindow([]);
+    const left = summarizeIncidentWindow([snapshot(1000, 'app-01', 50, 50, 2)]);
+    const stable = compareIncidentWindows('left', left, 'same', left);
+    const decreased = compareIncidentWindows(
+      'left',
+      left,
+      'right',
+      summarizeIncidentWindow([snapshot(2000, 'app-01', 20, 30, 1)])
+    );
+
+    expect(empty).toMatchObject({
+      host: '',
+      sample_count: 0,
+      from: null,
+      to: null,
+      cpu: { average: 0, maximum: 0 }
+    });
+    expect(stable.summary).toContain('stable average CPU, memory, and load');
+    expect(stable.metrics.every((metric) => metric.direction === 'stable')).toBe(true);
+    expect(decreased.metrics.every((metric) => metric.direction === 'decreased')).toBe(true);
+  });
+
+  it('marks evidence complete only when analysis exists and no rows are invalid', () => {
+    const oneSnapshot = snapshot(1000, 'app-01', 92);
+    const complete = buildIncidentReportDraft({
+      snapshots: [oneSnapshot],
+      invalidRows: 0,
+      analysis,
+      now: 2000,
+      windowFrom: 500,
+      windowTo: 1500
+    });
+    const partial = buildIncidentReportDraft({
+      snapshots: [oneSnapshot],
+      invalidRows: 0,
+      analysis: null,
+      now: 2000,
+      windowFrom: 500,
+      windowTo: 1500
+    });
+
+    expect(complete.completeness).toBe('complete');
+    expect(complete.postmortem.what_went_well).toEqual([
+      '1 persisted observation was available for review.'
+    ]);
+    expect(partial.completeness).toBe('partial');
+    expect(partial.remediation.execution_performed).toBe(false);
+    expect(partial.executive_summary).toContain('No valid persisted observations');
+  });
+
   it('returns an explicitly incomplete empty-window draft', () => {
     const report = buildIncidentReportDraft({
       snapshots: [],

@@ -321,7 +321,7 @@ export function buildIncidentReportDraft(options: IncidentReportDraftOptions): I
       contributing_factors: contributingFactors,
       what_went_well: [
         sorted.length > 0
-          ? `${sorted.length} persisted observation${sorted.length === 1 ? '' : 's'} were available for review.`
+          ? `${sorted.length} persisted observation${sorted.length === 1 ? '' : 's'} ${sorted.length === 1 ? 'was' : 'were'} available for review.`
           : 'The report explicitly records the absence of persisted evidence.'
       ],
       improvement_actions: remediation.steps.map((step) => step.proposed_action),
