@@ -285,7 +285,7 @@ describe('baseline persistence', () => {
     });
 
     expect(window.invalidRows).toBe(1);
-    expect(window.truncated).toBe(true);
+    expect(window.truncated).toBe(false);
     expect(window.snapshots.map((snapshot) => snapshot.cpu.usage_percent)).toEqual([30, 40]);
     expect(window.snapshots.map((snapshot) => snapshot.timestamp)).toEqual([
       now - 3000,

@@ -243,13 +243,11 @@ export function getObservationWindow(options: ObservationWindowOptions): Observa
     if (snapshots.length < limit) snapshots.push(snapshot);
   }
 
+  const validRows = rows.length - invalidRows;
   return {
     snapshots,
     invalidRows,
-    truncated:
-      rows.length === scanLimit ||
-      rows.length > snapshots.length + invalidRows ||
-      (snapshots.length >= limit && rows.length > limit)
+    truncated: rows.length === scanLimit || validRows > limit
   };
 }
 

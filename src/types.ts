@@ -231,6 +231,107 @@ export const GetHistoryOutputSchema = z.object({
   history: z.array(HistoryPointSchema)
 });
 
+export const RemediationPlanSchema = z.object({
+  connection: ConnectionSchema
+});
+
+export const IncidentReportSchema = z.object({
+  host: z.string().min(1),
+  hours: z.number().int().min(1).max(168).default(24),
+  limit: z.number().int().min(1).max(500).default(200)
+});
+
+export const CompareIncidentWindowsSchema = z.object({
+  host: z.string().min(1),
+  compare_host: z.string().min(1).optional(),
+  recent_hours: z.number().int().min(1).max(168).default(1),
+  end_timestamp: z.number().int().positive().optional(),
+  limit: z.number().int().min(1).max(500).default(200)
+});
+
+export const RemediationStepSchema = z.object({
+  id: z.string(),
+  priority: z.enum(['low', 'medium', 'high', 'critical']),
+  metric: z.string(),
+  title: z.string(),
+  proposed_action: z.string(),
+  rationale: z.string(),
+  evidence: z.array(z.string()),
+  confidence: z.number().min(0).max(1),
+  verification: z.array(z.string()),
+  rollback_guidance: z.string(),
+  requires_approval: z.literal(true)
+});
+
+export const RemediationPlanOutputSchema = z.object({
+  host: z.string(),
+  generated_at: z.string(),
+  health_score: z.number().min(0).max(100),
+  summary: z.string(),
+  confidence: z.number().min(0).max(1),
+  review_required: z.literal(true),
+  execution_performed: z.literal(false),
+  steps: z.array(RemediationStepSchema)
+});
+
+export const IncidentWindowSummarySchema = z.object({
+  host: z.string(),
+  sample_count: z.number().int().min(0),
+  from: z.number().int().nullable(),
+  to: z.number().int().nullable(),
+  cpu: z.object({ average: z.number(), maximum: z.number() }),
+  memory: z.object({ average: z.number(), maximum: z.number() }),
+  load: z.object({ average: z.number(), maximum: z.number() })
+});
+
+export const IncidentWindowComparisonOutputSchema = z.object({
+  left_label: z.string(),
+  right_label: z.string(),
+  left: IncidentWindowSummarySchema,
+  right: IncidentWindowSummarySchema,
+  left_invalid_rows: z.number().int().min(0),
+  right_invalid_rows: z.number().int().min(0),
+  metrics: z.array(
+    z.object({
+      metric: z.enum(['cpu_percent', 'memory_percent', 'load_1']),
+      left: z.number(),
+      right: z.number(),
+      delta: z.number(),
+      direction: z.enum(['increased', 'decreased', 'stable'])
+    })
+  ),
+  summary: z.string(),
+  review_required: z.literal(true)
+});
+
+export const IncidentReportOutputSchema = z.object({
+  status: z.literal('draft'),
+  review_required: z.literal(true),
+  host: z.string(),
+  generated_at: z.string(),
+  window: z.object({ from: z.number().int(), to: z.number().int() }),
+  sample_count: z.number().int().min(0),
+  invalid_rows: z.number().int().min(0),
+  completeness: z.enum(['complete', 'partial', 'incomplete']),
+  executive_summary: z.string(),
+  impact_signals: z.array(z.string()),
+  detection_evidence: z.array(z.string()),
+  timeline: z.array(
+    z.object({
+      kind: z.enum(['first_observation', 'peak_cpu', 'peak_memory', 'latest_observation']),
+      timestamp: z.number().int(),
+      detail: z.string()
+    })
+  ),
+  remediation: RemediationPlanOutputSchema,
+  postmortem: z.object({
+    contributing_factors: z.array(z.string()),
+    what_went_well: z.array(z.string()),
+    improvement_actions: z.array(z.string()),
+    open_questions: z.array(z.string())
+  })
+});
+
 export type ConnectionInput = z.infer<typeof ConnectionSchema>;
 export type AnalyzeInput = z.infer<typeof AnalyzeSchema>;
 export type SnapshotInput = z.infer<typeof SnapshotSchema>;
@@ -238,6 +339,9 @@ export type CapabilityInput = z.infer<typeof CapabilitySchema>;
 export type BaselineInput = z.infer<typeof BaselineSchema>;
 export type CompareInput = z.infer<typeof CompareSchema>;
 export type GetHistoryInput = z.infer<typeof GetHistorySchema>;
+export type RemediationPlanInput = z.infer<typeof RemediationPlanSchema>;
+export type IncidentReportInput = z.infer<typeof IncidentReportSchema>;
+export type CompareIncidentWindowsInput = z.infer<typeof CompareIncidentWindowsSchema>;
 export type MetricName = z.infer<typeof MetricNameSchema>;
 
 export type RuntimeProfile = 'full' | 'remote-safe' | 'chatgpt' | 'claude';

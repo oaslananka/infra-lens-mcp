@@ -2,27 +2,48 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { AnySchema } from '@modelcontextprotocol/sdk/server/zod-compat.js';
 
 import { analyzeSnapshot } from './analyzer.js';
-import { getBaseline, getHistory, getHistoryPage, saveSnapshot } from './baseline.js';
+import {
+  getBaseline,
+  getHistory,
+  getHistoryPage,
+  getObservationWindow,
+  saveSnapshot
+} from './baseline.js';
 import { collectSampledSnapshot, collectSnapshot, inspectHostCapabilities } from './collector.js';
+import {
+  buildIncidentReportDraft,
+  buildRemediationPlan,
+  compareIncidentWindows,
+  summarizeIncidentWindow
+} from './incidents.js';
 import {
   AnalyzeOutputSchema,
   AnalyzeSchema,
   BaselineOutputSchema,
   BaselineSchema,
   CapabilitySchema,
+  CompareIncidentWindowsSchema,
   CompareOutputSchema,
   CompareSchema,
   GetHistoryOutputSchema,
   GetHistorySchema,
+  IncidentReportOutputSchema,
+  IncidentReportSchema,
+  IncidentWindowComparisonOutputSchema,
   InspectCapabilitiesOutputSchema,
+  RemediationPlanOutputSchema,
+  RemediationPlanSchema,
   SafeConnectionSchema,
   SnapshotOutputSchema,
   SnapshotSchema,
   type AnalyzeInput,
   type BaselineInput,
   type CapabilityInput,
+  type CompareIncidentWindowsInput,
   type CompareInput,
   type GetHistoryInput,
+  type IncidentReportInput,
+  type RemediationPlanInput,
   type RuntimeProfile,
   type SnapshotInput
 } from './types.js';
@@ -63,7 +84,10 @@ export type ToolDefinitionTuple = [
   ToolDefinition<BaselineInput>,
   ToolDefinition<CompareInput>,
   ToolDefinition<GetHistoryInput>,
-  ToolDefinition<CapabilityInput>
+  ToolDefinition<CapabilityInput>,
+  ToolDefinition<RemediationPlanInput>,
+  ToolDefinition<IncidentReportInput>,
+  ToolDefinition<CompareIncidentWindowsInput>
 ];
 
 export interface ToolRegistrar {
@@ -78,6 +102,11 @@ export interface ToolDependencies {
   getBaseline: typeof getBaseline;
   getHistory: typeof getHistory;
   getHistoryPage?: typeof getHistoryPage;
+  getObservationWindow?: typeof getObservationWindow;
+  buildIncidentReportDraft?: typeof buildIncidentReportDraft;
+  buildRemediationPlan?: typeof buildRemediationPlan;
+  compareIncidentWindows?: typeof compareIncidentWindows;
+  summarizeIncidentWindow?: typeof summarizeIncidentWindow;
   saveSnapshot: typeof saveSnapshot;
 }
 
@@ -93,10 +122,15 @@ const defaultDependencies: ToolDependencies = {
   getBaseline,
   getHistory,
   getHistoryPage,
+  getObservationWindow,
+  buildIncidentReportDraft,
+  buildRemediationPlan,
+  compareIncidentWindows,
+  summarizeIncidentWindow,
   saveSnapshot
 };
 
-function structuredResult<T extends Record<string, unknown>>(payload: T): ToolContent {
+function structuredResult<T extends object>(payload: T): ToolContent {
   return {
     content: [
       {
@@ -104,7 +138,7 @@ function structuredResult<T extends Record<string, unknown>>(payload: T): ToolCo
         text: JSON.stringify(payload, null, 2)
       }
     ],
-    structuredContent: payload
+    structuredContent: payload as Record<string, unknown>
   };
 }
 
@@ -161,7 +195,8 @@ function createSchemas(profile: RuntimeProfile) {
       snapshot: SnapshotSchema,
       baseline: BaselineSchema,
       compare: CompareSchema,
-      capabilities: CapabilitySchema
+      capabilities: CapabilitySchema,
+      remediation: RemediationPlanSchema
     };
   }
 
@@ -170,7 +205,8 @@ function createSchemas(profile: RuntimeProfile) {
     snapshot: SnapshotSchema.extend({ connection: connectionSchema }),
     baseline: BaselineSchema.extend({ connection: connectionSchema }),
     compare: CompareSchema.extend({ connection: connectionSchema }),
-    capabilities: CapabilitySchema.extend({ connection: connectionSchema })
+    capabilities: CapabilitySchema.extend({ connection: connectionSchema }),
+    remediation: RemediationPlanSchema.extend({ connection: connectionSchema })
   };
 }
 
@@ -338,6 +374,99 @@ export function createToolDefinitions(
           checked_at: new Date().toISOString(),
           capabilities: inspection.capabilities,
           warnings: inspection.warnings
+        });
+      }
+    },
+    {
+      name: 'plan_remediation',
+      config: {
+        title: 'Plan Remediation',
+        description:
+          'Collect a current read-only snapshot and produce approval-required remediation guidance without executing changes',
+        inputSchema: schemas.remediation,
+        outputSchema: RemediationPlanOutputSchema,
+        annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true }
+      },
+      handler: async (input) => {
+        const snapshot = await dependencies.collectSnapshot(input.connection);
+        const analysis = dependencies.analyzeSnapshot(snapshot);
+        return structuredResult(
+          (dependencies.buildRemediationPlan ?? buildRemediationPlan)(snapshot, analysis)
+        );
+      }
+    },
+    {
+      name: 'draft_incident_report',
+      config: {
+        title: 'Draft Incident Report',
+        description:
+          'Create a review-first incident report and postmortem draft from persisted observations',
+        inputSchema: IncidentReportSchema,
+        outputSchema: IncidentReportOutputSchema,
+        annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false }
+      },
+      handler: async (input) => {
+        const windowTo = Date.now();
+        const windowFrom = windowTo - input.hours * 60 * 60 * 1000;
+        const window = (dependencies.getObservationWindow ?? getObservationWindow)({
+          host: input.host,
+          from: windowFrom,
+          to: windowTo,
+          limit: input.limit
+        });
+        const latest = window.snapshots.at(-1);
+        const analysis = latest ? dependencies.analyzeSnapshot(latest) : null;
+        return structuredResult(
+          (dependencies.buildIncidentReportDraft ?? buildIncidentReportDraft)({
+            host: input.host,
+            snapshots: window.snapshots,
+            invalidRows: window.invalidRows,
+            analysis,
+            windowFrom,
+            windowTo
+          })
+        );
+      }
+    },
+    {
+      name: 'compare_incident_windows',
+      config: {
+        title: 'Compare Incident Windows',
+        description:
+          'Compare adjacent time windows for one host or the same recent window across two hosts',
+        inputSchema: CompareIncidentWindowsSchema,
+        outputSchema: IncidentWindowComparisonOutputSchema,
+        annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false }
+      },
+      handler: async (input) => {
+        const end = input.end_timestamp ?? Date.now();
+        const duration = input.recent_hours * 60 * 60 * 1000;
+        const rightFrom = end - duration;
+        const compareHost = input.compare_host;
+        const leftFrom = compareHost ? rightFrom : rightFrom - duration;
+        const leftTo = compareHost ? end : rightFrom;
+        const left = (dependencies.getObservationWindow ?? getObservationWindow)({
+          host: compareHost ?? input.host,
+          from: leftFrom,
+          to: leftTo,
+          limit: input.limit
+        });
+        const right = (dependencies.getObservationWindow ?? getObservationWindow)({
+          host: input.host,
+          from: rightFrom,
+          to: end,
+          limit: input.limit
+        });
+        const comparison = (dependencies.compareIncidentWindows ?? compareIncidentWindows)(
+          compareHost ?? 'previous_window',
+          (dependencies.summarizeIncidentWindow ?? summarizeIncidentWindow)(left.snapshots),
+          input.host,
+          (dependencies.summarizeIncidentWindow ?? summarizeIncidentWindow)(right.snapshots)
+        );
+        return structuredResult({
+          ...comparison,
+          left_invalid_rows: left.invalidRows,
+          right_invalid_rows: right.invalidRows
         });
       }
     }
