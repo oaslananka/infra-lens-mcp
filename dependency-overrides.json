@@ -57,17 +57,17 @@
       "reviewBy": "2026-08-31"
     },
     "@hono/node-server": {
-      "version": "2.0.5",
+      "version": "2.0.10",
       "owner": "oaslananka",
-      "reason": "Runtime security floor for the MCP SDK HTTP server chain affected by GHSA-frvp-7c67-39w9; the upstream SDK still permits only the vulnerable 1.x line.",
-      "upstream": "https://github.com/advisories/GHSA-frvp-7c67-39w9",
+      "reason": "Runtime security floor for the MCP SDK HTTP server chain affected by GHSA-frvp-7c67-39w9 and GHSA-9mqv-5hh9-4cgg; the upstream SDK still permits vulnerable versions.",
+      "upstream": "https://github.com/advisories/GHSA-9mqv-5hh9-4cgg",
       "reviewBy": "2026-08-31"
     },
     "fast-uri": {
-      "version": "3.1.3",
+      "version": "3.1.4",
       "owner": "oaslananka",
-      "reason": "Runtime security floor for the AJV URI validation chain affected by GHSA-4c8g-83qw-93j6.",
-      "upstream": "https://github.com/advisories/GHSA-4c8g-83qw-93j6",
+      "reason": "Runtime security floor for the AJV URI validation chain affected by GHSA-4c8g-83qw-93j6 and GHSA-v2hh-gcrm-f6hx.",
+      "upstream": "https://github.com/advisories/GHSA-v2hh-gcrm-f6hx",
       "reviewBy": "2026-08-31"
     },
     "linkify-it": {
