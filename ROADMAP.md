@@ -1,33 +1,34 @@
 # Roadmap
 
-## v1.1.0 - Better analysis
+The roadmap communicates direction, not a release commitment. Security, compatibility, and reliability work may take priority over feature sequencing.
 
-- [x] Multi-sample collection for `analyze_server`
-- [x] Configurable anomaly thresholds
-- [ ] Memory z-score anomaly detection
-- [ ] Network anomaly detection for unusual rx and tx spikes
-- [x] Parallel SSH command execution
+## Shipped foundation
 
-## v1.2.0 - Multi-host
+- Sampled and immediate server analysis with MCP progress and cancellation
+- Strict SSH host verification and remote-safe target policy
+- SQLite observations, approved baselines, retention, pagination, and export
+- Robust anomaly explanations and reviewed incident fixtures
+- Review-first remediation plans, incident drafts, and window comparison
+- OpenMetrics and OTLP exports from persisted observations
+- Signed multi-architecture GHCR images and provenance-backed npm releases
 
-- [ ] `analyze_fleet` tool to analyze multiple hosts in parallel and return a ranked summary
-- [ ] `get_fleet_history` tool to compare trends across a fleet
-- [ ] Host group configuration via JSON file
+## Current focus
 
-## v1.3.0 - Alerting hooks
+- Keep Node.js, the MCP SDK, SSH, SQLite, and security-tool dependencies current
+- Improve Linux metric fidelity and anomaly evidence without expanding secret collection
+- Improve operator documentation, examples, and client interoperability
+- Maintain deterministic security, package, performance, and release gates
 
-- [ ] Webhook delivery when health score drops below a threshold
-- [ ] Slack notification integration
-- [ ] Alert deduplication for persistent anomalies
+## Later exploration
 
-## v2.0.0 - Agent mode
+- Fleet-level analysis and ranked multi-host summaries
+- Host grouping and fleet history comparisons
+- Alert delivery integrations with deduplication and explicit operator ownership
+- Optional stateful HTTP streaming only if client demand justifies the added lifecycle and authorization complexity
 
-- [ ] Autonomous monitoring runs on a schedule
-- [ ] Incident timeline reconstruction from historical data
-- [ ] Self-healing recommendations with before and after comparisons
+## Non-goals
 
-## Won't do
-
+- Autonomous remediation or command execution from model-generated recommendations
 - Built-in web UI
-- Windows host support
-- Push-based agent metrics collection
+- Windows hosts as monitoring targets
+- Push-based agents installed on monitored hosts
