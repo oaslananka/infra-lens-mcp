@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.4.0...infra-lens-mcp-v1.4.1) (2026-07-22)
+
+
+### Bug Fixes
+
+* **security:** patch newly disclosed OSV advisories ([bb25297](https://github.com/oaslananka/infra-lens-mcp/commit/bb252979192e006adfd1fd1a74a2e83072703faa))
+
 ## [1.4.0](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.3.1...infra-lens-mcp-v1.4.0) (2026-07-21)
 
 
