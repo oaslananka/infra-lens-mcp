@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.4.1...infra-lens-mcp-v1.5.0) (2026-07-22)
+
+
+### Features
+
+* **mcp:** add analysis progress and cancellation ([0c31bff](https://github.com/oaslananka/infra-lens-mcp/commit/0c31bff0f22171bc3e95b63c7bd263a8202d422f))
+
 ## [1.4.1](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.4.0...infra-lens-mcp-v1.4.1) (2026-07-22)
 
 
