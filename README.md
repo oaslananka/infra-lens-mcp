@@ -1,26 +1,56 @@
-# infra-lens-mcp
+<div align="center">
+  <h1>infra-lens-mcp</h1>
 
-<p align="center">
-  <a href="https://www.buymeacoffee.com/oaslananka">
-    <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=oaslananka&button_colour=FFDD00&font_colour=000000&font_family=Arial&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee" />
-  </a>
-</p>
+  <p><strong>Explain Linux incidents over SSH with baseline-aware MCP tooling.</strong></p>
 
-Explain Linux incidents over SSH with baseline-aware MCP tooling.
+  <p>
+    A TypeScript MCP server for live Linux diagnostics, local SQLite history,<br />
+    review-first incident workflows, and secure observability exports.
+  </p>
 
-[![npm version](https://img.shields.io/npm/v/infra-lens-mcp.svg)](https://www.npmjs.com/package/infra-lens-mcp)
-[![npm downloads](https://img.shields.io/npm/dm/infra-lens-mcp.svg)](https://www.npmjs.com/package/infra-lens-mcp)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Node 24 LTS](https://img.shields.io/badge/node-24%20LTS-339933.svg)](https://nodejs.org/)
-[![MCP SDK](https://img.shields.io/badge/MCP%20SDK-1.29.0-6f42c1.svg)](https://www.npmjs.com/package/@modelcontextprotocol/sdk)
+  <p>
+    <a href="https://github.com/oaslananka/infra-lens-mcp/actions/workflows/ci.yml"><img src="https://github.com/oaslananka/infra-lens-mcp/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+    <a href="https://github.com/oaslananka/infra-lens-mcp/actions/workflows/codeql.yml"><img src="https://github.com/oaslananka/infra-lens-mcp/actions/workflows/codeql.yml/badge.svg" alt="CodeQL status" /></a>
+    <a href="https://github.com/oaslananka/infra-lens-mcp/actions/workflows/security.yml"><img src="https://github.com/oaslananka/infra-lens-mcp/actions/workflows/security.yml/badge.svg" alt="Security Gates status" /></a>
+    <a href="https://github.com/oaslananka/infra-lens-mcp/actions/workflows/osv-scanner-full.yml"><img src="https://github.com/oaslananka/infra-lens-mcp/actions/workflows/osv-scanner-full.yml/badge.svg" alt="OSV-Scanner status" /></a>
+    <a href="https://codecov.io/gh/oaslananka/infra-lens-mcp"><img src="https://codecov.io/gh/oaslananka/infra-lens-mcp/graph/badge.svg" alt="Codecov coverage" /></a>
+    <a href="https://securityscorecards.dev/viewer/?uri=github.com/oaslananka/infra-lens-mcp"><img src="https://api.securityscorecards.dev/projects/github.com/oaslananka/infra-lens-mcp/badge" alt="OpenSSF Scorecard" /></a>
+  </p>
 
-`infra-lens-mcp` is a TypeScript MCP server that connects to Linux hosts over SSH, captures live metrics, stores local SQLite history, compares snapshots to baselines, and returns plain-English infrastructure explanations.
+  <p>
+    <a href="https://www.npmjs.com/package/infra-lens-mcp"><img src="https://img.shields.io/npm/v/infra-lens-mcp.svg" alt="npm version" /></a>
+    <a href="https://www.npmjs.com/package/infra-lens-mcp"><img src="https://img.shields.io/npm/dm/infra-lens-mcp.svg" alt="npm downloads" /></a>
+    <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-%3E%3D22-339933.svg" alt="Node.js 22 or newer" /></a>
+    <a href="./docs/compliance/mcp-2025-11-25.md"><img src="https://img.shields.io/badge/MCP-2025--11--25-6f42c1.svg" alt="MCP 2025-11-25" /></a>
+    <a href="https://github.com/oaslananka/infra-lens-mcp/pkgs/container/infra-lens-mcp"><img src="https://img.shields.io/badge/GHCR-signed%20multi--arch-2496ED.svg" alt="Signed multi-architecture GHCR image" /></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license" /></a>
+  </p>
+
+  <p>
+    <a href="./docs/README.md">Documentation</a> ·
+    <a href="./docs/usage.md">Usage</a> ·
+    <a href="./docs/architecture.md">Architecture</a> ·
+    <a href="./SECURITY.md">Security</a> ·
+    <a href="./docs/governance.md">Governance</a> ·
+    <a href="./ROADMAP.md">Roadmap</a> ·
+    <a href="./SUPPORT.md">Support</a> ·
+    <a href="https://github.com/oaslananka/infra-lens-mcp/releases">Releases</a>
+  </p>
+
+  <p>
+    <a href="https://www.buymeacoffee.com/oaslananka">
+      <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&amp;emoji=%E2%98%95&amp;slug=oaslananka&amp;button_colour=FFDD00&amp;font_colour=000000&amp;font_family=Arial&amp;outline_colour=000000&amp;coffee_colour=ffffff" alt="Buy me a coffee" />
+    </a>
+  </p>
+</div>
+
+`infra-lens-mcp` connects to Linux hosts over SSH, captures bounded live metrics, stores observations and approved baselines in local SQLite, explains anomalies, and produces review-first incident artifacts. The npm package and signed container are release-ready; public connector publication remains intentionally blocked until an external OAuth/HTTPS deployment is verified.
 
 ## Demo
 
 ![infra-lens-mcp demo](docs/demo.gif)
 
-See the [MCP 2025-11-25 compliance matrix](./docs/compliance/mcp-2025-11-25.md) for the current protocol support, delegated behavior, and open follow-up issues.
+See the [MCP 2025-11-25 compliance matrix](./docs/compliance/mcp-2025-11-25.md) for current protocol support, delegated behavior, and connector publication constraints.
 
 ## Tools
 
@@ -211,9 +241,7 @@ If a fixture is already running and you intentionally want to skip lifecycle man
 INFRA_LENS_E2E_SKIP_FIXTURE=1 pnpm run test:e2e:raw
 ```
 
-Generated API docs live in [docs/api](./docs/api/README.md). Reviewed incident examples live in [examples/incidents](./examples/incidents/README.md). Client setup recipes live in [docs/integrations/client-setup.md](./docs/integrations/client-setup.md), and SQLite backup, retention, pagination, and export procedures live in [docs/storage-lifecycle.md](./docs/storage-lifecycle.md).
-
-See [docs/testing.md](./docs/testing.md), [docs/security.md](./docs/security.md), the [threat model](./docs/security-threat-model.md), [docs/operations.md](./docs/operations.md), [docs/release.md](./docs/release.md), the [Node support policy](./docs/compatibility/node-support.md), and the [repository control baseline](./docs/governance/repository-controls.md) for the full operational workflow.
+Start with the [documentation index](./docs/README.md) for usage, client setup, operations, incident workflows, observability, storage, security, governance, testing, and release guidance. Generated API docs live in [docs/api](./docs/api/README.md), and reviewed incident examples live in [examples/incidents](./examples/incidents/README.md).
 
 ## Community
 
