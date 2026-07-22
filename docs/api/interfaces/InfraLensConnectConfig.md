@@ -6,7 +6,7 @@
 
 # Interface: InfraLensConnectConfig
 
-Defined in: [ssh.ts:50](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L50)
+Defined in: [ssh.ts:52](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L52)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [ssh.ts:50](https://github.com/oaslananka/infra-lens-mcp/blob/main/s
 
 > `optional` **hostVerifier?**: (`key`) => `boolean`
 
-Defined in: [ssh.ts:51](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L51)
+Defined in: [ssh.ts:53](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L53)
 
 #### Parameters
 

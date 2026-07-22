@@ -8,7 +8,7 @@
 
 > **createConnectConfig**(`connection`): [`InfraLensConnectConfig`](../interfaces/InfraLensConnectConfig.md)
 
-Defined in: [ssh.ts:415](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L415)
+Defined in: [ssh.ts:468](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L468)
 
 ## Parameters
 

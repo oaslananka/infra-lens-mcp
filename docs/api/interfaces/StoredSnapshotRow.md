@@ -6,7 +6,7 @@
 
 # Interface: StoredSnapshotRow
 
-Defined in: [types.ts:491](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L491)
+Defined in: [types.ts:515](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L515)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:491](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > `optional` **id?**: `number`
 
-Defined in: [types.ts:492](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L492)
+Defined in: [types.ts:516](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L516)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [types.ts:492](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **timestamp**: `number`
 
-Defined in: [types.ts:493](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L493)
+Defined in: [types.ts:517](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L517)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [types.ts:493](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **cpu\_percent**: `number`
 
-Defined in: [types.ts:494](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L494)
+Defined in: [types.ts:518](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L518)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [types.ts:494](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **memory\_percent**: `number`
 
-Defined in: [types.ts:495](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L495)
+Defined in: [types.ts:519](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L519)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [types.ts:495](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **load\_1**: `number`
 
-Defined in: [types.ts:496](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L496)
+Defined in: [types.ts:520](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L520)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [types.ts:496](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **raw\_json**: `string`
 
-Defined in: [types.ts:497](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L497)
+Defined in: [types.ts:521](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L521)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [types.ts:497](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **label**: `string`
 
-Defined in: [types.ts:498](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L498)
+Defined in: [types.ts:522](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L522)
 
 ***
 
@@ -70,4 +70,4 @@ Defined in: [types.ts:498](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **classification**: [`SnapshotClassification`](../type-aliases/SnapshotClassification.md)
 
-Defined in: [types.ts:499](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L499)
+Defined in: [types.ts:523](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L523)

@@ -8,4 +8,4 @@
 
 > `const` **GetHistorySchema**: `ZodObject`\<\{ `host`: `ZodString`; `metric`: `ZodDefault`\<`ZodEnum`\<\{ `cpu`: `"cpu"`; `memory`: `"memory"`; `load`: `"load"`; \}\>\>; `hours`: `ZodDefault`\<`ZodNumber`\>; `label`: `ZodOptional`\<`ZodString`\>; `limit`: `ZodOptional`\<`ZodNumber`\>; `cursor`: `ZodOptional`\<`ZodString`\>; \}, `$strip`\>
 
-Defined in: [types.ts:62](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L62)
+Defined in: [types.ts:68](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L68)

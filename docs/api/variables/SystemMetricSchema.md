@@ -8,4 +8,4 @@
 
 > `const` **SystemMetricSchema**: `ZodObject`\<\{ `failed_units`: `ZodNumber`; `kernel_error_events`: `ZodNumber`; `kernel_signal_available`: `ZodOptional`\<`ZodBoolean`\>; `kernel_window_minutes`: `ZodOptional`\<`ZodNumber`\>; \}, `$strip`\>
 
-Defined in: [types.ts:111](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L111)
+Defined in: [types.ts:117](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L117)

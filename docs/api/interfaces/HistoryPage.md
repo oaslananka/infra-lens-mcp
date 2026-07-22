@@ -6,7 +6,7 @@
 
 # Interface: HistoryPage
 
-Defined in: [types.ts:485](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L485)
+Defined in: [types.ts:509](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L509)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:485](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **items**: [`StoredSnapshotRow`](StoredSnapshotRow.md)[]
 
-Defined in: [types.ts:486](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L486)
+Defined in: [types.ts:510](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L510)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [types.ts:486](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **has\_more**: `boolean`
 
-Defined in: [types.ts:487](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L487)
+Defined in: [types.ts:511](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L511)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [types.ts:487](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **next\_cursor**: `string` \| `null`
 
-Defined in: [types.ts:488](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L488)
+Defined in: [types.ts:512](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L512)

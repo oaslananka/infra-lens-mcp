@@ -26,14 +26,15 @@ src/mcp.ts / src/server-http.ts
 
 ## Data flow
 
-1. The MCP client calls a tool such as `analyze_server`.
+1. The MCP client calls `analyze_server_snapshot` for an immediate pass or `analyze_server` for a bounded sampled window.
 2. `server-core.ts` validates input with Zod. In remote-safe profiles, raw SSH credential fields are omitted from the schema.
 3. `collector.ts` opens an SSH session through `ssh.ts`.
 4. `ssh.ts` verifies the remote host key by pinned SHA256 fingerprint or `known_hosts` before the connection is accepted.
 5. `collector.ts` gathers CPU from `/proc/stat` deltas, memory pressure from available memory, disk usage, optional network metrics, optional process metrics, and OS metadata.
 6. `analyzer.ts` loads only approved baseline samples and evaluates the current snapshot before it is persisted.
 7. `baseline.ts` stores the evaluated snapshot as an `observation`; only `record_baseline` writes `baseline` records. SSH credentials are never persisted.
-8. Tool responses are JSON text payloads returned through MCP.
+8. Sampled analysis reports token-bound MCP progress. Cancellation propagates through the sample delay and SSH lifecycle; only a completed analysis is persisted and returned.
+9. Tool responses are readable JSON text plus schema-validated `structuredContent`.
 
 ## Observability export flow
 

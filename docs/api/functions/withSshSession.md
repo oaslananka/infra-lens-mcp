@@ -6,9 +6,9 @@
 
 # Function: withSshSession()
 
-> **withSshSession**\<`T`\>(`connection`, `callback`, `clientFactory?`): `Promise`\<`T`\>
+> **withSshSession**\<`T`\>(`connection`, `callback`, `clientFactory?`, `signal?`): `Promise`\<`T`\>
 
-Defined in: [ssh.ts:448](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L448)
+Defined in: [ssh.ts:501](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L501)
 
 ## Type Parameters
 
@@ -59,6 +59,10 @@ Defined in: [ssh.ts:448](https://github.com/oaslananka/infra-lens-mcp/blob/main/
 ### clientFactory?
 
 () => [`SshClientLike`](../interfaces/SshClientLike.md)
+
+### signal?
+
+`AbortSignal`
 
 ## Returns
 

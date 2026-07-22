@@ -91,6 +91,12 @@ Do not update golden output merely to make a failing test pass; the pull request
 
 The focused suite runs in Quick Gates and the network/egress cases are also mapped into `test:abuse` and the executable threat model.
 
+## Analysis progress and cancellation contract
+
+`pnpm run test:analysis-lifecycle` verifies sample-by-sample progress, abort-aware interval cleanup, cancellation during SSH connection and command execution, fast snapshot analysis, MCP progress-token forwarding, and the no-partial-persistence invariant. The same regression file is included in `test:abuse` and ordinary unit tests in Quick Gates.
+
+Use fake timers only for the bounded inter-sample delay. SSH cancellation tests use injected clients and streams, so they never require production credentials or a reachable host.
+
 ## Docker-backed SSH e2e target
 
 Bring up the disposable SSH fixture:

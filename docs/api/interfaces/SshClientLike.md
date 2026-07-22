@@ -76,11 +76,55 @@ Defined in: [ssh.ts:45](https://github.com/oaslananka/infra-lens-mcp/blob/main/s
 
 ***
 
+### removeListener()
+
+#### Call Signature
+
+> **removeListener**(`event`, `listener`): `this`
+
+Defined in: [ssh.ts:46](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L46)
+
+##### Parameters
+
+###### event
+
+`"ready"`
+
+###### listener
+
+() => `void`
+
+##### Returns
+
+`this`
+
+#### Call Signature
+
+> **removeListener**(`event`, `listener`): `this`
+
+Defined in: [ssh.ts:47](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L47)
+
+##### Parameters
+
+###### event
+
+`"error"`
+
+###### listener
+
+(`error`) => `void`
+
+##### Returns
+
+`this`
+
+***
+
 ### connect()
 
 > **connect**(`config`): `void`
 
-Defined in: [ssh.ts:46](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L46)
+Defined in: [ssh.ts:48](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L48)
 
 #### Parameters
 
@@ -98,7 +142,7 @@ Defined in: [ssh.ts:46](https://github.com/oaslananka/infra-lens-mcp/blob/main/s
 
 > **end**(): `void`
 
-Defined in: [ssh.ts:47](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L47)
+Defined in: [ssh.ts:49](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/ssh.ts#L49)
 
 #### Returns
 

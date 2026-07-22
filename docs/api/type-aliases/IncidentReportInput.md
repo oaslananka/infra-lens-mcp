@@ -8,4 +8,4 @@
 
 > **IncidentReportInput** = `z.infer`\<*typeof* [`IncidentReportSchema`](../variables/IncidentReportSchema.md)\>
 
-Defined in: [types.ts:343](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L343)
+Defined in: [types.ts:352](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L352)

@@ -35,6 +35,23 @@ Use `inspect_host_capabilities` before onboarding a new host or minimal containe
 
 ## Analyze a server
 
+Use `analyze_server_snapshot` for a fast point-in-time analysis:
+
+```json
+{
+  "connection": {
+    "host": "app-01.internal",
+    "username": "ops",
+    "hostKeySha256": "SHA256:..."
+  },
+  "include_processes": true,
+  "include_network": true
+}
+```
+
+Use the backward-compatible `analyze_server` tool when a sampled window is required:
+
+
 ```json
 {
   "connection": {
@@ -50,11 +67,19 @@ Use `inspect_host_capabilities` before onboarding a new host or minimal containe
 
 `include_processes=false` skips process collection. `include_network=false` skips network collection. These flags prevent collection at the SSH command layer, not just response rendering.
 
+When the client includes `_meta.progressToken`, sampled analysis sends `notifications/progress` after every completed sample. A client cancellation aborts the next delay or active SSH operation, closes the SSH resources, and returns an MCP error result. Partial samples are discarded and never written to SQLite.
+
+### Transport timeout behavior
+
+- **stdio:** the server does not impose a wall-clock request timeout. Configure the MCP client timeout to exceed `duration_minutes`, and let the client send MCP cancellation when the user stops the request.
+- **Streamable HTTP:** `MCP_HTTP_REQUEST_TIMEOUT_MS`, reverse-proxy timeouts, and client timeouts must all exceed the sampled window plus SSH command overhead. The default 30-second HTTP timeout is intentionally suited to snapshot tools, not multi-minute sampling.
+- **SSH:** each remote command retains its bounded command timeout; MCP cancellation can close the stream and session earlier.
+
 ## Tool outputs
 
 Every tool returns a backward-compatible JSON text block and the same payload as MCP `structuredContent`. Each tool also declares an `outputSchema`, allowing MCP clients to validate and consume machine-readable fields directly. Collector-backed outputs include `warnings` when optional sections degrade gracefully.
 
-For example, `analyze_server` exposes typed fields such as `host`, `timestamp`, `collection_window_minutes`, `health_score`, `summary`, `anomalies`, and `metrics`. `get_history` exposes `data_points` and a `history` array of `{ timestamp, value }` points for charting or follow-up reasoning.
+For example, both analysis tools expose typed fields such as `host`, `timestamp`, `collection_mode`, `collection_window_minutes`, `samples_collected`, `health_score`, `summary`, `anomalies`, and `metrics`. `get_history` exposes `data_points` and a `history` array of `{ timestamp, value }` points for charting or follow-up reasoning.
 
 ## Record a baseline
 

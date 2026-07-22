@@ -8,4 +8,4 @@
 
 > `const` **MetricNameSchema**: `ZodEnum`\<\{ `cpu`: `"cpu"`; `memory`: `"memory"`; `load`: `"load"`; \}\>
 
-Defined in: [types.ts:60](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L60)
+Defined in: [types.ts:66](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L66)

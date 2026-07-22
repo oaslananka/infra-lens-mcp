@@ -8,4 +8,4 @@
 
 > **CompareIncidentWindowsInput** = `z.infer`\<*typeof* [`CompareIncidentWindowsSchema`](../variables/CompareIncidentWindowsSchema.md)\>
 
-Defined in: [types.ts:344](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L344)
+Defined in: [types.ts:353](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L353)

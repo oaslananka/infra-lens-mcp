@@ -8,4 +8,4 @@
 
 > `const` **DEFAULT\_THRESHOLDS**: [`AnalysisThresholds`](../interfaces/AnalysisThresholds.md)
 
-Defined in: [types.ts:366](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L366)
+Defined in: [types.ts:390](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L390)

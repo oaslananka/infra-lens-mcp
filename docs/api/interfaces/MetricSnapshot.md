@@ -6,7 +6,7 @@
 
 # Interface: MetricSnapshot
 
-Defined in: [types.ts:418](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L418)
+Defined in: [types.ts:442](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L442)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:418](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **timestamp**: `number`
 
-Defined in: [types.ts:419](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L419)
+Defined in: [types.ts:443](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L443)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [types.ts:419](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **host**: `string`
 
-Defined in: [types.ts:420](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L420)
+Defined in: [types.ts:444](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L444)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [types.ts:420](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **cpu**: `object`
 
-Defined in: [types.ts:421](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L421)
+Defined in: [types.ts:445](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L445)
 
 #### usage\_percent
 
@@ -58,7 +58,7 @@ Defined in: [types.ts:421](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **memory**: `object`
 
-Defined in: [types.ts:428](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L428)
+Defined in: [types.ts:452](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L452)
 
 #### total\_mb
 
@@ -90,7 +90,7 @@ Defined in: [types.ts:428](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **disk**: [`DiskMetric`](DiskMetric.md)[]
 
-Defined in: [types.ts:436](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L436)
+Defined in: [types.ts:460](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L460)
 
 ***
 
@@ -98,7 +98,7 @@ Defined in: [types.ts:436](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **network**: [`NetworkMetric`](NetworkMetric.md)[]
 
-Defined in: [types.ts:437](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L437)
+Defined in: [types.ts:461](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L461)
 
 ***
 
@@ -106,7 +106,7 @@ Defined in: [types.ts:437](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **system**: [`SystemMetric`](SystemMetric.md)
 
-Defined in: [types.ts:438](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L438)
+Defined in: [types.ts:462](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L462)
 
 ***
 
@@ -114,7 +114,7 @@ Defined in: [types.ts:438](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **processes**: [`ProcessMetric`](ProcessMetric.md)[]
 
-Defined in: [types.ts:439](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L439)
+Defined in: [types.ts:463](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L463)
 
 ***
 
@@ -122,7 +122,7 @@ Defined in: [types.ts:439](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **os**: `object`
 
-Defined in: [types.ts:440](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L440)
+Defined in: [types.ts:464](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L464)
 
 #### hostname
 
@@ -146,4 +146,4 @@ Defined in: [types.ts:440](https://github.com/oaslananka/infra-lens-mcp/blob/mai
 
 > **warnings**: `string`[]
 
-Defined in: [types.ts:446](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L446)
+Defined in: [types.ts:470](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L470)
