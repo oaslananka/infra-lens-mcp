@@ -11,6 +11,7 @@ import {
 } from '../../src/server-core.js';
 import type {
   AnalyzeInput,
+  AnalyzeSnapshotInput,
   BaselineInput,
   CompareIncidentWindowsInput,
   CompareInput,
@@ -72,7 +73,8 @@ describe('registerInfraLensTools', () => {
       'inspect_host_capabilities',
       'plan_remediation',
       'draft_incident_report',
-      'compare_incident_windows'
+      'compare_incident_windows',
+      'analyze_server_snapshot'
     ]);
 
     for (const definition of toolDefinitions) {
@@ -102,7 +104,8 @@ describe('registerInfraLensTools', () => {
       inspect_host_capabilities: true,
       plan_remediation: true,
       draft_incident_report: true,
-      compare_incident_windows: true
+      compare_incident_windows: true,
+      analyze_server_snapshot: false
     });
   });
 
@@ -121,6 +124,7 @@ describe('registerInfraLensTools', () => {
     (profile) => {
       const definitions = createToolDefinitions(undefined, { profile });
       const analyzeSchema = definitions[0].config.inputSchema as z.ZodType<unknown>;
+      const fastAnalyzeSchema = definitions.at(-1)!.config.inputSchema as z.ZodType<unknown>;
       const rawField = 'password';
 
       expect(() => {
@@ -132,6 +136,19 @@ describe('registerInfraLensTools', () => {
             [rawField]: 'sample'
           },
           duration_minutes: 1,
+          include_processes: true,
+          include_network: true
+        });
+      }).toThrow();
+
+      expect(() => {
+        fastAnalyzeSchema.parse({
+          connection: {
+            host: 'db.internal',
+            port: 22,
+            username: 'ops',
+            [rawField]: 'sample'
+          },
           include_processes: true,
           include_network: true
         });
@@ -432,6 +449,11 @@ describe('registerInfraLensTools', () => {
       recent_hours: 1,
       limit: 20
     } satisfies CompareIncidentWindowsInput);
+    const fastAnalyzeResult = await definitions[9].handler({
+      connection: { host: 'app-01.internal', port: 22, username: 'ops' },
+      include_processes: true,
+      include_network: true
+    } satisfies AnalyzeSnapshotInput);
 
     const results = [
       analyzeResult,
@@ -442,7 +464,8 @@ describe('registerInfraLensTools', () => {
       capabilitiesResult,
       remediationResult,
       reportResult,
-      windowComparisonResult
+      windowComparisonResult,
+      fastAnalyzeResult
     ];
 
     definitions.forEach((definition, index) => {
@@ -479,7 +502,7 @@ describe('registerInfraLensTools', () => {
       saveSnapshot: jest.fn(() => undefined)
     });
 
-    expect(server.registered).toHaveLength(9);
+    expect(server.registered).toHaveLength(10);
 
     await server.registered[0]!.handler({
       connection: { host: 'app-01.internal', port: 22, username: 'ops' },

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "modelVersion": "1.1.0",
-  "reviewedAt": "2026-07-21",
+  "modelVersion": "1.2.0",
+  "reviewedAt": "2026-07-22",
   "owners": ["maintainers"],
   "deploymentAssumptions": [
     "Public HTTP traffic terminates at an HTTPS and OAuth-aware gateway.",
@@ -301,6 +301,36 @@
         "test/unit/incidents.test.ts",
         "test/unit/mcp.test.ts",
         "test/integration/tool-flow.test.ts"
+      ]
+    },
+    {
+      "id": "TM-CANCELLATION-CLEANUP",
+      "title": "Cancelled sampled analysis leaves timers, SSH sessions, or partial observations behind",
+      "likelihood": "medium",
+      "impact": "high",
+      "risk": "high",
+      "owner": "maintainers",
+      "status": "mitigated",
+      "entryPoints": [
+        "MCP notifications/cancelled",
+        "request AbortSignal",
+        "sample interval timer",
+        "SSH connection and command stream"
+      ],
+      "mitigations": [
+        "MCP request AbortSignal propagated through tool, collector, delay, SSH connection, and command execution",
+        "abort-aware timers remove listeners and clear timeout handles on every exit path",
+        "SSH command streams and clients close on cancellation",
+        "per-host concurrency slots release in finally cleanup",
+        "cancelled and partial sampled runs are never persisted",
+        "progress notifications require a client-provided progress token and contain no raw metrics or credentials"
+      ],
+      "residualRisk": "Remote operating systems or network stacks may take a short bounded period to observe closed SSH channels; no partial observation is committed during that interval.",
+      "tests": [
+        "test/unit/progress-cancellation.test.ts",
+        "test/unit/ssh.test.ts",
+        "test/unit/collector.test.ts",
+        "test/unit/mcp.test.ts"
       ]
     }
   ]

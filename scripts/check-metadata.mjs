@@ -114,7 +114,12 @@ if (!existsSync(runtimeModulePath)) {
     );
   }
 
-  const persistenceTools = new Set(['analyze_server', 'snapshot', 'record_baseline']);
+  const persistenceTools = new Set([
+    'analyze_server',
+    'analyze_server_snapshot',
+    'snapshot',
+    'record_baseline'
+  ]);
   for (const definition of runtimeDefinitions) {
     if (persistenceTools.has(definition.name) && definition.config.annotations.readOnlyHint) {
       fail(`${definition.name} persists SQLite data and must not advertise readOnlyHint=true.`);
