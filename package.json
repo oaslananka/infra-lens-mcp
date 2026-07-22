@@ -92,7 +92,7 @@
     "check:audit": "node scripts/check-audit-policy.mjs",
     "sonar:secrets": "pre-commit run sonar-secrets --all-files --hook-stage manual",
     "check:threat-model": "node scripts/check-threat-model.mjs",
-    "test:abuse": "pnpm run check:threat-model && node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --runTestsByPath test/unit/http-security.test.ts test/unit/ssh.test.ts test/unit/logging.test.ts test/unit/mcp.test.ts test/unit/observability-metrics.test.ts test/unit/observability-server.test.ts test/unit/otlp-metrics.test.ts test/unit/observability-runtime.test.ts test/unit/incidents.test.ts",
+    "test:abuse": "pnpm run check:threat-model && node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --runTestsByPath test/unit/http-security.test.ts test/unit/ssh.test.ts test/unit/logging.test.ts test/unit/mcp.test.ts test/unit/observability-metrics.test.ts test/unit/observability-server.test.ts test/unit/otlp-metrics.test.ts test/unit/observability-runtime.test.ts test/unit/incidents.test.ts test/unit/progress-cancellation.test.ts",
     "golden:update": "pnpm run build && node scripts/update-golden-incidents.mjs",
     "check:golden": "pnpm run build && node scripts/check-golden-incidents.mjs",
     "check:codecov": "node scripts/check-codecov-config.mjs",
@@ -101,7 +101,8 @@
     "workflow:check": "pnpm run workflow:lint && pnpm run workflow:security",
     "check:container-release": "node scripts/check-container-release.mjs",
     "check:osv": "node scripts/check-osv-config.mjs",
-    "test:incidents": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --runTestsByPath test/unit/incidents.test.ts test/unit/baseline.test.ts test/unit/mcp.test.ts test/integration/tool-flow.test.ts"
+    "test:incidents": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --runTestsByPath test/unit/incidents.test.ts test/unit/baseline.test.ts test/unit/mcp.test.ts test/integration/tool-flow.test.ts",
+    "test:analysis-lifecycle": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --runTestsByPath test/unit/progress-cancellation.test.ts test/unit/collector.test.ts test/unit/ssh.test.ts test/unit/mcp.test.ts"
   },
   "engines": {
     "node": ">=22"

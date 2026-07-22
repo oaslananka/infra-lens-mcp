@@ -6,9 +6,9 @@
 
 # Function: collectSnapshot()
 
-> **collectSnapshot**(`connection`, `runner?`, `options?`): `Promise`\<[`MetricSnapshot`](../interfaces/MetricSnapshot.md)\>
+> **collectSnapshot**(`connection`, `runner?`, `options?`, `signal?`): `Promise`\<[`MetricSnapshot`](../interfaces/MetricSnapshot.md)\>
 
-Defined in: [collector.ts:398](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/collector.ts#L398)
+Defined in: [collector.ts:440](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/collector.ts#L440)
 
 ## Parameters
 
@@ -53,6 +53,10 @@ Defined in: [collector.ts:398](https://github.com/oaslananka/infra-lens-mcp/blob
 ### options?
 
 [`CollectionOptions`](../interfaces/CollectionOptions.md) = `DEFAULT_COLLECTION_OPTIONS`
+
+### signal?
+
+`AbortSignal`
 
 ## Returns
 

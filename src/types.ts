@@ -23,6 +23,12 @@ export const SafeConnectionSchema = ConnectionSchema.omit({
   passphrase: true
 }).strict();
 
+export const AnalyzeSnapshotSchema = z.object({
+  connection: ConnectionSchema,
+  include_processes: z.boolean().default(true).describe('Include top process analysis'),
+  include_network: z.boolean().default(true).describe('Include network metrics')
+});
+
 export const AnalyzeSchema = z.object({
   connection: ConnectionSchema,
   duration_minutes: z
@@ -167,7 +173,9 @@ export const HostCapabilitySchema = z.object({
 export const AnalyzeOutputSchema = z.object({
   host: z.string(),
   timestamp: z.string(),
-  collection_window_minutes: z.number().int().min(1),
+  collection_mode: z.enum(['snapshot', 'sampled']),
+  collection_window_minutes: z.number().min(0),
+  samples_collected: z.number().int().min(1),
   health_score: z.number().min(0).max(100),
   summary: z.string(),
   anomalies: z.array(AnomalySchema),
@@ -334,6 +342,7 @@ export const IncidentReportOutputSchema = z.object({
 
 export type ConnectionInput = z.infer<typeof ConnectionSchema>;
 export type AnalyzeInput = z.infer<typeof AnalyzeSchema>;
+export type AnalyzeSnapshotInput = z.infer<typeof AnalyzeSnapshotSchema>;
 export type SnapshotInput = z.infer<typeof SnapshotSchema>;
 export type CapabilityInput = z.infer<typeof CapabilitySchema>;
 export type BaselineInput = z.infer<typeof BaselineSchema>;
@@ -349,6 +358,21 @@ export type RuntimeProfile = 'full' | 'remote-safe' | 'chatgpt' | 'claude';
 export interface CollectionOptions {
   includeProcesses: boolean;
   includeNetwork: boolean;
+}
+
+/** Progress emitted after one sampled collection completes. */
+export interface SamplingProgress {
+  completedSamples: number;
+  totalSamples: number;
+  progress: number;
+  total: number;
+  message: string;
+}
+
+/** Optional lifecycle controls for a sampled collection. */
+export interface SamplingControl {
+  signal?: AbortSignal;
+  onProgress?: (progress: SamplingProgress) => void | Promise<void>;
 }
 
 export interface AnalysisThresholds {

@@ -8,4 +8,4 @@
 
 > `const` **CapabilitySchema**: `ZodObject`\<\{ `connection`: `ZodObject`\<\{ `host`: `ZodString`; `port`: `ZodDefault`\<`ZodNumber`\>; `username`: `ZodString`; `password`: `ZodOptional`\<`ZodString`\>; `privateKey`: `ZodOptional`\<`ZodString`\>; `passphrase`: `ZodOptional`\<`ZodString`\>; `hostKeySha256`: `ZodOptional`\<`ZodString`\>; `knownHostsPath`: `ZodOptional`\<`ZodString`\>; \}, `$strip`\>; \}, `$strip`\>
 
-Defined in: [types.ts:43](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L43)
+Defined in: [types.ts:49](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L49)

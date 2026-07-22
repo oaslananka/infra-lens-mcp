@@ -124,6 +124,12 @@ Audit response targets are:
 
 Development-only findings use the same triage targets. A longer acceptance requires documented non-exploitability, an owner, and an expiry date; findings must not remain indefinitely below the blocking threshold without review.
 
+## Long-running analysis cancellation
+
+Sampled analysis accepts the MCP request `AbortSignal` and propagates it through interval waits, SSH connection setup, and SSH command streams. Cancellation closes active streams and clients, releases per-host concurrency slots, clears timers/listeners, and prevents partial observations from being persisted. Progress messages contain only sample counts and never include connection inputs, commands, raw metrics, or error output.
+
+For HTTP deployments, configure `MCP_HTTP_REQUEST_TIMEOUT_MS` and upstream proxy/client timeouts longer than the intended sampling window. Prefer `analyze_server_snapshot` when an interactive client cannot maintain a multi-minute request.
+
 ## Local and CI static analysis
 
 `.pre-commit-config.yaml` runs repository hygiene, staged Prettier/ESLint checks, TypeScript typechecking, and deterministic local Semgrep rules. The pre-push stage runs coverage, build, metadata, Renovate/override governance, and Semgrep. `.mise.toml` pins Node, pnpm, pre-commit, and SonarQube CLI; `pnpm run hooks:install` installs both hook types.

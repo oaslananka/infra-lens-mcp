@@ -8,6 +8,7 @@ import type {
   MetricSnapshot,
   NetworkMetric,
   ProcessMetric,
+  SamplingControl,
   SystemMetric
 } from './types.js';
 
@@ -43,7 +44,11 @@ export interface CollectionCommandPlanItem {
 
 /** Pluggable collector runner used by tests and SSH-backed collection. */
 export interface CollectorRunner {
-  run(connection: ConnectionInput, options: CollectionOptions): Promise<RawMetricOutput>;
+  run(
+    connection: ConnectionInput,
+    options: CollectionOptions,
+    signal?: AbortSignal
+  ): Promise<RawMetricOutput>;
   inspectCapabilities?(connection: ConnectionInput): Promise<HostCapability[]>;
 }
 
@@ -167,8 +172,17 @@ export async function inspectCapabilitiesFromSession(
 }
 
 class SshCollectorRunner implements CollectorRunner {
-  async run(connection: ConnectionInput, options: CollectionOptions): Promise<RawMetricOutput> {
-    return withSshSession(connection, (session) => collectRawMetricsFromSession(session, options));
+  async run(
+    connection: ConnectionInput,
+    options: CollectionOptions,
+    signal?: AbortSignal
+  ): Promise<RawMetricOutput> {
+    return withSshSession(
+      connection,
+      (session) => collectRawMetricsFromSession(session, options),
+      undefined,
+      signal
+    );
   }
 
   async inspectCapabilities(connection: ConnectionInput): Promise<HostCapability[]> {
@@ -215,6 +229,34 @@ function averageSnapshots(
 function roundTo(value: number, decimalPlaces = 1): number {
   const factor = 10 ** decimalPlaces;
   return Math.round(value * factor) / factor;
+}
+
+function createAbortError(): Error {
+  return Object.assign(new Error('Collection cancelled.'), { name: 'AbortError' });
+}
+
+function throwIfAborted(signal: AbortSignal | undefined): void {
+  if (signal?.aborted) {
+    throw createAbortError();
+  }
+}
+
+function waitForDelay(delayMs: number, signal: AbortSignal | undefined): Promise<void> {
+  throwIfAborted(signal);
+
+  return new Promise<void>((resolve, reject) => {
+    let settled = false;
+    const finish = (callback: () => void) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
+      callback();
+    };
+    const onAbort = () => finish(() => reject(createAbortError()));
+    const timer = setTimeout(() => finish(resolve), delayMs);
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
 }
 
 function splitFields(line: string): string[] {
@@ -398,9 +440,14 @@ export async function inspectHostCapabilities(
 export async function collectSnapshot(
   connection: ConnectionInput,
   runner: CollectorRunner = new SshCollectorRunner(),
-  options: CollectionOptions = DEFAULT_COLLECTION_OPTIONS
+  options: CollectionOptions = DEFAULT_COLLECTION_OPTIONS,
+  signal?: AbortSignal
 ): Promise<MetricSnapshot> {
-  const raw = await runner.run(connection, options);
+  throwIfAborted(signal);
+  const raw = signal
+    ? await runner.run(connection, options, signal)
+    : await runner.run(connection, options);
+  throwIfAborted(signal);
   const cpu = parseCpuUsage(raw.cpu);
   const memoryLines = raw.memory.split('\n').filter(Boolean);
   const memoryParts = splitFields(memoryLines[0] ?? '');
@@ -469,18 +516,28 @@ export async function collectSampledSnapshot(
   durationMinutes: number,
   intervalSeconds = 30,
   runner: CollectorRunner = new SshCollectorRunner(),
-  options: CollectionOptions = DEFAULT_COLLECTION_OPTIONS
+  options: CollectionOptions = DEFAULT_COLLECTION_OPTIONS,
+  control: SamplingControl = {}
 ): Promise<MetricSnapshot> {
   const totalSamples = Math.max(1, Math.floor((durationMinutes * 60) / intervalSeconds));
   const snapshots: MetricSnapshot[] = [];
 
   for (let index = 0; index < totalSamples; index += 1) {
-    snapshots.push(await collectSnapshot(connection, runner, options));
+    throwIfAborted(control.signal);
+    snapshots.push(await collectSnapshot(connection, runner, options, control.signal));
+
+    const completedSamples = index + 1;
+    await control.onProgress?.({
+      completedSamples,
+      totalSamples,
+      progress: completedSamples,
+      total: totalSamples,
+      message: `Collected sample ${completedSamples} of ${totalSamples}.`
+    });
+    throwIfAborted(control.signal);
 
     if (index < totalSamples - 1) {
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, intervalSeconds * 1000);
-      });
+      await waitForDelay(intervalSeconds * 1000, control.signal);
     }
   }
 

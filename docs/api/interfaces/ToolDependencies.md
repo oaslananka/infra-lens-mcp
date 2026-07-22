@@ -6,7 +6,7 @@
 
 # Interface: ToolDependencies
 
-Defined in: [server-core.ts:97](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L97)
+Defined in: [server-core.ts:113](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L113)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [server-core.ts:97](https://github.com/oaslananka/infra-lens-mcp/blo
 
 > **analyzeSnapshot**: (`snapshot`, `baselineLabel`, `thresholds`) => `object`
 
-Defined in: [server-core.ts:98](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L98)
+Defined in: [server-core.ts:114](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L114)
 
 #### Parameters
 
@@ -50,9 +50,9 @@ Defined in: [server-core.ts:98](https://github.com/oaslananka/infra-lens-mcp/blo
 
 ### collectSampledSnapshot
 
-> **collectSampledSnapshot**: (`connection`, `durationMinutes`, `intervalSeconds`, `runner`, `options`) => `Promise`\<[`MetricSnapshot`](MetricSnapshot.md)\>
+> **collectSampledSnapshot**: (`connection`, `durationMinutes`, `intervalSeconds`, `runner`, `options`, `control`) => `Promise`\<[`MetricSnapshot`](MetricSnapshot.md)\>
 
-Defined in: [server-core.ts:99](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L99)
+Defined in: [server-core.ts:115](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L115)
 
 #### Parameters
 
@@ -106,6 +106,10 @@ Defined in: [server-core.ts:99](https://github.com/oaslananka/infra-lens-mcp/blo
 
 [`CollectionOptions`](CollectionOptions.md) = `DEFAULT_COLLECTION_OPTIONS`
 
+##### control?
+
+[`SamplingControl`](SamplingControl.md) = `{}`
+
 #### Returns
 
 `Promise`\<[`MetricSnapshot`](MetricSnapshot.md)\>
@@ -114,9 +118,9 @@ Defined in: [server-core.ts:99](https://github.com/oaslananka/infra-lens-mcp/blo
 
 ### collectSnapshot
 
-> **collectSnapshot**: (`connection`, `runner`, `options`) => `Promise`\<[`MetricSnapshot`](MetricSnapshot.md)\>
+> **collectSnapshot**: (`connection`, `runner`, `options`, `signal?`) => `Promise`\<[`MetricSnapshot`](MetricSnapshot.md)\>
 
-Defined in: [server-core.ts:100](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L100)
+Defined in: [server-core.ts:116](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L116)
 
 #### Parameters
 
@@ -162,6 +166,10 @@ Defined in: [server-core.ts:100](https://github.com/oaslananka/infra-lens-mcp/bl
 
 [`CollectionOptions`](CollectionOptions.md) = `DEFAULT_COLLECTION_OPTIONS`
 
+##### signal?
+
+`AbortSignal`
+
 #### Returns
 
 `Promise`\<[`MetricSnapshot`](MetricSnapshot.md)\>
@@ -172,7 +180,7 @@ Defined in: [server-core.ts:100](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > **inspectHostCapabilities**: (`connection`, `runner`) => `Promise`\<\{ `capabilities`: [`HostCapability`](HostCapability.md)[]; `warnings`: `string`[]; \}\>
 
-Defined in: [server-core.ts:101](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L101)
+Defined in: [server-core.ts:117](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L117)
 
 #### Parameters
 
@@ -224,7 +232,7 @@ Defined in: [server-core.ts:101](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > **getBaseline**: (`host`, `label`) => \{ `cpu_samples`: `number`[]; `memory_mean`: `number`; `load_mean`: `number`; `sample_count`: `number`; \} \| `null`
 
-Defined in: [server-core.ts:102](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L102)
+Defined in: [server-core.ts:118](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L118)
 
 #### Parameters
 
@@ -246,7 +254,7 @@ Defined in: [server-core.ts:102](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > **getHistory**: (`host`, `_metric`, `hours`, `label?`) => [`StoredSnapshotRow`](StoredSnapshotRow.md)[]
 
-Defined in: [server-core.ts:103](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L103)
+Defined in: [server-core.ts:119](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L119)
 
 #### Parameters
 
@@ -276,7 +284,7 @@ Defined in: [server-core.ts:103](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > `optional` **getHistoryPage?**: (`options`) => [`HistoryPage`](HistoryPage.md)
 
-Defined in: [server-core.ts:104](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L104)
+Defined in: [server-core.ts:120](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L120)
 
 #### Parameters
 
@@ -294,7 +302,7 @@ Defined in: [server-core.ts:104](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > `optional` **getObservationWindow?**: (`options`) => [`ObservationWindow`](ObservationWindow.md)
 
-Defined in: [server-core.ts:105](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L105)
+Defined in: [server-core.ts:121](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L121)
 
 #### Parameters
 
@@ -312,7 +320,7 @@ Defined in: [server-core.ts:105](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > `optional` **buildIncidentReportDraft?**: (`options`) => [`IncidentReportDraft`](IncidentReportDraft.md)
 
-Defined in: [server-core.ts:106](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L106)
+Defined in: [server-core.ts:122](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L122)
 
 #### Parameters
 
@@ -330,7 +338,7 @@ Defined in: [server-core.ts:106](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > `optional` **buildRemediationPlan?**: (`snapshot`, `analysis`, `now`) => [`RemediationPlan`](RemediationPlan.md)
 
-Defined in: [server-core.ts:107](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L107)
+Defined in: [server-core.ts:123](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L123)
 
 #### Parameters
 
@@ -356,7 +364,7 @@ Defined in: [server-core.ts:107](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > `optional` **compareIncidentWindows?**: (`leftLabel`, `left`, `rightLabel`, `right`) => [`IncidentWindowComparison`](IncidentWindowComparison.md)
 
-Defined in: [server-core.ts:108](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L108)
+Defined in: [server-core.ts:124](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L124)
 
 #### Parameters
 
@@ -386,7 +394,7 @@ Defined in: [server-core.ts:108](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > `optional` **summarizeIncidentWindow?**: (`snapshots`) => [`IncidentWindowSummary`](IncidentWindowSummary.md)
 
-Defined in: [server-core.ts:109](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L109)
+Defined in: [server-core.ts:125](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L125)
 
 #### Parameters
 
@@ -404,7 +412,7 @@ Defined in: [server-core.ts:109](https://github.com/oaslananka/infra-lens-mcp/bl
 
 > **saveSnapshot**: (`snapshot`, `label`, `classification`) => `void`
 
-Defined in: [server-core.ts:110](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L110)
+Defined in: [server-core.ts:126](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/server-core.ts#L126)
 
 #### Parameters
 

@@ -1,6 +1,6 @@
-# Security threat model v1.0.0
+# Security threat model v1.2.0
 
-Reviewed on 2026-07-20. The machine-readable register is [`security/threat-model.json`](../security/threat-model.json), validated by `pnpm run check:threat-model`.
+Reviewed on 2026-07-22. The machine-readable register is [`security/threat-model.json`](../security/threat-model.json), validated by `pnpm run check:threat-model`.
 
 ## Scope and actors
 
@@ -51,6 +51,7 @@ The suite validates the threat register and executes the HTTP, SSH, logging, and
 | Bearer and gateway authentication | `test/unit/http-security.test.ts` |
 | Body size, sanitized errors, rate and concurrency limits | `test/unit/http-security.test.ts` |
 | SSH host/user/port policy and attempt/session limits | `test/unit/ssh.test.ts` |
+| Sample progress, cancellation, timer cleanup, SSH closure, and no partial persistence | `test/unit/progress-cancellation.test.ts`, `test/unit/collector.test.ts`, `test/unit/ssh.test.ts`, `test/unit/mcp.test.ts` |
 | Host-key pinning and known-host verification | `test/unit/ssh.test.ts`, `test/e2e/ssh-fixture.test.ts` |
 | Secret and token redaction | `test/unit/logging.test.ts` |
 | Remote-safe profiles and connector-readiness contract | `test/unit/mcp.test.ts`, `scripts/check-threat-model.mjs` |

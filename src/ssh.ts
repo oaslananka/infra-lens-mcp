@@ -43,6 +43,8 @@ export interface SshClientLike {
   ): void;
   once(event: 'ready', listener: () => void): this;
   once(event: 'error', listener: (error: Error) => void): this;
+  removeListener(event: 'ready', listener: () => void): this;
+  removeListener(event: 'error', listener: (error: Error) => void): this;
   connect(config: ConnectConfig): void;
   end(): void;
 }
@@ -57,22 +59,76 @@ interface KnownHostEntry {
   key: Buffer;
 }
 
+function createAbortError(): Error {
+  return Object.assign(new Error('SSH operation cancelled.'), { name: 'AbortError' });
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === 'AbortError';
+}
+
+function throwIfAborted(signal: AbortSignal | undefined): void {
+  if (signal?.aborted) {
+    throw createAbortError();
+  }
+}
+
 class Ssh2Session implements SshSession {
-  constructor(private readonly client: SshClientLike) {}
+  constructor(
+    private readonly client: SshClientLike,
+    private readonly signal?: AbortSignal
+  ) {}
 
   exec(command: string, timeoutMs = 10_000): Promise<CommandResult> {
+    throwIfAborted(this.signal);
+
     return new Promise((resolve, reject) => {
-      this.client.exec(command, (error, stream) => {
+      let stdout = '';
+      let stderr = '';
+      let settled = false;
+      let stream: SshExecStreamLike | undefined;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const cleanup = () => {
+        if (timer) clearTimeout(timer);
+        this.signal?.removeEventListener('abort', onAbort);
+      };
+      const finishResolve = (result: CommandResult) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        resolve(result);
+      };
+      const finishReject = (streamError: Error) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        reject(streamError);
+      };
+      const onAbort = () => {
+        stream?.close();
+        this.client.end();
+        finishReject(createAbortError());
+      };
+
+      this.signal?.addEventListener('abort', onAbort, { once: true });
+      this.client.exec(command, (error, openedStream) => {
+        if (settled) {
+          openedStream?.close();
+          return;
+        }
         if (error) {
-          reject(error);
+          finishReject(error);
           return;
         }
 
-        let stdout = '';
-        let stderr = '';
-        const timer = setTimeout(() => {
-          stream.close();
-          reject(new Error(`SSH command timed out after ${timeoutMs}ms`));
+        stream = openedStream;
+        if (this.signal?.aborted) {
+          onAbort();
+          return;
+        }
+        timer = setTimeout(() => {
+          stream?.close();
+          finishReject(new Error(`SSH command timed out after ${timeoutMs}ms`));
         }, timeoutMs);
 
         stream.on('data', (chunk: Buffer) => {
@@ -82,18 +138,15 @@ class Ssh2Session implements SshSession {
           stderr += chunk.toString('utf8');
         });
         stream.on('close', (code?: number) => {
-          clearTimeout(timer);
-          resolve({
+          finishResolve({
             stdout: stdout.trim(),
             stderr: stderr.trim(),
             code: code ?? 0
           });
         });
-        stream.on('error', (streamError: Error) => {
-          clearTimeout(timer);
-          reject(streamError);
-        });
+        stream.on('error', finishReject);
       });
+      if (this.signal?.aborted) onAbort();
     });
   }
 
@@ -448,10 +501,11 @@ export function resetSshWarningStateForTests(): void {
 export async function withSshSession<T>(
   connection: ConnectionInput,
   callback: (session: SshSession) => Promise<T>,
-  clientFactory: () => SshClientLike = () => new Client()
+  clientFactory: () => SshClientLike = () => new Client(),
+  signal?: AbortSignal
 ): Promise<T> {
   const client = clientFactory();
-  const session = new Ssh2Session(client);
+  const session = new Ssh2Session(client, signal);
   const config = createConnectConfig(connection);
   assertConnectionAttemptAllowed(connection);
   const acquiredConcurrencySlot = acquireHostConcurrencySlot(connection);
@@ -460,18 +514,49 @@ export async function withSshSession<T>(
   }
 
   try {
+    throwIfAborted(signal);
     await new Promise<void>((resolve, reject) => {
-      client.once('ready', () => resolve());
-      client.once('error', reject);
+      let settled = false;
+      const onReady = () => finishResolve();
+      const onError = (error: Error) => finishReject(error);
+      const cleanup = () => {
+        signal?.removeEventListener('abort', onAbort);
+        client.removeListener('ready', onReady);
+        client.removeListener('error', onError);
+      };
+      const finishResolve = () => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        resolve();
+      };
+      const finishReject = (error: Error) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        reject(error);
+      };
+      const onAbort = () => {
+        client.end();
+        finishReject(createAbortError());
+      };
+
+      signal?.addEventListener('abort', onAbort, { once: true });
+      client.once('ready', onReady);
+      client.once('error', onError);
       client.connect(config);
+      if (signal?.aborted) onAbort();
     });
 
+    throwIfAborted(signal);
     return await callback(session);
   } catch (error) {
-    logger.error('SSH command execution failed', {
-      host: connection.host,
-      error: error instanceof Error ? error.message : String(error)
-    });
+    if (!isAbortError(error)) {
+      logger.error('SSH command execution failed', {
+        host: connection.host,
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
     throw error;
   } finally {
     releaseHostConcurrencySlot(connection);

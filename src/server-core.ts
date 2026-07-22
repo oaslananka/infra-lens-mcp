@@ -1,5 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { AnySchema } from '@modelcontextprotocol/sdk/server/zod-compat.js';
+import type { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
+import type { ServerNotification, ServerRequest } from '@modelcontextprotocol/sdk/types.js';
 
 import { analyzeSnapshot } from './analyzer.js';
 import {
@@ -19,6 +21,7 @@ import {
 import {
   AnalyzeOutputSchema,
   AnalyzeSchema,
+  AnalyzeSnapshotSchema,
   BaselineOutputSchema,
   BaselineSchema,
   CapabilitySchema,
@@ -37,6 +40,7 @@ import {
   SnapshotOutputSchema,
   SnapshotSchema,
   type AnalyzeInput,
+  type AnalyzeSnapshotInput,
   type BaselineInput,
   type CapabilityInput,
   type CompareIncidentWindowsInput,
@@ -45,6 +49,7 @@ import {
   type IncidentReportInput,
   type RemediationPlanInput,
   type RuntimeProfile,
+  type SamplingProgress,
   type SnapshotInput
 } from './types.js';
 
@@ -52,10 +57,20 @@ import {
 export type ToolContent = {
   content: Array<{ type: 'text'; text: string }>;
   structuredContent?: Record<string, unknown>;
+  isError?: boolean;
 };
 
+/** Transport-neutral lifecycle context for one tool request. */
+export interface ToolRequestContext {
+  signal?: AbortSignal;
+  reportProgress?: (progress: SamplingProgress) => void | Promise<void>;
+}
+
 /** Async handler invoked for a registered MCP tool. */
-export type ToolHandler<Input> = (input: Input) => Promise<ToolContent>;
+export type ToolHandler<Input> = (
+  input: Input,
+  context?: ToolRequestContext
+) => Promise<ToolContent>;
 
 /** MCP tool registration metadata and input schema. */
 export type ToolConfig = {
@@ -87,7 +102,8 @@ export type ToolDefinitionTuple = [
   ToolDefinition<CapabilityInput>,
   ToolDefinition<RemediationPlanInput>,
   ToolDefinition<IncidentReportInput>,
-  ToolDefinition<CompareIncidentWindowsInput>
+  ToolDefinition<CompareIncidentWindowsInput>,
+  ToolDefinition<AnalyzeSnapshotInput>
 ];
 
 export interface ToolRegistrar {
@@ -142,6 +158,52 @@ function structuredResult<T extends object>(payload: T): ToolContent {
   };
 }
 
+function errorResult(message: string): ToolContent {
+  return {
+    content: [{ type: 'text', text: message }],
+    isError: true
+  };
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === 'AbortError';
+}
+
+function throwIfAborted(signal: AbortSignal | undefined): void {
+  if (signal?.aborted) {
+    throw Object.assign(new Error('Analysis cancelled.'), { name: 'AbortError' });
+  }
+}
+
+function analysisResult(
+  snapshot: Awaited<ReturnType<typeof collectSnapshot>>,
+  analysis: ReturnType<typeof analyzeSnapshot>,
+  input: { include_processes: boolean; include_network: boolean },
+  collectionMode: 'snapshot' | 'sampled',
+  collectionWindowMinutes: number,
+  samplesCollected: number
+): ToolContent {
+  return structuredResult({
+    host: snapshot.host,
+    timestamp: new Date(snapshot.timestamp).toISOString(),
+    collection_mode: collectionMode,
+    collection_window_minutes: collectionWindowMinutes,
+    samples_collected: samplesCollected,
+    health_score: analysis.health_score,
+    summary: analysis.summary,
+    anomalies: analysis.anomalies,
+    metrics: {
+      cpu: snapshot.cpu,
+      memory: snapshot.memory,
+      disk: snapshot.disk,
+      top_processes: input.include_processes ? snapshot.processes.slice(0, 5) : [],
+      network: input.include_network ? snapshot.network : [],
+      system: snapshot.system
+    },
+    warnings: snapshot.warnings
+  });
+}
+
 function buildHistory(input: GetHistoryInput, dependencies: ToolDependencies) {
   const page = dependencies.getHistoryPage
     ? dependencies.getHistoryPage({
@@ -192,6 +254,7 @@ function createSchemas(profile: RuntimeProfile) {
   if (!connectionSchema) {
     return {
       analyze: AnalyzeSchema,
+      analyzeSnapshot: AnalyzeSnapshotSchema,
       snapshot: SnapshotSchema,
       baseline: BaselineSchema,
       compare: CompareSchema,
@@ -202,6 +265,7 @@ function createSchemas(profile: RuntimeProfile) {
 
   return {
     analyze: AnalyzeSchema.extend({ connection: connectionSchema }),
+    analyzeSnapshot: AnalyzeSnapshotSchema.extend({ connection: connectionSchema }),
     snapshot: SnapshotSchema.extend({ connection: connectionSchema }),
     baseline: BaselineSchema.extend({ connection: connectionSchema }),
     compare: CompareSchema.extend({ connection: connectionSchema }),
@@ -227,37 +291,52 @@ export function createToolDefinitions(
         outputSchema: AnalyzeOutputSchema,
         annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true }
       },
-      handler: async (input) => {
+      handler: async (input, context) => {
         const collectionOptions = {
           includeProcesses: input.include_processes,
           includeNetwork: input.include_network
         };
-        const snapshot = await dependencies.collectSampledSnapshot(
-          input.connection,
-          input.duration_minutes,
-          30,
-          undefined,
-          collectionOptions
-        );
-        const analysis = dependencies.analyzeSnapshot(snapshot);
-        dependencies.saveSnapshot(snapshot, 'default', 'observation');
-        return structuredResult({
-          host: snapshot.host,
-          timestamp: new Date(snapshot.timestamp).toISOString(),
-          collection_window_minutes: input.duration_minutes,
-          health_score: analysis.health_score,
-          summary: analysis.summary,
-          anomalies: analysis.anomalies,
-          metrics: {
-            cpu: snapshot.cpu,
-            memory: snapshot.memory,
-            disk: snapshot.disk,
-            top_processes: input.include_processes ? snapshot.processes.slice(0, 5) : [],
-            network: input.include_network ? snapshot.network : [],
-            system: snapshot.system
-          },
-          warnings: snapshot.warnings
-        });
+
+        try {
+          const control =
+            context?.signal || context?.reportProgress
+              ? { signal: context.signal, onProgress: context.reportProgress }
+              : undefined;
+          const snapshot = control
+            ? await dependencies.collectSampledSnapshot(
+                input.connection,
+                input.duration_minutes,
+                30,
+                undefined,
+                collectionOptions,
+                control
+              )
+            : await dependencies.collectSampledSnapshot(
+                input.connection,
+                input.duration_minutes,
+                30,
+                undefined,
+                collectionOptions
+              );
+          throwIfAborted(context?.signal);
+          const analysis = dependencies.analyzeSnapshot(snapshot);
+          throwIfAborted(context?.signal);
+          dependencies.saveSnapshot(snapshot, 'default', 'observation');
+          const samplesCollected = Math.max(1, Math.floor((input.duration_minutes * 60) / 30));
+          return analysisResult(
+            snapshot,
+            analysis,
+            input,
+            'sampled',
+            input.duration_minutes,
+            samplesCollected
+          );
+        } catch (error) {
+          if (isAbortError(error)) {
+            return errorResult('Sampled analysis was cancelled before completion.');
+          }
+          throw error;
+        }
       }
     },
     {
@@ -469,6 +548,42 @@ export function createToolDefinitions(
           right_invalid_rows: right.invalidRows
         });
       }
+    },
+    {
+      name: 'analyze_server_snapshot',
+      config: {
+        title: 'Analyze Current Server Snapshot',
+        description:
+          'Collect one immediate server snapshot, analyze it, and persist the completed observation without a sampling delay',
+        inputSchema: schemas.analyzeSnapshot,
+        outputSchema: AnalyzeOutputSchema,
+        annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true }
+      },
+      handler: async (input, context) => {
+        const collectionOptions = {
+          includeProcesses: input.include_processes,
+          includeNetwork: input.include_network
+        };
+
+        try {
+          const snapshot = await dependencies.collectSnapshot(
+            input.connection,
+            undefined,
+            collectionOptions,
+            context?.signal
+          );
+          throwIfAborted(context?.signal);
+          const analysis = dependencies.analyzeSnapshot(snapshot);
+          throwIfAborted(context?.signal);
+          dependencies.saveSnapshot(snapshot, 'default', 'observation');
+          return analysisResult(snapshot, analysis, input, 'snapshot', 0, 1);
+        } catch (error) {
+          if (isAbortError(error)) {
+            return errorResult('Snapshot analysis was cancelled before completion.');
+          }
+          throw error;
+        }
+      }
     }
   ];
 }
@@ -497,7 +612,31 @@ export function registerToolsOnServer(
   registerInfraLensTools(
     {
       registerTool(name, config, handler) {
-        server.registerTool(name, config, (input: unknown) => handler(input as never));
+        server.registerTool(
+          name,
+          config,
+          (input: unknown, extra?: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
+            if (!extra) return handler(input as never);
+            const progressToken = extra._meta?.progressToken;
+            return handler(input as never, {
+              signal: extra.signal,
+              ...(progressToken === undefined
+                ? {}
+                : {
+                    reportProgress: (progress: SamplingProgress) =>
+                      extra.sendNotification({
+                        method: 'notifications/progress',
+                        params: {
+                          progressToken,
+                          progress: progress.progress,
+                          total: progress.total,
+                          message: progress.message
+                        }
+                      })
+                  })
+            });
+          }
+        );
       }
     },
     dependencies,

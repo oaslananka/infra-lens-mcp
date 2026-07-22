@@ -26,7 +26,8 @@ See the [MCP 2025-11-25 compliance matrix](./docs/compliance/mcp-2025-11-25.md) 
 
 | Tool | Purpose |
 | --- | --- |
-| `analyze_server` | Analyze a sampled snapshot against approved baselines, then store it as an observation |
+| `analyze_server` | Analyze a bounded sampled window with progress/cancellation support, then store only the completed observation |
+| `analyze_server_snapshot` | Analyze and store one immediate snapshot without a sampling delay |
 | `snapshot` | Store a point-in-time observation without anomaly analysis |
 | `record_baseline` | Save a labeled healthy-state sample |
 | `compare_to_baseline` | Compare current state with a named baseline |
@@ -36,7 +37,7 @@ See the [MCP 2025-11-25 compliance matrix](./docs/compliance/mcp-2025-11-25.md) 
 | `draft_incident_report` | Draft an incident report and postmortem from persisted observations |
 | `compare_incident_windows` | Compare adjacent windows for one host or the same window across two hosts |
 
-All tools return both readable JSON text and MCP `structuredContent` validated by declared `outputSchema` definitions, so clients and agents can consume responses without parsing the text block. Collection tools include a `warnings` array when optional sections cannot be collected but a partial snapshot is still usable.
+All tools return both readable JSON text and MCP `structuredContent` validated by declared `outputSchema` definitions, so clients and agents can consume responses without parsing the text block. Collection tools include a `warnings` array when optional sections cannot be collected but a partial snapshot is still usable. Use `analyze_server_snapshot` for interactive checks; use `analyze_server` only when a sampled window is required. Sampled analysis emits MCP progress when the client supplies a progress token and never persists a cancelled partial run.
 
 ## Requirements
 
@@ -127,7 +128,7 @@ Process command arguments are not collected by the default process command. Secr
 
 ## HTTP Transport
 
-Run the Streamable HTTP transport locally. The canonical MCP endpoint is `http://127.0.0.1:3000/mcp` unless `MCP_HTTP_ENDPOINT_PATH` is changed. HTTP mode is stateless today: the server does not issue or accept `MCP-Session-Id`, and only POST JSON-RPC calls are supported on the MCP endpoint.
+Run the Streamable HTTP transport locally. The canonical MCP endpoint is `http://127.0.0.1:3000/mcp` unless `MCP_HTTP_ENDPOINT_PATH` is changed. HTTP mode is stateless today: the server does not issue or accept `MCP-Session-Id`, and only POST JSON-RPC calls are supported on the MCP endpoint. `MCP_HTTP_REQUEST_TIMEOUT_MS` and any proxy timeout must exceed the requested sampled window; otherwise use `analyze_server_snapshot`. stdio has no server-owned wall-clock request timeout, so the client controls its timeout and MCP cancellation.
 
 ```bash
 MCP_HTTP_HOST=127.0.0.1 MCP_HTTP_PORT=3000 node dist/server-http.js

@@ -8,4 +8,4 @@
 
 > **RemediationPlanInput** = `z.infer`\<*typeof* [`RemediationPlanSchema`](../variables/RemediationPlanSchema.md)\>
 
-Defined in: [types.ts:342](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L342)
+Defined in: [types.ts:351](https://github.com/oaslananka/infra-lens-mcp/blob/main/src/types.ts#L351)

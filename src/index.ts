@@ -1,5 +1,7 @@
 export {
+  AnalyzeOutputSchema,
   AnalyzeSchema,
+  AnalyzeSnapshotSchema,
   BaselineSchema,
   CapabilitySchema,
   CompareIncidentWindowsSchema,
@@ -98,7 +100,8 @@ export type {
   ToolDefinitionTuple,
   ToolDependencies,
   ToolHandler,
-  ToolRegistrar
+  ToolRegistrar,
+  ToolRequestContext
 } from './server-core.js';
 export type {
   CommandResult,
@@ -111,6 +114,7 @@ export type {
   AnalysisThresholds,
   Anomaly,
   AnalyzeInput,
+  AnalyzeSnapshotInput,
   BaselineInput,
   CapabilityInput,
   CollectionOptions,
@@ -129,6 +133,8 @@ export type {
   ProcessMetric,
   RemediationPlanInput,
   RuntimeProfile,
+  SamplingControl,
+  SamplingProgress,
   SnapshotClassification,
   SystemMetric,
   SnapshotInput,
