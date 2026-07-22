@@ -23,6 +23,8 @@ The canonical production sequence is:
 
 The dispatch step is explicit because events created with the repository `GITHUB_TOKEN` do not normally start additional workflow runs; `repository_dispatch` is an intentional exception supported by GitHub Actions. Implementation pull requests and ordinary pushes never publish production artifacts.
 
+Package-bundled documentation changes are visible on GitHub as soon as they merge, but npm, MCP Registry, and GHCR remain bound to the last immutable release tag. When maintainers intentionally need those bundled documents synchronized across every publication channel, use a reviewed patch release and a `Release-As: X.Y.Z` commit footer. Never republish an existing version or move an existing tag.
+
 ## Legacy 1.0.6 publication
 
 `infra-lens-mcp@1.0.6` was published manually on July 6, 2026 from commit `7aa3742daa224019cf9b0ab35bc2d0d9c809e12b`. The same version is active as `io.github.oaslananka/infra-lens-mcp@1.0.6` in the MCP Registry.
