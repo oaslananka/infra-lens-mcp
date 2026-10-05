@@ -1,81 +1,116 @@
 {
   "overrides": {
     "qs": {
-      "version": "6.15.2",
+      "version": "6.16.0",
       "owner": "oaslananka",
       "reason": "Runtime security floor for the qs version reached through @modelcontextprotocol/sdk, Express, and body-parser.",
-      "upstream": "https://github.com/ljharb/qs/releases/tag/v6.15.2",
-      "reviewBy": "2026-08-31"
+      "upstream": "https://github.com/ljharb/qs/releases/tag/v6.16.0",
+      "reviewBy": "2026-12-31"
     },
     "test-exclude": {
       "version": "8.0.0",
       "owner": "oaslananka",
       "reason": "Development-only coverage-tooling floor while Jest and babel-plugin-istanbul retain broader transitive ranges.",
       "upstream": "https://registry.npmjs.org/test-exclude/8.0.0",
-      "reviewBy": "2026-08-31"
+      "reviewBy": "2026-12-31"
     },
     "js-yaml": {
-      "version": "5.2.1",
+      "version": "5.4.2",
       "owner": "oaslananka",
       "reason": "Development-only parser security floor for the Istanbul/Jest configuration-loading chain affected by GHSA-g796-fgmg-93mv and GHSA-724g-mxrg-4qvm.",
-      "upstream": "https://github.com/nodeca/js-yaml/releases/tag/5.2.1",
-      "reviewBy": "2026-08-31"
+      "upstream": "https://github.com/nodeca/js-yaml/releases/tag/5.4.2",
+      "reviewBy": "2026-12-31"
     },
     "hono": {
-      "version": "4.12.27",
+      "version": "4.13.13",
       "owner": "oaslananka",
-      "reason": "Runtime security floor for the Hono version reached through @modelcontextprotocol/sdk and @hono/node-server, including fixes for GHSA-hvrm-45r6-mjfj, GHSA-w62v-xxxg-mg59, and GHSA-xgm2-5f3f-mvvc.",
-      "upstream": "https://github.com/honojs/hono/releases/tag/v4.12.27",
-      "reviewBy": "2026-08-31"
+      "reason": "Runtime security floor for the Hono version reached through @modelcontextprotocol/sdk and @hono/node-server, including fixes for GHSA-hvrm-45r6-mjfj, GHSA-w62v-xxxg-mg59, GHSA-xgm2-5f3f-mvvc, GHSA-hxh3-vqpv-xpqv, and GHSA-79qm-7rj5-m7r9.",
+      "upstream": "https://github.com/honojs/hono/releases/tag/v4.13.13",
+      "reviewBy": "2026-12-31"
     },
     "body-parser": {
       "version": "2.3.0",
       "owner": "oaslananka",
       "reason": "Runtime denial-of-service security floor for the Express dependency reached through @modelcontextprotocol/sdk, affected by GHSA-v422-hmwv-36x6.",
       "upstream": "https://github.com/advisories/GHSA-v422-hmwv-36x6",
-      "reviewBy": "2026-08-31"
+      "reviewBy": "2026-12-31"
     },
     "@babel/core": {
       "version": "7.29.7",
       "owner": "oaslananka",
       "reason": "Development-only security floor for the Jest and Istanbul transform chain affected by GHSA-4x5r-pxfx-6jf8.",
       "upstream": "https://github.com/advisories/GHSA-4x5r-pxfx-6jf8",
-      "reviewBy": "2026-08-31"
+      "reviewBy": "2026-12-31"
     },
     "brace-expansion@>=2.0.0 <3.0.0": {
-      "version": "2.1.2",
+      "version": "2.1.7",
       "owner": "oaslananka",
       "reason": "Development-toolchain security floor for Jest glob/minimatch paths affected by GHSA-3jxr-9vmj-r5cp.",
       "upstream": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
-      "reviewBy": "2026-08-31"
+      "reviewBy": "2026-12-31"
     },
     "brace-expansion@>=3.0.0": {
-      "version": "5.0.7",
+      "version": "5.0.12",
       "owner": "oaslananka",
       "reason": "Development-toolchain security floor for ESLint, TypeScript-ESLint, TypeDoc, and Istanbul minimatch paths affected by GHSA-3jxr-9vmj-r5cp.",
       "upstream": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
-      "reviewBy": "2026-08-31"
+      "reviewBy": "2026-12-31"
     },
     "@hono/node-server": {
-      "version": "2.0.10",
+      "version": "2.1.3",
       "owner": "oaslananka",
       "reason": "Runtime security floor for the MCP SDK HTTP server chain affected by GHSA-frvp-7c67-39w9 and GHSA-9mqv-5hh9-4cgg; the upstream SDK still permits vulnerable versions.",
       "upstream": "https://github.com/advisories/GHSA-9mqv-5hh9-4cgg",
-      "reviewBy": "2026-08-31"
+      "reviewBy": "2026-12-31"
     },
     "fast-uri": {
-      "version": "3.1.4",
+      "version": "4.2.1",
       "owner": "oaslananka",
       "reason": "Runtime security floor for the AJV URI validation chain affected by GHSA-4c8g-83qw-93j6 and GHSA-v2hh-gcrm-f6hx.",
       "upstream": "https://github.com/advisories/GHSA-v2hh-gcrm-f6hx",
-      "reviewBy": "2026-08-31"
+      "reviewBy": "2026-12-31"
     },
     "linkify-it": {
-      "version": "5.0.2",
+      "version": "6.1.0",
       "owner": "oaslananka",
       "reason": "Development-only security floor for the TypeDoc markdown rendering chain affected by GHSA-v245-v573-v5vm.",
       "upstream": "https://github.com/advisories/GHSA-v245-v573-v5vm",
-      "reviewBy": "2026-08-31"
+      "reviewBy": "2026-12-31"
+    },
+    "smol-toml": {
+      "version": "1.9.0",
+      "owner": "oaslananka",
+      "reason": "Development-only security floor for Knip TOML parsing affected by GHSA-7w5x-hrqm-74c2.",
+      "upstream": "https://github.com/advisories/GHSA-7w5x-hrqm-74c2",
+      "reviewBy": "2026-12-31"
+    },
+    "browserslist": {
+      "version": "4.29.3",
+      "owner": "oaslananka",
+      "reason": "Development-only security floor for the Babel/Jest target-resolution chain affected by GHSA-42m7-4cgv-6x27.",
+      "upstream": "https://github.com/advisories/GHSA-42m7-4cgv-6x27",
+      "reviewBy": "2026-12-31"
+    },
+    "ip-address": {
+      "version": "10.7.3",
+      "owner": "oaslananka",
+      "reason": "Runtime security floor for the Express rate-limit dependency reached through @modelcontextprotocol/sdk, affected by GHSA-mwp4-54f8-5fhr, GHSA-h3mg-xc3c-68pw, and GHSA-54272-69198.",
+      "upstream": "https://github.com/advisories/GHSA-mwp4-54f8-5fhr",
+      "reviewBy": "2026-12-31"
+    },
+    "markdown-it": {
+      "version": "15.0.2",
+      "owner": "oaslananka",
+      "reason": "Development-only security floor for TypeDoc markdown rendering affected by GHSA-253c-mchw-3w2r.",
+      "upstream": "https://github.com/advisories/GHSA-253c-mchw-3w2r",
+      "reviewBy": "2026-12-31"
+    },
+    "baseline-browser-mapping": {
+      "version": "2.11.27",
+      "owner": "oaslananka",
+      "reason": "Development-only security floor for the Babel/Jest target-resolution chain affected by GHSA-w5vr-8v7q-w6rv.",
+      "upstream": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv",
+      "reviewBy": "2026-12-31"
     }
   },
   "releaseAgeExceptions": {}

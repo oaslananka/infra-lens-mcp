@@ -4,14 +4,19 @@ allowBuilds:
   ssh2: true
   unrs-resolver: true
 overrides:
-  qs: 6.15.2
+  qs: 6.16.0
   test-exclude: 8.0.0
-  js-yaml: 5.2.1
-  hono: 4.12.27
-  '@hono/node-server': 2.0.10
-  fast-uri: 3.1.4
-  linkify-it: 5.0.2
+  js-yaml: 5.4.2
+  hono: 4.13.13
+  '@hono/node-server': 2.1.3
+  fast-uri: 4.2.1
+  linkify-it: 6.1.0
   body-parser: 2.3.0
   '@babel/core': 7.29.7
-  'brace-expansion@>=2.0.0 <3.0.0': 2.1.2
-  'brace-expansion@>=3.0.0': 5.0.7
+  'brace-expansion@>=2.0.0 <3.0.0': 2.1.7
+  'brace-expansion@>=3.0.0': 5.0.12
+  smol-toml: 1.9.0
+  browserslist: 4.29.3
+  ip-address: 10.7.3
+  markdown-it: 15.0.2
+  baseline-browser-mapping: 2.11.27
