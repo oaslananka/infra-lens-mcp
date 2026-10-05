@@ -71,7 +71,7 @@
       "reviewBy": "2026-12-31"
     },
     "linkify-it": {
-      "version": "6.1.0",
+      "version": "5.0.2",
       "owner": "oaslananka",
       "reason": "Development-only security floor for the TypeDoc markdown rendering chain affected by GHSA-v245-v573-v5vm.",
       "upstream": "https://github.com/advisories/GHSA-v245-v573-v5vm",
