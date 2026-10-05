@@ -148,6 +148,18 @@ Run `pnpm run check:licenses` before changing license metadata, dependency manif
 When adding a new file, keep it covered by `REUSE.toml` or add file-specific SPDX metadata if it uses a different license. When adding a dependency, run `pnpm run check:licenses`; if the dependency introduces a new license expression, either choose a dependency with an already-approved license or update `license-policy.json` with a review note in the pull request.
 ### Development-toolchain security floors
 
-The pnpm override registry pins development-toolchain security floors including `@babel/core` 7.29.7, patched `brace-expansion` lines, and `js-yaml` 5.2.1. These overrides are governed by `dependency-overrides.json` and must be removed when upstream dependency graphs resolve to fixed compatible versions without overrides.
+The pnpm override registry pins development-toolchain security floors including `@babel/core` 7.29.7, patched `brace-expansion` lines, and `js-yaml` 5.4.2. These overrides are governed by `dependency-overrides.json` and must be removed when upstream dependency graphs resolve to fixed compatible versions without overrides.
 
-The override registry also pins `brace-expansion` 2.x to `2.1.2` and 3.x-or-newer dependency paths to `5.0.7` for the development toolchain affected by `GHSA-3jxr-9vmj-r5cp`. These overrides remain governed and must be removed when Jest, ESLint, TypeDoc, and their transitive minimatch paths resolve safely without them.
+The override registry also pins `brace-expansion` 2.x to `2.1.7` and 3.x-or-newer dependency paths to `5.0.12` for the development toolchain affected by `GHSA-3jxr-9vmj-r5cp`. These overrides remain governed and must be removed when Jest, ESLint, TypeDoc, and their transitive minimatch paths resolve safely without them.
+
+## OpenSSF Scorecard status
+
+The table records the current disposition of the Scorecard findings that triggered this review. A status of “no current result” means the latest OSSF Scorecard v2.4.3 SARIF did not emit that finding; it is not treated as evidence for a check the current tool no longer reports. Entries are reviewed quarterly.
+
+| Check ID | Status | Rationale | Next Review |
+| --- | --- | --- | --- |
+| `CITestsID` | Passing by repository CI evidence; no current Scorecard result | Protected CI runs quick and full gates across the supported Node and host matrix. The latest Scorecard v2.4.3 SARIF does not emit `CITestsID`, so the passing claim is grounded in repository CI rather than a nonexistent current Scorecard result. | 2027-01-05 |
+| `FuzzingID` | Exception — active Scorecard finding | The latest Scorecard SARIF reports score 0 with “no fuzzer integrations found.” Property-based testing with `fast-check` provides partial input-space exploration, but there is no coverage-guided fuzzing integration yet. Adding one requires a separate reviewed CI/runtime change. | 2027-01-05 |
+| `VulnerabilitiesID` | Remediated; no current finding | Dependency remediation from #127 is merged. The latest Scorecard run includes the `VulnerabilitiesID` rule definition but emits no result for it, while OSV PR Scan, Dependency Review, package audit, and repository security gates are green. | 2027-01-05 |
+| `CIIBestPracticesID` | Historical finding; not emitted by current Scorecard | The latest Scorecard v2.4.3 output does not emit this rule or a result. Do not infer a formal CII/OpenSSF Best Practices badge from its absence; re-evaluate if the check returns or a badge process is started. | 2027-01-05 |
+| `BranchProtectionID` | Passing by repository-control evidence; no current Scorecard result | The active `main-ci-solo-maintainer` ruleset enforces pull-request, linear-history, required-check, and conversation-resolution controls documented in `docs/governance/repository-controls.md`. The latest Scorecard output does not emit this legacy rule. | 2027-01-05 |
