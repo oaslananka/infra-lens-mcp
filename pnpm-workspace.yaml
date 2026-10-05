@@ -18,5 +18,5 @@ overrides:
   smol-toml: 1.9.0
   browserslist: 4.29.3
   ip-address: 10.7.3
-  markdown-it: 15.0.2
+  markdown-it: 14.3.2
   baseline-browser-mapping: 2.11.27

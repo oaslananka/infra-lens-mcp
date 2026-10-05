@@ -99,7 +99,7 @@
       "reviewBy": "2026-12-31"
     },
     "markdown-it": {
-      "version": "15.0.2",
+      "version": "14.3.2",
       "owner": "oaslananka",
       "reason": "Development-only security floor for TypeDoc markdown rendering affected by GHSA-253c-mchw-3w2r.",
       "upstream": "https://github.com/advisories/GHSA-253c-mchw-3w2r",
