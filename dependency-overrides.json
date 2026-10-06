@@ -66,7 +66,7 @@
     "fast-uri": {
       "version": "4.2.1",
       "owner": "oaslananka",
-      "reason": "Runtime security floor for the AJV URI validation chain affected by GHSA-4c8g-83qw-93j6 and GHSA-v2hh-gcrm-f6hx.",
+      "reason": "Runtime security floor for the AJV URI validation chain affected by GHSA-4c8g-83qw-93j6, GHSA-v2hh-gcrm-f6hx, GHSA-5jgf-p345-68v8 (CVE-2026-75931), GHSA-f65p-4m7j-42xc (CVE-2026-75975), GHSA-fph4-wmhf-6fwf (CVE-2026-75899), and GHSA-jqff-g426-hqxp (CVE-2026-76172).",
       "upstream": "https://github.com/advisories/GHSA-v2hh-gcrm-f6hx",
       "reviewBy": "2026-12-31"
     },
@@ -87,7 +87,7 @@
     "browserslist": {
       "version": "4.29.3",
       "owner": "oaslananka",
-      "reason": "Development-only security floor for the Babel/Jest target-resolution chain affected by GHSA-42m7-4cgv-6x27.",
+      "reason": "Development-only security floor for the Babel/Jest target-resolution chain affected by GHSA-42m7-4cgv-6x27, GHSA-73wf-gq98-2v4g (CVE-2026-73088), and GHSA-c83g-rgw3-j3cx (CVE-2026-73089).",
       "upstream": "https://github.com/advisories/GHSA-42m7-4cgv-6x27",
       "reviewBy": "2026-12-31"
     },
@@ -110,6 +110,13 @@
       "owner": "oaslananka",
       "reason": "Development-only security floor for the Babel/Jest target-resolution chain affected by GHSA-w5vr-8v7q-w6rv.",
       "upstream": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv",
+      "reviewBy": "2026-12-31"
+    },
+    "proxy-addr": {
+      "version": "2.0.8",
+      "owner": "oaslananka",
+      "reason": "Runtime security floor for the Express dependency reached through @modelcontextprotocol/sdk, affected by GHSA-jqcg-44mw-7w3h (IP spoofing via IPv4-mapped IPv6 trust subnet).",
+      "upstream": "https://github.com/advisories/GHSA-jqcg-44mw-7w3h",
       "reviewBy": "2026-12-31"
     }
   },
