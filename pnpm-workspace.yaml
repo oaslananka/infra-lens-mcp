@@ -20,3 +20,4 @@ overrides:
   ip-address: 10.7.3
   markdown-it: 14.3.2
   baseline-browser-mapping: 2.11.27
+  proxy-addr: 2.0.8

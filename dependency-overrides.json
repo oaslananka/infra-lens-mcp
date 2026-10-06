@@ -111,6 +111,13 @@
       "reason": "Development-only security floor for the Babel/Jest target-resolution chain affected by GHSA-w5vr-8v7q-w6rv.",
       "upstream": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv",
       "reviewBy": "2026-12-31"
+    },
+    "proxy-addr": {
+      "version": "2.0.8",
+      "owner": "oaslananka",
+      "reason": "Runtime security floor for the Express dependency reached through @modelcontextprotocol/sdk, affected by GHSA-jqcg-44mw-7w3h (IP spoofing via IPv4-mapped IPv6 trust subnet).",
+      "upstream": "https://github.com/advisories/GHSA-jqcg-44mw-7w3h",
+      "reviewBy": "2026-12-31"
     }
   },
   "releaseAgeExceptions": {}
