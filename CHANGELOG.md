@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.5.1...infra-lens-mcp-v1.5.2) (2026-10-07)
+
+
+### Bug Fixes
+
+* fixable dependency vulnerabilities and renew expired override reviews ([#127](https://github.com/oaslananka/infra-lens-mcp/issues/127)) ([f8dfccf](https://github.com/oaslananka/infra-lens-mcp/commit/f8dfccf39b1973444823f1255da02f0c5747a244))
+* Security remediation: oaslananka/infra-lens-mcp code scanning (7) ([#130](https://github.com/oaslananka/infra-lens-mcp/issues/130)) ([e28e76a](https://github.com/oaslananka/infra-lens-mcp/commit/e28e76a78db15080a058a8be2e13e5c51189a79e))
+* **security:** refresh Scorecard action to v2.4.4 ([#132](https://github.com/oaslananka/infra-lens-mcp/issues/132)) ([53138e6](https://github.com/oaslananka/infra-lens-mcp/commit/53138e613da84ff6a49a35795e6a9bdecb805898))
+
 ## [1.5.1](https://github.com/oaslananka/infra-lens-mcp/compare/infra-lens-mcp-v1.5.0...infra-lens-mcp-v1.5.1) (2026-07-22)
 
 
