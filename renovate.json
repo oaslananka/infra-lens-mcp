@@ -12,58 +12,107 @@
     ":configMigration"
   ],
   "timezone": "Europe/Istanbul",
-  "labels": ["dependencies"],
-  "dependencyDashboardLabels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
+  "dependencyDashboardLabels": [
+    "dependencies"
+  ],
   "dependencyDashboardTitle": "Dependency Dashboard",
   "dependencyDashboardOSVVulnerabilitySummary": "unresolved",
-  "assignees": ["oaslananka"],
+  "assignees": [
+    "oaslananka"
+  ],
   "prHourlyLimit": 2,
   "prConcurrentLimit": 8,
   "branchConcurrentLimit": 8,
   "commitHourlyLimit": 4,
   "rangeStrategy": "bump",
   "rebaseWhen": "behind-base-branch",
-  "ignorePaths": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**"
+  ],
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 6am on monday"],
+    "schedule": [
+      "before 6am on monday"
+    ],
     "automerge": false,
-    "addLabels": ["lockfile"]
+    "addLabels": [
+      "lockfile",
+      "automerge:enabled",
+      "risk:low"
+    ]
   },
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"],
+    "labels": [
+      "dependencies",
+      "security",
+      "risk:high",
+      "requires-review"
+    ],
     "prCreation": "immediate",
     "vulnerabilityFixStrategy": "highest"
   },
-  "osvVulnerabilityAlerts": true,
+  "osvVulnerabilityAlerts": false,
   "packageRules": [
     {
+      "description": "Delegate low-risk dependency merging to Mergify.",
+      "matchUpdateTypes": [
+        "patch",
+        "digest",
+        "pin"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "automerge:enabled",
+        "risk:low"
+      ]
+    },
+    {
       "description": "Require explicit approval for major version changes.",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "dependencyDashboardApproval": true,
-      "addLabels": ["major", "requires-review"],
+      "addLabels": [
+        "major",
+        "requires-review"
+      ],
       "prPriority": -5,
       "automerge": false
     },
     {
       "description": "Apply npm release-age guard to reduce supply-chain churn.",
-      "matchDatasources": ["npm"],
+      "matchDatasources": [
+        "npm"
+      ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
       "internalChecksFilter": "strict",
-      "addLabels": ["javascript"]
+      "addLabels": [
+        "javascript"
+      ]
     },
     {
       "description": "Pin and group non-major GitHub Actions updates.",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
       "internalChecksFilter": "strict",
       "pinDigests": true,
       "groupName": "GitHub Actions",
       "groupSlug": "github-actions",
-      "addLabels": ["ci", "github-actions"]
+      "addLabels": [
+        "ci",
+        "github-actions"
+      ]
     },
     {
       "description": "Group TypeScript quality toolchain updates.",
@@ -81,75 +130,129 @@
       ],
       "groupName": "TypeScript quality toolchain",
       "groupSlug": "typescript-quality-toolchain",
-      "addLabels": ["javascript"]
+      "addLabels": [
+        "javascript"
+      ]
     },
     {
       "description": "Group container image updates.",
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
       "internalChecksFilter": "strict",
       "groupName": "Container images",
       "groupSlug": "container-images",
-      "addLabels": ["docker"]
+      "addLabels": [
+        "docker"
+      ]
     },
     {
       "description": "Automerge digest-only updates after checks pass.",
-      "matchUpdateTypes": ["digest"],
-      "automerge": true,
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "automerge": false,
       "automergeType": "pr",
-      "platformAutomerge": false,
-      "addLabels": ["automerge"]
+      "addLabels": [
+        "automerge",
+        "automerge:enabled"
+      ]
     },
     {
       "description": "MCP SDK and infrastructure schema/runtime dependencies require manual review.",
-      "matchPackageNames": ["@modelcontextprotocol/sdk", "zod", "systeminformation"],
+      "matchPackageNames": [
+        "@modelcontextprotocol/sdk",
+        "zod",
+        "systeminformation"
+      ],
       "dependencyDashboardApproval": true,
       "automerge": false,
-      "addLabels": ["requires-review", "runtime"]
+      "addLabels": [
+        "requires-review",
+        "runtime"
+      ]
     },
     {
       "description": "Native database and SSH transport dependencies require explicit compatibility review.",
-      "matchPackageNames": ["better-sqlite3", "ssh2"],
+      "matchPackageNames": [
+        "better-sqlite3",
+        "ssh2"
+      ],
       "dependencyDashboardApproval": true,
       "automerge": false,
-      "addLabels": ["runtime", "requires-review", "risk:medium"]
+      "addLabels": [
+        "runtime",
+        "requires-review",
+        "risk:medium"
+      ]
     },
     {
       "description": "Keep Node runtime jumps explicit.",
-      "matchPackageNames": ["node", "@types/node"],
+      "matchPackageNames": [
+        "node",
+        "@types/node"
+      ],
       "dependencyDashboardApproval": true,
-      "addLabels": ["runtime", "requires-review"]
+      "addLabels": [
+        "runtime",
+        "requires-review"
+      ]
     },
     {
       "description": "Keep pnpm packageManager and workflow bootstrap pins in one reviewed update.",
-      "matchPackageNames": ["pnpm"],
+      "matchPackageNames": [
+        "pnpm"
+      ],
       "groupName": "pnpm toolchain",
       "groupSlug": "pnpm-toolchain",
-      "addLabels": ["javascript", "ci"]
+      "addLabels": [
+        "javascript",
+        "ci"
+      ]
     },
     {
       "description": "Group pre-commit hook revisions and hold them for the release-age window.",
-      "matchManagers": ["pre-commit"],
+      "matchManagers": [
+        "pre-commit"
+      ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
       "internalChecksFilter": "strict",
       "groupName": "Pre-commit hooks",
       "groupSlug": "pre-commit-hooks",
-      "addLabels": ["security", "area:dx"]
+      "addLabels": [
+        "security",
+        "area:dx"
+      ]
     },
     {
       "description": "Group repository-local mise security tooling updates.",
-      "matchManagers": ["mise"],
-      "matchPackageNames": ["pre-commit", "sonarqube-cli", "actionlint"],
+      "matchManagers": [
+        "mise"
+      ],
+      "matchPackageNames": [
+        "pre-commit",
+        "sonarqube-cli",
+        "actionlint"
+      ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
       "internalChecksFilter": "strict",
       "groupName": "Local security tooling",
       "groupSlug": "local-security-tooling",
       "automerge": false,
-      "addLabels": ["security", "dependencies", "requires-review"]
+      "addLabels": [
+        "security",
+        "dependencies",
+        "requires-review"
+      ]
     },
     {
       "description": "Security analysis tool updates require explicit review.",
@@ -168,17 +271,26 @@
       "prCreation": "not-pending",
       "internalChecksFilter": "strict",
       "automerge": false,
-      "addLabels": ["security", "requires-review"]
+      "addLabels": [
+        "security",
+        "requires-review"
+      ]
     }
   ],
   "automergeStrategy": "squash",
-  "postUpdateOptions": ["pnpmDedupe"],
+  "postUpdateOptions": [
+    "pnpmDedupe"
+  ],
   "customManagers": [
     {
       "customType": "regex",
       "description": "Keep pnpm workflow bootstrap pins aligned with packageManager.",
-      "managerFilePatterns": ["/^\\.github\\/workflows\\/.*\\.ya?ml$/"],
-      "matchStrings": ["corepack prepare pnpm@(?<currentValue>\\d+\\.\\d+\\.\\d+) --activate"],
+      "managerFilePatterns": [
+        "/^\\.github\\/workflows\\/.*\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "corepack prepare pnpm@(?<currentValue>\\d+\\.\\d+\\.\\d+) --activate"
+      ],
       "depNameTemplate": "pnpm",
       "datasourceTemplate": "npm",
       "versioningTemplate": "npm"
@@ -186,7 +298,9 @@
     {
       "customType": "regex",
       "description": "Update pinned Python security tooling used by GitHub Actions.",
-      "managerFilePatterns": ["/^\\.github\\/workflows\\/.*\\.ya?ml$/"],
+      "managerFilePatterns": [
+        "/^\\.github\\/workflows\\/.*\\.ya?ml$/"
+      ],
       "matchStrings": [
         "python -m pip install --user (?<depName>[a-z0-9-]+)==(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
@@ -195,7 +309,9 @@
     {
       "customType": "regex",
       "description": "Update the pinned actionlint release.",
-      "managerFilePatterns": ["/^\\.github\\/workflows\\/security\\.yml$/"],
+      "managerFilePatterns": [
+        "/^\\.github\\/workflows\\/security\\.yml$/"
+      ],
       "matchStrings": [
         "go install github\\.com/rhysd/actionlint/cmd/actionlint@(?<currentValue>v?\\d+\\.\\d+\\.\\d+)"
       ],
@@ -205,7 +321,9 @@
     {
       "customType": "regex",
       "description": "Update the pinned Gitleaks release.",
-      "managerFilePatterns": ["/^\\.github\\/workflows\\/security\\.yml$/"],
+      "managerFilePatterns": [
+        "/^\\.github\\/workflows\\/security\\.yml$/"
+      ],
       "matchStrings": [
         "go install github\\.com/zricethezav/gitleaks/v8@(?<currentValue>v?\\d+\\.\\d+\\.\\d+)"
       ],
@@ -215,7 +333,9 @@
     {
       "customType": "regex",
       "description": "Update the digest-pinned Renovate validator container used in CI.",
-      "managerFilePatterns": ["/^\\.github\\/workflows\\/security\\.yml$/"],
+      "managerFilePatterns": [
+        "/^\\.github\\/workflows\\/security\\.yml$/"
+      ],
       "matchStrings": [
         "renovate/renovate:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
@@ -226,7 +346,9 @@
     {
       "customType": "regex",
       "description": "Update the digest-pinned QEMU binfmt image used by multi-arch release builds.",
-      "managerFilePatterns": ["/^\\.github\\/workflows\\/publish-ghcr\\.yml$/"],
+      "managerFilePatterns": [
+        "/^\\.github\\/workflows\\/publish-ghcr\\.yml$/"
+      ],
       "matchStrings": [
         "docker\\.io/(?<depName>tonistiigi/binfmt):(?<currentValue>qemu-v\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
@@ -236,8 +358,12 @@
     {
       "customType": "regex",
       "description": "Update the Cosign binary pinned inside the installer action.",
-      "managerFilePatterns": ["/^\\.github\\/workflows\\/publish-ghcr\\.yml$/"],
-      "matchStrings": ["cosign-release: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "managerFilePatterns": [
+        "/^\\.github\\/workflows\\/publish-ghcr\\.yml$/"
+      ],
+      "matchStrings": [
+        "cosign-release: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
       "depNameTemplate": "sigstore/cosign",
       "datasourceTemplate": "github-releases"
     }
@@ -246,5 +372,10 @@
     "enabled": true
   },
   "configMigration": true,
-  "schedule": ["after 3am and before 7am on monday"]
+  "schedule": [
+    "after 3am and before 7am on monday"
+  ],
+  "automerge": false,
+  "automergeType": "pr",
+  "platformAutomerge": false
 }
