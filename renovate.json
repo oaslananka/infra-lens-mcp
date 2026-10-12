@@ -28,16 +28,22 @@
     "enabled": true,
     "schedule": ["before 6am on monday"],
     "automerge": false,
-    "addLabels": ["lockfile"]
+    "addLabels": ["lockfile", "automerge:enabled", "risk:low"]
   },
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"],
+    "labels": ["dependencies", "security", "risk:high", "requires-review"],
     "prCreation": "immediate",
     "vulnerabilityFixStrategy": "highest"
   },
   "osvVulnerabilityAlerts": true,
   "packageRules": [
+    {
+      "description": "Delegate low-risk dependency merging to Mergify.",
+      "matchUpdateTypes": ["patch", "digest", "pin"],
+      "automerge": false,
+      "addLabels": ["automerge:enabled", "risk:low"]
+    },
     {
       "description": "Require explicit approval for major version changes.",
       "matchUpdateTypes": ["major"],
@@ -97,10 +103,9 @@
     {
       "description": "Automerge digest-only updates after checks pass.",
       "matchUpdateTypes": ["digest"],
-      "automerge": true,
+      "automerge": false,
       "automergeType": "pr",
-      "platformAutomerge": false,
-      "addLabels": ["automerge"]
+      "addLabels": ["automerge", "automerge:enabled"]
     },
     {
       "description": "MCP SDK and infrastructure schema/runtime dependencies require manual review.",
@@ -246,5 +251,8 @@
     "enabled": true
   },
   "configMigration": true,
-  "schedule": ["after 3am and before 7am on monday"]
+  "schedule": ["after 3am and before 7am on monday"],
+  "automerge": false,
+  "automergeType": "pr",
+  "platformAutomerge": false
 }
