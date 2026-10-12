@@ -1,6 +1,6 @@
 {
   "name": "infra-lens-mcp",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "packageManager": "pnpm@11.15.1",
   "mcpName": "io.github.oaslananka/infra-lens-mcp",
   "description": "MCP server that connects to Linux servers over SSH, collects live metrics, builds statistical baselines, detects anomalies with z-score analysis, and explains infrastructure health in plain English",
@@ -151,7 +151,7 @@
     "jest-junit": "17.0.0",
     "knip": "6.14.2",
     "prettier": "3.8.3",
-    "ts-jest": "29.4.11",
+    "ts-jest": "29.4.14",
     "ts-node": "10.9.2",
     "typedoc": "0.28.19",
     "typedoc-plugin-markdown": "4.11.0",
